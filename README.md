@@ -15,9 +15,9 @@ Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden S
 
 | Position | Spielzüge | Was man lernt |
 |---|---|---|
-| 🎯 Aufbau (Point Guard) | Aufbau über die Mitte · Schnellangriff 3 gegen 2 · Angriff über den Flügel · Backdoor-Cut | Hilfe erkennen und den freien Mitspieler finden, Korbleger bei freier Bahn, Wurf bei viel Platz |
-| 🏹 Flügel | Pass auf den Flügel · Ohne Ball: Backdoor? · Schnellangriff als Läufer | Nach dem Fangen werfen, ziehen oder weiterpassen; ohne Ball backdoor schneiden oder den Ball fordern |
-| 💪 Center | Ball am Brett · Ball an der Freiwurflinie · Aufbau zieht zum Korb | Allein: drehen und Korbleger; Doppeln: rauspassen; Backdoor-Pass von der Freiwurflinie; ohne Ball zum Korb laufen oder Platz lassen |
+| ① Aufbau (Point Guard) | Aufbau über die Mitte · Schnellangriff 3 gegen 2 · Angriff über den Flügel · Backdoor-Cut | Hilfe erkennen und den freien Mitspieler finden, Korbleger bei freier Bahn, Wurf bei viel Platz |
+| ③ Flügel | Pass auf den Flügel · Ohne Ball: Backdoor? · Schnellangriff als Läufer | Nach dem Fangen werfen, ziehen oder weiterpassen; ohne Ball backdoor schneiden oder den Ball fordern |
+| ⑤ Center | Ball am Brett · Ball an der Freiwurflinie · Aufbau zieht zum Korb | Allein: drehen und Korbleger; Doppeln: rauspassen; Backdoor-Pass von der Freiwurflinie; ohne Ball zum Korb laufen oder Platz lassen |
 
 Alles bewusst **ohne Blöcke/Screens**. Jeder Spielzug hat mehrere Varianten (wer hilft, wo steht der Verteidiger), Seite und Positionen sind zufällig.
 

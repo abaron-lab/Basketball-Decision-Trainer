@@ -99,8 +99,14 @@ p{margin:6px 0;line-height:1.45;color:#d7deef}
 .br{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-weight:800;font-size:14px}
 .rt{font-size:13px;color:#9fb0d4;font-weight:800}
 .lv.three{grid-template-columns:1fr 1fr 1fr}
+.pico{display:block;color:#7f8fb5;margin:0 0 6px}.pico svg{display:block;width:66px;height:53px}
+.lvb.sel .pico{color:#e9eefb}
+.pb{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1a1300;font:900 12px/1 Nunito,system-ui,sans-serif;font-style:normal;margin-right:7px;vertical-align:-4px;letter-spacing:0}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:1px}
+.dot.l1{background:#2ecc71}.dot.l2{background:#ffc83d}.dot.l3{background:#ff5a4e}
 .lv.three .lvb{padding:10px 9px}.lv.three .lvb span{font-size:11.5px}
-@media (max-width:420px){.lv.three .lvb b{font-size:14.5px}}
+@media (max-width:420px){.lv.three .lvb b{font-size:14px}.lv.three .lvb{padding:10px 8px}.dot{margin-right:5px}}
+#lvl .lvb b{white-space:nowrap}
 .namerow{display:flex;gap:8px}
 .startrow{position:sticky;bottom:-20px;margin:10px -20px -20px;padding:10px 20px 20px;background:linear-gradient(180deg,rgba(18,24,40,0),#121828 35%)}
 .startrow .btn{box-shadow:0 8px 24px rgba(255,200,61,.25)}
@@ -152,9 +158,9 @@ p{margin:6px 0;line-height:1.45;color:#d7deef}
     <p class="sub">Lies die Verteidigung und triff blitzschnell die richtige Entscheidung.</p>
     <div class="sec-t">Deine Position</div>
     <div class="lv three" id="pos">
-      <button class="lvb sel" data-v="pg"><b>🎯 Aufbau</b><span>Du bringst den Ball</span></button>
-      <button class="lvb" data-v="wing"><b>🏹 Flügel</b><span>Werfen &amp; schneiden</span></button>
-      <button class="lvb" data-v="center"><b>💪 Center</b><span>Spiel am Korb</span></button>
+      <button class="lvb sel" data-v="pg"><i class="pico" data-pos="pg"></i><b>Aufbau</b><span>Du bringst den Ball</span></button>
+      <button class="lvb" data-v="wing"><i class="pico" data-pos="wing"></i><b>Flügel</b><span>Werfen &amp; schneiden</span></button>
+      <button class="lvb" data-v="center"><i class="pico" data-pos="center"></i><b>Center</b><span>Spiel am Korb</span></button>
     </div>
     <div class="sec-t">Spielmodus</div>
     <div class="lv two" id="mode">
@@ -165,9 +171,9 @@ p{margin:6px 0;line-height:1.45;color:#d7deef}
     <div class="chips" id="plays"></div>
     <div class="sec-t">Schwierigkeit</div>
     <div class="lv three" id="lvl">
-      <button class="lvb sel" data-l="1"><b>🟢 Anfänger</b><span>Ruhig · 4 s</span></button>
-      <button class="lvb" data-l="2"><b>🟡 Mittel</b><span>Täuschungen · 2,5 s</span></button>
-      <button class="lvb" data-l="3"><b>🔴 Profi</b><span>Mehr Tricks · 1,8 s</span></button>
+      <button class="lvb sel" data-l="1"><b><i class="dot l1"></i>Anfänger</b><span>Ruhig · 4 s</span></button>
+      <button class="lvb" data-l="2"><b><i class="dot l2"></i>Mittel</b><span>Täuschungen · 2,5 s</span></button>
+      <button class="lvb" data-l="3"><b><i class="dot l3"></i>Profi</b><span>Mehr Tricks · 1,8 s</span></button>
     </div>
     <label class="tog"><input type="checkbox" id="noLimit"> Lernmodus (ohne Zeitlimit)</label>
     <div class="row">
@@ -185,13 +191,13 @@ p{margin:6px 0;line-height:1.45;color:#d7deef}
     <p>Du schaust deinem Spieler (<b style="color:#ffd23d">gelber Ring</b>) über die Schulter. Beobachte die <b style="color:#ff7b72">roten Verteidiger</b>. Dann friert das Bild ein, und du entscheidest mit den Tasten unten. Über deinen Mitspielern steht eine <b style="color:#b7a2ff">lila Nummer</b>: Das ist die Pass-Taste für genau diesen Spieler.</p>
     <div class="sec-t">Die wichtigste Regel</div>
     <div class="tip"><div class="ic">👀</div><div><b>Wer hilft, lässt jemanden frei.</b><p>Läuft ein Verteidiger von seinem Spieler weg, um dir zu helfen, ist sein Spieler frei. Finde ihn!</p></div></div>
-    <div class="sec-t">🎯 Aufbau (Point Guard)</div>
+    <div class="sec-t"><i class="pb">1</i>Aufbau (Point Guard)</div>
     <div class="tip"><div class="ic">⬆</div><div><b>Zum Korb oder passen?</b><p>Kommt keiner zur Hilfe, geh zum Korb. Kommt Hilfe, pass zum freien Mitspieler. Weicht dein Verteidiger weit zurück, wirf.</p></div></div>
     <div class="tip"><div class="ic">⚡</div><div><b>Schnellangriff</b><p>Stellt sich dir keiner in den Weg, mach den Korbleger. Sonst pass zum freien Läufer.</p></div></div>
-    <div class="sec-t">🏹 Flügel</div>
-    <div class="tip"><div class="ic">🎯</div><div><b>Nach dem Fangen</b><p>Ist dein Verteidiger weit weg, wirf. Steht er neben dir, zieh zum Korb. Kommt Hilfe, pass weiter.</p></div></div>
+    <div class="sec-t"><i class="pb">3</i>Flügel</div>
+    <div class="tip"><div class="ic">🏀</div><div><b>Nach dem Fangen</b><p>Ist dein Verteidiger weit weg, wirf. Steht er neben dir, zieh zum Korb. Kommt Hilfe, pass weiter.</p></div></div>
     <div class="tip"><div class="ic">↩</div><div><b>Ohne Ball</b><p>Stellt dein Verteidiger den Passweg zu, lauf hinter seinem Rücken zum Korb (Backdoor). Steht er weit weg, fordere den Ball.</p></div></div>
-    <div class="sec-t">💪 Center</div>
+    <div class="sec-t"><i class="pb">5</i>Center</div>
     <div class="tip"><div class="ic">↻</div><div><b>Ball am Brett</b><p>Bist du allein mit deinem Verteidiger, dreh dich zum Korb. Kommt ein zweiter dazu, pass raus zu dem, der frei geworden ist.</p></div></div>
     <div class="tip"><div class="ic">⤓</div><div><b>Wenn der Aufbau zieht</b><p>Hilft dein Verteidiger aus, lauf zum Korb und zeig die Hände. Bleibt er bei dir, halt die Zone frei.</p></div></div>
     <p style="font-size:13px;color:#9fb0d4">Ab „Mittel“ tun manche Verteidiger nur so, als würden sie helfen. Entscheidend ist, wo sie stehen, wenn das Bild einfriert. Am Computer: Zahlen 1–4 für Pässe, ↑ für die blaue Taste, Leertaste für die orange Taste.</p>
@@ -847,18 +853,24 @@ function buildCDive(v,T,L,M){
     notes:{drive:'Dein Verteidiger ist mitgelaufen. Jetzt standen zwei Spieler mehr in der Zone, und dein Aufbau kam nicht durch.',shot:'Dein Verteidiger hat dich allein gelassen. Wärst du zum Korb gelaufen, hättest du den Ball bekommen.'}};
 }
 
-const POS={pg:{name:'Aufbau (Point Guard)',short:'Aufbau',icon:'🎯'},wing:{name:'Flügel',short:'Flügel',icon:'🏹'},center:{name:'Center',short:'Center',icon:'💪'}};
+const POS={pg:{name:'Aufbau (Point Guard)',short:'Aufbau',num:1,at:[30,37]},wing:{name:'Flügel',short:'Flügel',num:3,at:[11,27]},center:{name:'Center',short:'Center',num:5,at:[14.5,12.5]}};
+// Positions-Symbol wie auf der Taktiktafel: Halbfeld mit markierter Position und Nummer
+function posIcon(k){const P=POS[k],[x,y]=P.at;return`<svg viewBox="0 0 60 48" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+<rect x="2" y="2" width="56" height="44" rx="3"/><path d="M6 2v8a24 24 0 0 0 48 0V2"/><rect x="22" y="2" width="16" height="17"/><path d="M22 19a8 8 0 0 0 16 0"/>
+<path d="M25.5 5.5h9"/><circle cx="30" cy="8.6" r="2.2"/>
+<circle cx="${x}" cy="${y}" r="8.4" fill="#ffc83d" stroke="#0d1322" stroke-width="1.5"/><text x="${x}" y="${y+4.2}" text-anchor="middle" fill="#1a1300" stroke="none" font-family="Nunito,Arial,sans-serif" font-weight="900" font-size="12.5">${P.num}</text></svg>`;}
+const posBadge=k=>`<i class="pb">${POS[k].num}</i>`;
 const PLAYS={
-  top:{pos:'pg',icon:'⬆',name:'Aufbau über die Mitte',desc:'Ball nach vorne bringen und die Verteidigung lesen',T:[3.6,3.0,2.6],vars:(M)=>M===5?['drive','helpL','helpR','sag','helpC','helpK']:['drive','helpL','helpR','sag','helpC'],build:buildTop},
-  break:{pos:'pg',icon:'⚡',name:'Schnellangriff',desc:'Ballgewinn! 3 gegen 2 nach vorne',T:[3.3,2.9,2.5],vars:()=>['drive','stopL','stopR'],build:buildBreak},
-  wing:{pos:'pg',icon:'↗',name:'Angriff über den Flügel',desc:'Von der Seite zum Korb ziehen',T:[3.4,3.0,2.6],vars:(M)=>M===5?['drive','helpTop','helpC','helpK','sag']:['drive','helpTop','helpC','sag'],build:buildWing},
-  backdoor:{pos:'pg',icon:'↩',name:'Backdoor-Cut',desc:'Der Verteidiger stellt den Passweg zu …',T:[3.6,3.0,2.6],vars:(M,L)=>L>=2?['cut','cut','helpC']:['cut'],build:buildBackdoor},
-  wcatch:{pos:'wing',icon:'🎯',name:'Pass auf den Flügel',desc:'Fang den Ball und lies deinen Verteidiger',T:[3.6,3.1,2.7],vars:(M)=>M===5?['shot','drive','helpC','helpK']:['shot','drive','helpC'],build:buildWCatch},
-  wcut:{pos:'wing',icon:'↩',name:'Ohne Ball: Backdoor?',desc:'Wo steht dein Verteidiger?',T:[3.4,3.0,2.6],vars:()=>['deny','sag'],build:buildWCut},
-  wbreak:{pos:'wing',icon:'⚡',name:'Schnellangriff als Läufer',desc:'Lauf die Seitenlinie entlang nach vorne',T:[3.4,3.0,2.6],vars:()=>['drive','stopPG','stopOR'],build:buildWBreak},
-  cpost:{pos:'center',icon:'💪',name:'Ball am Brett',desc:'Du bekommst den Ball nah am Korb',T:[3.4,3.0,2.6],vars:(M)=>M===5?['drive','dblW','dblT','dblK']:['drive','dblW','dblT'],build:buildCPost},
-  chigh:{pos:'center',icon:'⬆',name:'Ball an der Freiwurflinie',desc:'Komm hoch und fordere den Ball',T:[3.4,3.0,2.6],vars:()=>['shot','drive','backdoor'],build:buildCHigh},
-  cdive:{pos:'center',icon:'⤓',name:'Aufbau zieht zum Korb',desc:'Du hast keinen Ball. Was machst du?',T:[3.4,3.0,2.6],vars:()=>['help','stay'],build:buildCDive}
+  top:{pos:'pg',name:'Aufbau über die Mitte',desc:'Ball nach vorne bringen und die Verteidigung lesen',T:[3.6,3.0,2.6],vars:(M)=>M===5?['drive','helpL','helpR','sag','helpC','helpK']:['drive','helpL','helpR','sag','helpC'],build:buildTop},
+  break:{pos:'pg',name:'Schnellangriff',desc:'Ballgewinn! 3 gegen 2 nach vorne',T:[3.3,2.9,2.5],vars:()=>['drive','stopL','stopR'],build:buildBreak},
+  wing:{pos:'pg',name:'Angriff über den Flügel',desc:'Von der Seite zum Korb ziehen',T:[3.4,3.0,2.6],vars:(M)=>M===5?['drive','helpTop','helpC','helpK','sag']:['drive','helpTop','helpC','sag'],build:buildWing},
+  backdoor:{pos:'pg',name:'Backdoor-Cut',desc:'Der Verteidiger stellt den Passweg zu …',T:[3.6,3.0,2.6],vars:(M,L)=>L>=2?['cut','cut','helpC']:['cut'],build:buildBackdoor},
+  wcatch:{pos:'wing',name:'Pass auf den Flügel',desc:'Fang den Ball und lies deinen Verteidiger',T:[3.6,3.1,2.7],vars:(M)=>M===5?['shot','drive','helpC','helpK']:['shot','drive','helpC'],build:buildWCatch},
+  wcut:{pos:'wing',name:'Ohne Ball: Backdoor?',desc:'Wo steht dein Verteidiger?',T:[3.4,3.0,2.6],vars:()=>['deny','sag'],build:buildWCut},
+  wbreak:{pos:'wing',name:'Schnellangriff als Läufer',desc:'Lauf die Seitenlinie entlang nach vorne',T:[3.4,3.0,2.6],vars:()=>['drive','stopPG','stopOR'],build:buildWBreak},
+  cpost:{pos:'center',name:'Ball am Brett',desc:'Du bekommst den Ball nah am Korb',T:[3.4,3.0,2.6],vars:(M)=>M===5?['drive','dblW','dblT','dblK']:['drive','dblW','dblT'],build:buildCPost},
+  chigh:{pos:'center',name:'Ball an der Freiwurflinie',desc:'Komm hoch und fordere den Ball',T:[3.4,3.0,2.6],vars:()=>['shot','drive','backdoor'],build:buildCHigh},
+  cdive:{pos:'center',name:'Aufbau zieht zum Korb',desc:'Du hast keinen Ball. Was machst du?',T:[3.4,3.0,2.6],vars:()=>['help','stay'],build:buildCDive}
 };
 const playsOf=pos=>Object.keys(PLAYS).filter(k=>PLAYS[k].pos===pos);
 
@@ -1079,7 +1091,7 @@ function showSummary(){
   const rts=G.results.filter(r=>r.rt!=null).map(r=>r.rt),avg=rts.length?rts.reduce((a,b)=>a+b,0)/rts.length:0;
   $('sCorrect').textContent=`${ok}/${n}`;$('sRt').textContent=avg.toFixed(1).replace('.',',')+'s';$('sScore').textContent=G.score;
   const q=ok/n,role={pg:'Spielmacher',wing:'Flügelspieler',center:'Center'}[G.pos];
-  $('sumTitle').textContent=q===1?`🏆 ${role}-Legende!`:q>=.8?`⭐ Starker ${role}!`:q>=.6?'👍 Gut gemacht!':'💪 Übung macht den Meister!';
+  $('sumTitle').textContent=q===1?`${role}-Legende!`:q>=.8?`Starker ${role}!`:q>=.6?'Gut gemacht!':'Übung macht den Meister!';
   $('sumTxt').textContent=q===1?'Alles richtig gelesen. Versuch das nächste Level!':q>=.8?'Du liest die Verteidigung schon richtig gut.':q>=.6?'Schon ordentlich. Achte besonders darauf, wer hilft.':'Schau dir die Tipps nochmal an und probier es gleich wieder.';
   const cat=[['Zum Korb (mit Ball)',r=>r.ans==='drive'&&!r.off],['Pass zum freien Mitspieler',r=>r.ans.startsWith('pass:')],['Selbst werfen',r=>r.ans==='shot'&&!r.off],['Ohne Ball: zum Korb laufen',r=>r.ans==='drive'&&r.off],['Ohne Ball: Ball fordern / Platz lassen',r=>r.ans==='shot'&&r.off]];
   const rowH=(label,rs)=>{if(!rs.length)return'';const k=rs.filter(r=>r.ok).length;return`<div class="br"><span>${label}</span><span style="color:${k===rs.length?'#7ff0ad':k?'#ffc83d':'#ff8a80'}">${k}/${rs.length}</span></div>`;};
@@ -1148,9 +1160,9 @@ $('saveBtn').onclick=saveScore;
 $('nameIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();saveScore();$('nameIn').blur();}});
 // Ranglisten-Fenster
 const bF={pos:'pg',mode:4,level:1};let bData=null;
-function bChips(id,items,key){const el=$(id);el.innerHTML='';items.forEach(([v,l])=>{const b=document.createElement('button');b.className='chip'+(bF[key]===v?' sel':'');b.textContent=l;
+function bChips(id,items,key){const el=$(id);el.innerHTML='';items.forEach(([v,l])=>{const b=document.createElement('button');b.className='chip'+(bF[key]===v?' sel':'');b.innerHTML=l;
   b.onclick=()=>{bF[key]=v;bRender();};el.appendChild(b);});}
-function bRender(){bChips('bPos',Object.keys(POS).map(k=>[k,POS[k].icon+' '+POS[k].short]),'pos');bChips('bMode',[[4,'U10'],[5,'U12']],'mode');bChips('bLvl',[[1,'🟢 Anfänger'],[2,'🟡 Mittel'],[3,'🔴 Profi']],'level');
+function bRender(){bChips('bPos',Object.keys(POS).map(k=>[k,posBadge(k)+POS[k].short]),'pos');bChips('bMode',[[4,'U10'],[5,'U12']],'mode');bChips('bLvl',[[1,'<i class="dot l1"></i>Anfänger'],[2,'<i class="dot l2"></i>Mittel'],[3,'<i class="dot l3"></i>Profi']],'level');
   showBoardIn($('bList'),bF,store.get('pgt_name'),bData).then(d=>bData=d);}
 $('boardBtn').onclick=()=>{Object.assign(bF,{pos:G.pos,mode:G.mode,level:G.level});bData=null;$('board').classList.remove('hidden');bRender();};
 $('boardClose').onclick=()=>$('board').classList.add('hidden');
@@ -1170,7 +1182,7 @@ function buildButtons(){const sc=G.sc,row=$('passRow');row.innerHTML='';
   const lb=sc.labels;document.querySelectorAll('#actRow .cb').forEach(b=>{const l=lb[b.dataset.c];b.classList.toggle('hidden',!l);if(l){b.querySelector('.ar').textContent=l[0];b.querySelector('.lb').textContent=l[1];}});
   $('promptB').textContent=sc.prompt||(row.children.length?'Passen? Die lila Nummer zeigt dir, wer welche Taste ist.':'Entscheide dich!');}
 function setControls(on){const cont=$('controls');cont.classList.toggle('live',on&&!G.replay);cont.querySelectorAll('.cb').forEach(b=>{b.disabled=!on||G.replay;b.classList.remove('hint');});}
-function updateHud(){$('hRound').textContent=`${POS[G.pos].icon} ${G.mode===5?'U12':'U10'} · ${Math.min(G.round,G.rounds)}/${G.rounds}`;$('hScore').textContent=G.score;$('hStreak').textContent=`🔥 ${G.streak}`;drawBoard();}
+function updateHud(){$('hRound').innerHTML=`${posBadge(G.pos)}${G.mode===5?'U12':'U10'} · ${Math.min(G.round,G.rounds)}/${G.rounds}`;$('hScore').textContent=G.score;$('hStreak').textContent=`🔥 ${G.streak}`;drawBoard();}
 let bannerT=null;
 function showBanner(t,s){$('bnT').textContent=t;$('bnS').textContent=s||'';$('bnS').classList.toggle('hidden',!s);const b=$('banner');b.classList.add('show');clearTimeout(bannerT);bannerT=setTimeout(()=>b.classList.remove('show'),1500);}
 function flash(t,col){const f=$('flash');f.textContent=t;f.style.color=col;f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
@@ -1179,8 +1191,9 @@ function refreshBest(){const v=+(store.get(bestKey())||0);$('bestTxt').textConte
 function selGroup(id,attr,cb){document.querySelectorAll(`#${id} .lvb`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} .lvb`).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');cb(b.dataset[attr]);refreshBest();});}
 function markSel(id,attr,v){document.querySelectorAll(`#${id} .lvb`).forEach(x=>x.classList.toggle('sel',x.dataset[attr]===String(v)));}
 function renderPlayChips(){const el=$('plays');el.innerHTML='';G.plays=playsOf(G.pos);
-  G.plays.forEach(k=>{const b=document.createElement('button');b.className='chip sel';b.dataset.p=k;b.textContent=PLAYS[k].icon+' '+PLAYS[k].name;
+  G.plays.forEach(k=>{const b=document.createElement('button');b.className='chip sel';b.dataset.p=k;b.textContent=PLAYS[k].name;
     b.onclick=()=>{const on=b.classList.contains('sel');if(on&&el.querySelectorAll('.chip.sel').length===1)return;b.classList.toggle('sel');G.plays=[...el.querySelectorAll('.chip.sel')].map(x=>x.dataset.p);refreshBest();};el.appendChild(b);});}
+document.querySelectorAll('.pico').forEach(e=>e.innerHTML=posIcon(e.dataset.pos));
 selGroup('lvl','l',v=>G.level=+v);
 selGroup('mode','m',v=>{G.mode=+v;store.set('pgt_mode',v);demo();});
 selGroup('pos','v',v=>{G.pos=v;store.set('pgt_pos',v);renderPlayChips();demo();});
