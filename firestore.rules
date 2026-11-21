@@ -1,0 +1,23 @@
+rules_version = '2';
+// Regeln für die Online-Rangliste des Basketball IQ Trainers (siehe README).
+// Jeder darf lesen und neue Einträge anlegen. Ändern oder Löschen geht nur in der Firebase-Konsole.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /teams/{team}/scores/{id} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['name','score','correct','rounds','pos','mode','level','learn','ts'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 14
+        && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 2500
+        && request.resource.data.correct is int && request.resource.data.rounds is int
+        && request.resource.data.correct >= 0 && request.resource.data.correct <= request.resource.data.rounds
+        && request.resource.data.rounds <= 10
+        && request.resource.data.pos in ['pg', 'wing', 'center']
+        && request.resource.data.mode in [4, 5]
+        && request.resource.data.level in [1, 2, 3]
+        && request.resource.data.learn is bool
+        && request.resource.data.ts is int;
+      allow update, delete: if false;
+    }
+  }
+}
