@@ -34,6 +34,14 @@ Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` w
 2. Auf GitHub im Repository: **Settings → Pages → Build and deployment → Source: „Deploy from a branch“**, Branch `main`, Ordner `/ (root)`, **Save**.
 3. Nach ein bis zwei Minuten läuft das Spiel unter `https://<dein-github-name>.github.io/Basketball-Decision-Trainer/`.
 
+
+### Als App auf dem Handy
+Das Spiel lässt sich wie eine App auf den Startbildschirm legen und startet dann im Vollbild, ohne Browserleisten:
+- **iPhone (Safari):** Teilen-Symbol → „Zum Home-Bildschirm“.
+- **Android (Chrome):** Menü ⋮ → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.
+
+Nach dem ersten Öffnen funktioniert es auch ohne Internet (die Online-Rangliste natürlich nicht).
+
 ## Rangliste
 
 Nach jedem Spiel kann man seinen Namen eintragen. Es gibt eine Liste pro Position, Spielmodus (U10/U12) und Schwierigkeit. Pro Name zählt das beste Ergebnis. Im Menü zeigt „🏆 Rangliste“ alle Listen.

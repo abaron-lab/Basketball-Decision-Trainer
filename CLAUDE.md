@@ -26,6 +26,9 @@ Hinweise für die Arbeit an diesem Repository.
 - Kamera: Third-Person hinter dem Ballführer (`updCam`). `computeFit()` passt FOV und View-Offset so an, dass im Entscheidungsmoment alle relevanten Spieler sichtbar sind, auch im Hochformat.
 - Spielerfiguren: `makeRig()` (Gelenke als Gruppen), Animation in `poseP()`.
 - Bedienung: alle Tasten unten (`#passRow` lila Pass-Tasten, `#actRow` blau/orange). Über den Mitspielern stehen nur nicht klickbare Nummern (`.tag`), positioniert per `project(cam)`.
+- Bildschirme (Menü, Tipps, Auswertung, Ergebnis, Rangliste) sind `.overlay > .card` mit `.body` (Inhalt) und `.foot` (Tasten). Auf dem Handy füllen sie den ganzen Bildschirm und sollen bei 390×664 (iPhone mit Safari-Leisten) **ohne Scrollen** passen.
+- Symbole: SVG-Sprite am Anfang von `<body>` (`<symbol id="i-…">`), im JS über `svgI(name, 'fill')`. **Keine Emojis** in der Oberfläche.
+- App-Dateien: `manifest.webmanifest`, `icon.svg`, `icon-180/192/512.png`, `sw.js` (Offline-Cache; bei geänderten Dateilisten `C` hochzählen). Der Service Worker wird nur über https und nicht im iframe registriert.
 - Rangliste: `saveScore / loadBoard / topList`, lokal in `localStorage` (`pgt_board_<team>`), online in `teams/<team>/scores`. Team über `?team=`.
 
 ## Testen
