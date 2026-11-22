@@ -166,6 +166,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .btn{cursor:pointer;flex:1;border:0;border-radius:16px;padding:14px 16px;font-family:Nunito,system-ui,sans-serif;font-weight:900;font-size:17px;color:#1d1500;background:linear-gradient(180deg,#ffd45e,#f2b01c);box-shadow:0 8px 22px rgba(255,190,40,.28),inset 0 1px 0 rgba(255,255,255,.5);display:inline-flex;align-items:center;justify-content:center;gap:8px;min-width:0;transition:transform .08s}
 .btn:active{transform:scale(.97)}
 .btn[disabled]{opacity:.6}
+.btn.ico{flex:0 0 auto;padding-left:16px;padding-right:16px}
 .btn.sec{background:rgba(255,255,255,.08);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
 .btn.big{font-family:'Bebas Neue',Impact,sans-serif;font-size:28px;letter-spacing:2px;padding:12px 16px 10px}
 .btn .i{width:20px;height:20px}
@@ -423,7 +424,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
   <div class="pill" id="hStreak"><svg class="i fill"><use href="#i-flame"/></svg> 0</div>
   <div class="sp"></div>
   <button class="ibtn" id="muteBtn" title="Ton an/aus" aria-label="Ton an/aus"><svg class="i"><use href="#i-sound"/></svg></button>
-  <button class="ibtn" id="quitBtn" title="Menü" aria-label="Menü"><svg class="i"><use href="#i-close"/></svg></button>
+  <button class="ibtn" id="quitBtn" title="Hauptmenü" aria-label="Hauptmenü"><svg class="i"><use href="#i-home"/></svg></button>
 </div>
 
 <div id="banner"><div class="t" id="bnT"></div><div class="s" id="bnS"></div></div>
@@ -542,6 +543,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
       </div>
     </div>
     <div class="foot">
+      <button class="btn sec ico" id="fbMenu" title="Hauptmenü" aria-label="Hauptmenü"><svg class="i"><use href="#i-home"/></svg></button>
       <button class="btn sec" id="replayBtn"><svg class="i"><use href="#i-replay"/></svg>Nochmal</button>
       <button class="btn" id="nextBtn">Weiter</button>
     </div>
@@ -567,7 +569,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
       <details class="more"><summary>Details: Lernziele und Spielzüge ▾</summary><div id="sBreak"></div></details>
     </div>
     <div class="foot">
-      <button class="btn sec" id="menuBtn"><svg class="i"><use href="#i-home"/></svg>Menü</button>
+      <button class="btn sec" id="menuBtn"><svg class="i"><use href="#i-home"/></svg>Hauptmenü</button>
       <button class="btn" id="againBtn"><svg class="i"><use href="#i-replay"/></svg>Nochmal</button>
     </div>
   </div>
@@ -1770,10 +1772,12 @@ function applyFit(){const{f,px,py}=fit;const Fw=2*Math.max(px,W-px),Fh=2*Math.ma
 function updCam(dt,snap){
   if(!Hd||!G.sc)return;const sc=G.sc,cf=sc.camFix;
   if(camMode&&(G.phase==='outcome'||G.phase==='feedback')){const m=camMode;m.t+=dt;
-    const L=m.look,tgt=[lerp(L[0],ball.x,.15),Math.min(3.3,lerp(L[1],ball.y,.15)),lerp(L[2],ball.z,.15)],push=Math.min(.12,m.t*.05),pos=[m.pos[0]*(1-push),m.pos[1],m.pos[2]*(1-push)];
+    // Hochformat: Blick folgt dem Ball (am Anfang ganz, zum Korb hin weniger), damit er schon beim Abwurf im Bild ist
+    const fl=ball.fl,u=fl&&fl.shot?clamp(fl.t/fl.d,0,1):1,w=m.track?(fl&&fl.shot?.85-.5*u:.35):.15;
+    const L=m.look,tgt=[lerp(L[0],ball.x,w),m.track?lerp(L[1],ball.y,w):Math.min(3.3,lerp(L[1],ball.y,w)),lerp(L[2],ball.z,w)],push=Math.min(.12,m.t*.05),pos=[m.pos[0]*(1-push),m.pos[1],m.pos[2]*(1-push)];
     if(m.snap){camPos={p:pos.slice(),l:tgt.slice()};m.snap=false;
       cam.clearViewOffset();cam.aspect=W/H;cam.fov=W<H?60:46;cam.updateProjectionMatrix();}
-    const kp=1-Math.exp(-dt*6);for(let i=0;i<3;i++){camPos.p[i]=lerp(camPos.p[i],pos[i],kp);camPos.l[i]=lerp(camPos.l[i],tgt[i],1-Math.exp(-dt*9));}
+    const kp=1-Math.exp(-dt*6),kl=1-Math.exp(-dt*(m.track?14:9));for(let i=0;i<3;i++){camPos.p[i]=lerp(camPos.p[i],pos[i],kp);camPos.l[i]=lerp(camPos.l[i],tgt[i],kl);}
     cam.position.copy(V(...camPos.p));cam.lookAt(V(...camPos.l));return;}
   let hx=Hd.x,hz=Hd.z;const dl=Math.hypot(hx,hz)||1;let dx=-hx/dl,dz=-hz/dl;
   if(cf){hx=cf.x;hz=cf.z;dx=cf.dx;dz=cf.dz;}else if(dl<3.5){dx=sc.dir.x;dz=sc.dir.z;}
@@ -1848,7 +1852,7 @@ function rimCam(S){if(G.phase!=='outcome')return;const d=Math.hypot(S.x,S.z)||1,
   let px=uz,pz=-ux;if(pz>0||(Math.abs(pz)<.05&&px*(S.x||1)>0)){px=-px;pz=-pz;}
   if(W>H*1.1){const qx=px-ux,qz=pz-uz,qn=Math.hypot(qx,qz)||1,Rw=6.3; // Querformat: seitlich an der Grundlinie, Werfer und Korb im Bild
     camMode={pos:[qx/qn*Rw,2.9,Math.min(-.6,qz/qn*Rw)],look:[S.x*.38,2.0,S.z*.38],t:0,snap:true};}
-  else{const Rr=d<2.5?3.6:2.8;camMode={pos:[px*Rr+ux*.9,2.3,Math.min(-.6,pz*Rr+uz*.9)],look:[ux*.55,2.8,uz*.55],t:0,snap:true};}document.body.classList.add('cinema');}
+  else{const Rr=Math.max(d<2.5?3.6:2.8,Math.min(5,1.5+d*.5));camMode={pos:[px*Rr+ux*.9,2.3,Math.min(-.6,pz*Rr+uz*.9)],look:[ux*.55,2.8,uz*.55],t:0,snap:true,track:true};}document.body.classList.add('cinema');}
 function endCam(){camMode=null;document.body.classList.remove('cinema');}
 function passOk(Wp,finish){ball.y=Math.max(1,ball.y);sfx.pass();act(ball.owner,'pass',.4);
   const tf=.25+Math.hypot(Wp.x-ball.x,Wp.z-ball.z)/15;
@@ -2264,7 +2268,7 @@ function vib(p){try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
-$('startBtn').onclick=newGame;$('againBtn').onclick=newGame;$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;
+$('startBtn').onclick=newGame;$('againBtn').onclick=newGame;$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;
 function toMenu(){if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
   G.phase='menu';G.timers=[];endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
 $('nextBtn').onclick=()=>{$('feedback').classList.add('hidden');if(G.round>=G.rounds)showSummary();else startRound();};
@@ -2324,7 +2328,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
-window.__G=G;window.__players=()=>players;window.__scene=scene;window.__card=CARD;window.__net=NET;
+window.__G=G;window.__players=()=>players;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 })();
 </script>
 </body>
