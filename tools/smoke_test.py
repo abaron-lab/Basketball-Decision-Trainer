@@ -30,6 +30,7 @@ async def run(a):
         pg = await b.new_page(viewport={'width': w, 'height': h})
         await pg.route('**/three.min.js', lambda r: r.fulfill(body=three, content_type='application/javascript'))
         await pg.route('https://fonts.**', lambda r: r.abort())
+        await pg.route('**/config.js', lambda r: r.abort())  # Test schreibt nicht in die echte Online-Rangliste
         errs = []
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: m.type == 'error' and errs.append(m.text))
