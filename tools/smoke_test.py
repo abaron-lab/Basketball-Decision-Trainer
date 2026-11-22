@@ -7,6 +7,7 @@ Aufruf:
   python3 tools/smoke_test.py --three /pfad/zu/three.min.js [--pos pg|wing|center]
                               [--size 390x844] [--mode 4|5] [--level 1|2|3]
                               [--rounds 4] [--plays wcatch,wcut] [--out shots]
+                              [--bag backdoor:gap,wcut:dribble]   (feste Spielzüge/Varianten)
 
 three.js 0.149.0 vorher lokal holen, z. B.:
   npm pack three@0.149.0 && tar xzf three-0.149.0.tgz package/build/three.min.js
@@ -47,6 +48,10 @@ async def run(a):
                     await pg.click(f'.chip[data-p="{c}"]')
         await pg.wait_for_timeout(800)
         await pg.screenshot(path=f'{a.out}/menu.png')
+        if a.bag:
+            bag = [x.split(':') for x in a.bag.split(',')]
+            a.rounds = len(bag)
+            await pg.evaluate('b=>{window.__bag=b}', bag)
         await pg.evaluate(f'window.__G.rounds={a.rounds}')
         await pg.click('#startBtn')
         seen = []
@@ -89,6 +94,7 @@ if __name__ == '__main__':
     ap.add_argument('--level', default='1')
     ap.add_argument('--rounds', type=int, default=4)
     ap.add_argument('--plays', default='')
+    ap.add_argument('--bag', default='')
     ap.add_argument('--full', action='store_true')
     ap.add_argument('--out', default='shots')
     asyncio.run(run(ap.parse_args()))

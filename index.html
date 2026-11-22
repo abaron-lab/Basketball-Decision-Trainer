@@ -1125,13 +1125,19 @@ function buildBackdoor(v,T,L,M){
   GUARD={W:dW,OW:dO,C:dC,K:dK};
   const px0=rand(-1.4,1.4),xd=clamp(px0*.4+rand(-.6,.6),-1.1,1.1),B=pt(xd,-7.6);
   setPath(H,[[0,px0,-13.4],[T,xd,-7.6]],true);H.dside=s;
-  setPath(dH,[[0,px0,-12],[T,xd,-6.3]]);
+  if(v==='gap'){const tg=L>=2?T*.72:T*.55;setPath(dH,[[0,px0,-12],[tg,xd,-6.4],[T,xd+s*1.8,-5.9]]);}
+  else setPath(dH,[[0,px0,-12],[T,xd,-6.3]]);
   setPath(Wc,[[0,s*5.0,-8.6],[T*.55,s*5.9,-6.0],[T*.72,s*6.0,-5.6],[T,s*3.5,-2.9]]);
-  setPath(dW,[[0,s*4.4,-7.8],[T*.55,s*5.2,-6.6],[T*.72,s*5.3,-6.3],[T,s*4.8,-4.4]]);
+  if(v==='gap')setPath(dW,[[0,s*4.4,-7.8],[T*.55,s*5.2,-6.6],[T*.72,s*5.3,-6.2],[T,s*3.9,-3.5]]);
+  else setPath(dW,[[0,s*4.4,-7.8],[T*.55,s*5.2,-6.6],[T*.72,s*5.3,-6.3],[T,s*4.8,-4.4]]);
   const oD=pt(-s*rand(5.8,6.3),rand(-4.6,-3.8));setPath(OW,[[0,-s*5,-8.6],[T*.8,oD.x,oD.z]]);const hO=homeOf(oD,.9,B);setPath(dO,[[0,-s*4.4,-7.8],[T*.8,hO.x,hO.z]]);
   const cD=pt(-s*rand(3.2,3.6),rand(-.8,-.3));setPath(C,[[0,-s*1.2,-4.6],[T*.75,cD.x,cD.z]]);const hC=pt(cD.x+s*.5,cD.z-.3);
   if(v==='helpC')setPath(dC,[[0,-s,-3.4],[T*.6,hC.x,hC.z],[T,s*1.3,-1.8]]);else setPath(dC,[[0,-s,-3.4],[T*.75,hC.x,hC.z]]);
   if(K){const kD=pt(-s*rand(6.6,7.0),rand(.2,.7));setPath(K,[[0,-s*5.4,-2.4],[T*.7,kD.x,kD.z]]);const hK=homeOf(kD,1.0,B);setPath(dK,[[0,-s*4.8,-2],[T*.75,hK.x,hK.z]]);}
+  if(v==='gap')return{ans:'drive',helper:null,fake:false,
+    why:'Dein Verteidiger ist zur Seite gerutscht, um den Pass zum Cutter abzufangen. Der Cutter war ohnehin gedeckt. Dafür war vor dir der Weg zum Korb frei!',
+    rule:'Wer hilft, lässt jemanden frei. Manchmal bist du das selbst: Ist der Weg frei, geh zum Korb!',
+    notes:{pass:'Zwei Verteidiger standen im Passweg zum Cutter: seiner und deiner. Der Pass wäre abgefangen worden.'}};
   const ans=v==='cut'?'pass:W':'pass:C';
   const why=v==='cut'?'Der Verteidiger hat den Passweg zugestellt. Dein Mitspieler ist hinter seinem Rücken zum Korb geschnitten: Backdoor! Ein Pass in den Lauf, und er ist frei.'
     :'Dein Mitspieler ist backdoor geschnitten, aber der Verteidiger des Centers hat ihn abgefangen. Wer hilft, lässt jemanden frei: Der Center war offen.';
@@ -1186,14 +1192,29 @@ function buildWCut(v,T,L,M){
   const dH=addP('dH','def',4),dP=addP('dPG','def',6),dO=addP('dOW','def',8),dC=addP('dC','def',9),dK=M===5?addP('dK','def',10):null;
   GUARD={};
   const hD=pt(s*5.5,-6.8);setPath(H,[[0,s*5.0,-4.2],[T*.75,hD.x,hD.z]]);
-  const pD=pt(s*rand(1.0,1.5),rand(-9.2,-8.6));setPath(PG,[[0,-s*.6,-12.4],[T*.8,pD.x,pD.z]],true);setPath(dP,[[0,-s*.6,-11.1],[T*.8,pD.x-s*.15,pD.z+1.1]]);
+  let pD=pt(s*rand(1.0,1.5),rand(-9.2,-8.6));
+  if(v==='dribble'){const pM=pD;pD=pt(s*rand(3.0,3.4),rand(-8.4,-7.9));const tm=L>=2?T*.6:T*.35;
+    setPath(PG,[[0,-s*.6,-12.4],[tm,lerp(-s*.6,pM.x,tm/(T*.8)),lerp(-12.4,pM.z,tm/(T*.8))],[T*.95,pD.x,pD.z]],true);
+    setPath(dP,[[0,-s*.6,-11.1],[tm,lerp(-s*.6,pM.x,tm/(T*.8))-s*.15,lerp(-11.1,pM.z+1.1,tm/(T*.8))],[T*.95,pD.x-s*.35,pD.z+1.0]]);}
+  else{setPath(PG,[[0,-s*.6,-12.4],[T*.8,pD.x,pD.z]],true);setPath(dP,[[0,-s*.6,-11.1],[T*.8,pD.x-s*.15,pD.z+1.1]]);}
   const oD=pt(-s*rand(5.6,6.2),rand(-5.0,-4.2));setPath(OW,[[0,-s*5.4,-7.6],[T*.8,oD.x,oD.z]]);const hO=homeOf(oD,1.4,pD);setPath(dO,[[0,-s*4.8,-7],[T*.8,hO.x,hO.z]]);
   const cD=pt(-s*rand(2.9,3.3),rand(-.9,-.4));setPath(C,[[0,-s*1.4,-3.6],[T*.7,cD.x,cD.z]]);setPath(dC,[[0,-s*1.0,-2.8],[T*.75,cD.x+s*.6,cD.z-.4]]);
   if(K){const kD=pt(-s*rand(6.6,6.9),rand(.3,.7));setPath(K,[[0,-s*6.4,-1.6],[T*.6,kD.x,kD.z]]);const hK=homeOf(kD,1.1,pD);setPath(dK,[[0,-s*5.6,-1.4],[T*.75,hK.x,hK.z]]);}
   const deny=pt(hD.x+(pD.x-hD.x)*.2,hD.z+(pD.z-hD.z)*.2+.25),sag=pt(s*2.6,-3.5);
   const fin=v==='deny'?deny:sag,oth=v==='deny'?sag:deny;let fake=false;
-  if(L>=2&&R()<(L===3?.7:.45)){fake=true;setPath(dH,[[0,s*4.4,-3.6],[T*.55,oth.x,oth.z],[T*.97,fin.x,fin.z]]);}
+  if(v==='dribble'){const d=Math.hypot(hD.x,hD.z),bx=pD.x-hD.x,bz=pD.z-hD.z,bd=Math.hypot(bx,bz);
+    const home=pt(hD.x-hD.x/d*.9+bx/bd*.6,hD.z-hD.z/d*.9+bz/bd*.6);setPath(dH,[[0,s*4.4,-3.6],[T*.75,hD.x-hD.x/d*1.2,hD.z-hD.z/d*1.2],[T,home.x,home.z]]);}
+  else if(L>=2&&R()<(L===3?.7:.45)){fake=true;setPath(dH,[[0,s*4.4,-3.6],[T*.55,oth.x,oth.z],[T*.97,fin.x,fin.z]]);}
   else setPath(dH,[[0,s*4.4,-3.6],[T*.75,fin.x,fin.z]]);
+  if(v==='dribble'){
+    const outD=(choice,ok,finish)=>{
+      if(choice==='drive'){H.finish='layup';later(.15,()=>passOk(H,finish));later(.35,()=>goTo(dH,[[.9,s*2.3,-3.2]]));}
+      else{goTo(H,[[.45,s*4.9,-7.3]]);later(.15,()=>passBad(H,finish,dH));}};
+    return{ans:'drive',helper:null,fake:false,camSide:s,outcome:outD,ballAt:'PG',
+      why:'Der Aufbau ist auf dich zugedribbelt. Dein Verteidiger hat auf den Ball geschaut, nicht auf dich. Mach Platz und schneide hinter seinem Rücken zum Korb: Backdoor! Der Aufbau spielt dir den Ball in den Lauf.',
+      labels:{drive:['↩','Backdoor-Cut'],shot:['✋','Ball fordern']},prompt:'Du hast keinen Ball. Wohin läufst du?',
+      rule:'Dribbelt der Ballführer auf dich zu, mach ihm Platz: Schneide zum Korb!',
+      notes:{shot:'Der Aufbau kam mit dem Ball zu dir. Bleibst du stehen, seid ihr zu zweit auf engem Raum, und dein Verteidiger fängt den Pass ab.'}};}
   const ans=v==='deny'?'drive':'shot';
   const why=v==='deny'?'Dein Verteidiger hat den Passweg zugestellt. Hinter seinem Rücken war alles frei: Backdoor zum Korb, und der Aufbau spielt dir den Ball in den Lauf!'
     :'Dein Verteidiger ist weit weg in die Zone gegangen. Wärst du zum Korb gelaufen, hätte er dort auf dich gewartet. Du warst frei: Ball fordern und werfen!';
@@ -1305,12 +1326,22 @@ function buildCDive(v,T,L,M){
   const pE=pt(s*rand(.7,1.1),-4.7);setPath(PG,[[0,s*.2,-10.6],[T*.45,s*.5,-7.6],[T,pE.x,pE.z]],true);
   setPath(dP,[[0,s*.2,-9.3],[T*.45,s*.6,-6.6],[T,pE.x-s*.3,pE.z-1.3]]);
   const wD=pt(s*rand(5.6,6.0),rand(-5.6,-5.0));setPath(W,[[0,s*5.8,-7.4],[T*.6,wD.x,wD.z]]);const hW=homeOf(wD,.9,pE);setPath(dW,[[0,s*5.2,-6.8],[T*.6,hW.x,hW.z]]);
-  const oD=pt(-s*rand(5.4,5.9),rand(-5.0,-4.2));setPath(OW,[[0,-s*5.4,-7],[T*.7,oD.x,oD.z]]);const hO=homeOf(oD,1.0,pE);setPath(dO,[[0,-s*4.8,-6.4],[T*.7,hO.x,hO.z]]);
+  const oD=pt(-s*rand(5.4,5.9),rand(-5.0,-4.2));setPath(OW,[[0,-s*5.4,-7],[T*.7,oD.x,oD.z]]);const hO=homeOf(oD,1.0,pE);
+  if(v==='helpW')setPath(dO,[[0,-s*4.8,-6.4],[T*.5,hO.x,hO.z],[T,s*.05,-3.5]]);else setPath(dO,[[0,-s*4.8,-6.4],[T*.7,hO.x,hO.z]]);
   if(K){const kD=pt(-s*rand(6.6,6.9),rand(.2,.6));setPath(K,[[0,-s*6.2,-1.8],[T*.6,kD.x,kD.z]]);const hK=homeOf(kD,1.0,pE);setPath(dK,[[0,-s*5.4,-1.4],[T*.7,hK.x,hK.z]]);}
   const help=pt(s*1.3,-3.3),stay=pt(s*2.55,-.35);let fake=false;
   const lateOrFake=L>=2&&R()<(L===3?.7:.45);
   if(v==='help'){if(lateOrFake){fake=true;setPath(dH,[[0,s*2.6,-1.6],[T*.8,s*2.5,-.6],[T,help.x,help.z]]);}else setPath(dH,[[0,s*2.6,-1.6],[T*.6,s*2.4,-.9],[T,help.x,help.z]]);}
   else{if(lateOrFake){fake=true;setPath(dH,[[0,s*2.6,-1.6],[T*.55,s*1.5,-2.8],[T*.97,stay.x,stay.z]]);}else setPath(dH,[[0,s*2.6,-1.6],[T*.6,stay.x,stay.z]]);}
+  if(v==='helpW'){const dir=Math.hypot(.05,1);
+    const outW=(choice,ok,finish)=>{
+      if(choice==='shot'){goTo(H,[[.5,s*3.6,.2]]);goTo(PG,[[.2,PG.x,PG.z]]);later(.15,()=>passOk(OW,finish));later(.4,()=>goTo(dO,[[1.2,lerp(dO.x,OW.x,.7),lerp(dO.z,OW.z,.7)]]));}
+      else{goTo(H,[[.6,s*1.0,-1.0]],true);goTo(dH,[[.5,s*.9,-1.7]]);later(.15,()=>blocked(PG,dO,finish,'Zu eng!'));}};
+    return{ans:'shot',helper:null,fake,why:'Geholfen hat der Verteidiger vom Flügel gegenüber, nicht deiner. Dein Verteidiger ist bei dir geblieben. Bleibst du draußen, ist die Zone frei, und der Aufbau kann zum freien Flügel passen.',
+      outcome:outW,ballAt:'PG',camFix:{x:s*1.8,z:-6.6,dx:-s*.05/dir,dz:1/dir},
+      labels:{drive:['⤓','Zum Korb laufen'],shot:['✋','Platz lassen']},prompt:'Dein Aufbauspieler zieht zum Korb. Was machst du?',
+      rule:'Schau auf deinen eigenen Verteidiger! Bleibt er bei dir, lass die Zone frei, auch wenn ein anderer aushilft.',
+      notes:{drive:'Geholfen hat ein anderer Verteidiger, deiner ist bei dir geblieben. Als du zum Korb gelaufen bist, kam er mit, und in der Zone war es zu eng.'}};}
   const ans=v==='help'?'drive':'shot';
   const why=v==='help'?'Dein Verteidiger hat dich verlassen, um den Aufbau zu stoppen. Du warst frei: Lauf zum Korb, zeig die Hände, und du bekommst den Ball!'
     :'Dein Verteidiger ist bei dir geblieben. Der Aufbau hatte freie Bahn. Wärst du zum Korb gelaufen, hättest du ihm deinen Verteidiger in den Weg gebracht.';
@@ -1337,13 +1368,13 @@ const PLAYS={
   top:{pos:'pg',name:'Aufbau über die Mitte',desc:'Ball nach vorne bringen und die Verteidigung lesen',T:[3.6,3.0,2.6],vars:(M)=>M===5?['drive','helpL','helpR','sag','helpC','helpK']:['drive','helpL','helpR','sag','helpC'],build:buildTop},
   break:{pos:'pg',name:'Schnellangriff',desc:'Ballgewinn! 3 gegen 2 nach vorne',T:[3.3,2.9,2.5],vars:()=>['drive','stopL','stopR'],build:buildBreak},
   wing:{pos:'pg',name:'Angriff über den Flügel',desc:'Von der Seite zum Korb ziehen',T:[3.4,3.0,2.6],vars:(M)=>M===5?['drive','helpTop','helpC','helpK','sag']:['drive','helpTop','helpC','sag'],build:buildWing},
-  backdoor:{pos:'pg',name:'Backdoor-Cut',desc:'Der Verteidiger stellt den Passweg zu …',T:[3.6,3.0,2.6],vars:(M,L)=>L>=2?['cut','cut','helpC']:['cut'],build:buildBackdoor},
+  backdoor:{pos:'pg',name:'Backdoor-Cut',desc:'Der Verteidiger stellt den Passweg zu …',T:[3.6,3.0,2.6],vars:(M,L)=>L>=2?['cut','cut','helpC','gap']:['cut','gap'],build:buildBackdoor},
   wcatch:{pos:'wing',name:'Pass auf den Flügel',desc:'Fang den Ball und lies deinen Verteidiger',T:[3.6,3.1,2.7],vars:(M)=>M===5?['shot','drive','helpC','helpK']:['shot','drive','helpC'],build:buildWCatch},
-  wcut:{pos:'wing',name:'Ohne Ball: Backdoor?',desc:'Wo steht dein Verteidiger?',T:[3.4,3.0,2.6],vars:()=>['deny','sag'],build:buildWCut},
+  wcut:{pos:'wing',name:'Ohne Ball: Backdoor?',desc:'Wo steht dein Verteidiger?',T:[3.4,3.0,2.6],vars:()=>['deny','sag','dribble'],build:buildWCut},
   wbreak:{pos:'wing',name:'Schnellangriff als Läufer',desc:'Lauf die Seitenlinie entlang nach vorne',T:[3.4,3.0,2.6],vars:()=>['drive','stopPG','stopOR'],build:buildWBreak},
   cpost:{pos:'center',name:'Ball am Brett',desc:'Du bekommst den Ball nah am Korb',T:[3.4,3.0,2.6],vars:(M)=>M===5?['drive','dblW','dblT','dblK']:['drive','dblW','dblT'],build:buildCPost},
   chigh:{pos:'center',name:'Ball an der Freiwurflinie',desc:'Komm hoch und fordere den Ball',T:[3.4,3.0,2.6],vars:()=>['shot','drive','backdoor'],build:buildCHigh},
-  cdive:{pos:'center',name:'Aufbau zieht zum Korb',desc:'Du hast keinen Ball. Was machst du?',T:[3.4,3.0,2.6],vars:()=>['help','stay'],build:buildCDive}
+  cdive:{pos:'center',name:'Aufbau zieht zum Korb',desc:'Du hast keinen Ball. Was machst du?',T:[3.4,3.0,2.6],vars:()=>['help','stay','helpW'],build:buildCDive}
 };
 const playsOf=pos=>Object.keys(PLAYS).filter(k=>PLAYS[k].pos===pos);
 

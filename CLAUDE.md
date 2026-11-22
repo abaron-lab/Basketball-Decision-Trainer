@@ -42,6 +42,7 @@ npm pack three@0.149.0 && tar xzf three-0.149.0.tgz package/build/three.min.js
 python3 tools/smoke_test.py --three package/build/three.min.js --size 390x844 --pos pg --mode 5 --rounds 4
 python3 tools/smoke_test.py --three package/build/three.min.js --size 1280x720 --pos wing --plays wcatch,wcut
 python3 tools/smoke_test.py --three package/build/three.min.js --size 390x844 --pos center --rounds 3
+python3 tools/smoke_test.py --three package/build/three.min.js --pos wing --bag wcut:dribble,wcut:deny   # feste Spielzüge/Varianten
 ```
 Ohne GPU läuft das Rendering sehr langsam (ca. 1–2 Minuten pro Runde). Der Test nutzt deshalb den Lernmodus und `?lite`. Screenshots in `shots/` ansehen, besonders den Entscheidungsmoment: Ist die Situation eindeutig lesbar, und ist nichts verdeckt?
 
