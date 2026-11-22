@@ -1931,7 +1931,7 @@ function showFeedback(){
 }
 function quizOf(sc){const has=r=>G.snap.some(p=>p.role===r);let q=sc.q;
   if(!q){if(sc.def)q={t:'Wo stand dein Gegenspieler?',r:'M'};
-    else if(sc.ans.startsWith('pass:'))q=sc.helper&&sc.helper!=='dH'&&has(sc.helper)?{t:'Wer hat ausgeholfen?',r:sc.helper}:{t:'Wer war frei?',r:sc.ans.slice(5)};
+    else if(sc.ans.startsWith('pass:'))q=sc.helper&&sc.helper!=='dH'&&has(sc.helper)&&lzOf(sc.play,sc.variant,sc.ans,false)!=='ueberzahl'?{t:'Wer hat ausgeholfen?',r:sc.helper}:{t:'Wer war frei?',r:sc.ans.slice(5)};
     else q={t:'Wo stand dein Verteidiger?',r:'dH'};}
   return has(q.r)?q:null;}
 function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
