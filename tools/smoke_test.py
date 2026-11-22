@@ -64,6 +64,10 @@ async def run(a):
             await pg.screenshot(path=f'{a.out}/feedback{i}.png')
             await pg.click('#nextBtn')
         await pg.wait_for_selector('#summary:not(.hidden)', timeout=30000)
+        await pg.wait_for_timeout(1300)
+        if await pg.is_visible('#unlock'):  # Popup mit neuen Abzeichen
+            await pg.screenshot(path=f'{a.out}/unlock.png')
+            await pg.click('#ulOk')
         await pg.fill('#nameIn', 'Testkind')
         await pg.click('#saveBtn')
         await pg.wait_for_timeout(600)

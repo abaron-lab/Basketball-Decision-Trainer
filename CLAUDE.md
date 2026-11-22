@@ -24,7 +24,12 @@ Hinweise für die Arbeit an diesem Repository.
 - `buildScenario(seed, play, variant)`: deterministisch über einen Seed (für „Nochmal ansehen“). Berechnet auch `fitPts` für den Kamera-Ausschnitt.
 - Ablauf: `startRound → beginApproach → startDecide → resolve(choice) → animateOutcome → showFeedback → showSummary`.
 - Kamera: Third-Person hinter dem Ballführer (`updCam`). `computeFit()` passt FOV und View-Offset so an, dass im Entscheidungsmoment alle relevanten Spieler sichtbar sind, auch im Hochformat.
-- Spielerfiguren: `makeRig()` (Gelenke als Gruppen), Animation in `poseP()`.
+- Spielerfiguren: `makeRig(team, num, look)` (Gelenke als Gruppen; `look` = Hautfarbe, Frisur `HAIRS`, Haarfarbe, sonst `randLook()`), Animation in `poseP()`. Besondere Bewegungen über `act(p, k, dauer)`: `shoot`, `layup`, `block`, `pass`, `catch`, `cheer`, `sad` (Sprunghöhe in `p.jy`).
+- Kamera-Momente: Bei jedem Wurf schneidet `rimCam(S)` auf eine tiefe Kamera an der Grundlinie (`camMode`, `body.cinema` blendet die Tasten aus und zeigt Kinobalken). `endCam()` beim Rundenstart und im Menü.
+- Zeitlupe: `update()` rechnet mit `dt * G.ts`. Langsam wird es im letzten Teil eines Wurfs (`fly(..., {shot:true})`) und über `G.slowT` (Block, Ballgewinn, Treffer). `gclock` ist die Spielzeit, `clock` die echte Zeit.
+- Netz: Stoffnetz (`netGeo`) mit Federn (`NET`), angestoßen über `netKick()` (Treffer) und `rimHit()` (Ring wackelt).
+- Halle: Umgebungsreflexionen per PMREM (nicht mit `?lite`), Lichtkegel und Fotoblitze (`camFlash()`, Lichtshow bei Treffern), Publikum mit Armen und Schildern; La-Ola ab einer Serie von 3 (`G.wave`).
+- Spielerkarte: Profil in `localStorage` (`pgt_profile`, Objekt `PROFILE`): Trikotnummer, Aussehen, Statistik, XP, Abzeichen. Der eigene Spieler `H` trägt Nummer und Aussehen aus dem Profil (Mitspieler mit gleicher Nummer bekommen eine andere). `ratings()`, `LEVELS`, `TIERS` (Bronze bis Diamant), `BADGES` (12 Abzeichen mit Bedingung `t(P, g)`). `recordGame()` läuft in `showSummary()`, neue Abzeichen zeigt `showUnlock()`. Die 3D-Figur auf der Karte rendert ein zweiter kleiner Renderer (`CARD`), nur solange die Karte offen ist.
 - Bedienung: alle Tasten unten (`#passRow` lila Pass-Tasten, `#actRow` blau/orange). Über den Mitspielern stehen nur nicht klickbare Nummern (`.tag`), positioniert per `project(cam)`.
 - Bildschirme (Menü, Tipps, Auswertung, Ergebnis, Rangliste) sind `.overlay > .card` mit `.body` (Inhalt) und `.foot` (Tasten). Auf dem Handy füllen sie den ganzen Bildschirm und sollen bei 390×664 (iPhone mit Safari-Leisten) **ohne Scrollen** passen.
 - Symbole: SVG-Sprite am Anfang von `<body>` (`<symbol id="i-…">`), im JS über `svgI(name, 'fill')`. **Keine Emojis** in der Oberfläche.
