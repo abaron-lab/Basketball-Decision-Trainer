@@ -5,7 +5,7 @@ Hinweise für die Arbeit an diesem Repository.
 ## Projekt
 „Basketball IQ Trainer“: Entscheidungstrainer für junge Spieler (U10/U12, 10–14 Jahre) auf den Positionen Aufbau, Flügel, Center und Abwehr. Die Zielgruppe sind Kinder und ihre Trainer bzw. Eltern. UI-Texte sind auf **Deutsch**, kurz und kindgerecht. Keine taktisch komplizierten Inhalte: **keine Screens/Blöcke**. Erlaubt sind einfache Reads (Hilfe → freier Mitspieler, Schnellangriff, Backdoor, Wurf bei viel Platz).
 
-Grundlage sind die DBB-Miniregeln 2024 (4 gegen 4 in U10/U12, **kein Doppeln**, keine Blöcke/Handoffs, Mann-Mann-Pflicht), der DBB-Leitfaden Minibasketball (Lernziele, „Fragen statt Lösungen“), die DBB-Spielkonzeption (Extra-Pass, 1 can't guard 2, Pass und raus, Rim Run) und die DBB-MMV-Kriterien. Details und Links: `docs/TRAINER.md`. Neue Inhalte daran messen; 5 gegen 5 heißt im Spiel „U12 Leistung · U14“.
+Grundlage sind die DBB-Miniregeln 2024 (4 gegen 4 in U10/U12, **kein Doppeln**, Aushelfen nach einem Durchbruch ist aber erlaubt, keine Blöcke/Handoffs, Mann-Mann-Pflicht), der DBB-Leitfaden Minibasketball (Lernziele, „Fragen statt Lösungen“), die DBB-Spielkonzeption (Extra-Pass, 1 can't guard 2, Pass und raus, Rim Run) und die DBB-MMV-Kriterien. Details und Links: `docs/TRAINER.md`. Neue Inhalte daran messen; 5 gegen 5 heißt im Spiel „U12 Leistung · U14“.
 
 ## Aufbau
 - Alles steckt in einer Datei: `index.html` (HTML + CSS + JS). Kein Build, keine Abhängigkeiten außer three.js `0.149.0` (jsDelivr, globale `THREE`-Variable) und Google Fonts.

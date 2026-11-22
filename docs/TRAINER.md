@@ -51,7 +51,7 @@ Für Minis gelten die Miniregeln. Die Kriterien dienen als Orientierung für die
 - Zwei oder mehr Passwege entfernt: weiter absinken, als Helfer in die Zone.
 - Helfen nach einem Durchbruch ist erlaubt, danach sofort zurück zum eigenen Gegenspieler.
 
-Ob Aushelfen nach einem Durchbruch im Minibasketball schon als „Doppeln“ gilt, legt der Regeltext nicht im Detail fest. Das Spiel behandelt es wie die MMV-Kriterien: Aushelfen ja, aktives Doppeln des Ballführers nein. Fragt im Zweifel bei eurem Landesverband nach.
+Aushelfen nach einem Durchbruch ist auch im Minibasketball erlaubt und gilt nicht als Doppeln. Verboten ist, den Ballführer aktiv zu zweit zu verteidigen. So setzt es das Spiel um: Aushelfen ist richtig, zum Ballführer laufen ist falsch.
 
 **FIBA/WABC Coaching Manual Mini-Basketball**
 - Spaß und spielnahes Lernen statt isolierter Übungen. Das Spiel zeigt immer echte Spielsituationen mit Verteidigung.
