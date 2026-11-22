@@ -63,7 +63,7 @@ async def run(a):
             await pg.screenshot(path=f'{a.out}/decide{i}_{sc[0]}_{sc[1]}.png')
             ans = sc[2]
             if i % 3 == 2:
-                opts = await pg.eval_on_selector_all('#controls .cb:not(.hidden), #tags .tag', 'els=>els.map(e=>e.dataset.c)')
+                opts = await pg.eval_on_selector_all('#controls .cb:not(.hidden), #tags .tag[data-c]', 'els=>els.map(e=>e.dataset.c)')
                 ans = random.choice(opts)
             await pg.click(f'#bottom [data-c="{ans}"], #tags [data-c="{ans}"]')
             await pg.wait_for_function('window.__G.phase==="feedback"', timeout=300000)
