@@ -27,7 +27,7 @@ Alles bewusst **ohne Blöcke/Screens**. Jeder Spielzug hat mehrere Varianten (we
 
 **Spielerkarte:** Über das Trikot-Symbol im Menü. Dort stellt man Namen, Trikotnummer, Hautfarbe und Frisur ein (so sieht dann auch der eigene Spieler im Spiel aus). Die Karte zeigt Werte wie Lesen, Tempo und Pass, das Level (Rookie bis Legende, mit XP aus jedem Spiel) und 12 Abzeichen zum Freischalten, z. B. „Heiße Hand“ (5 richtige in Folge) oder „Allrounder“ (alle Positionen gespielt). Alles wird nur auf dem Gerät gespeichert.
 
-**Bedienung:** Alle Tasten sind unten am Bildschirm: lila Pass-Tasten (die gleiche Nummer steht über dem Mitspieler), blau „Zum Korb“ bzw. „Backdoor-Cut“, orange „Werfen“ bzw. „Ball fordern“.
+**Bedienung:** Für einen Pass tippt man direkt auf das lila Schild über dem Mitspieler (am Computer auch Tasten 1–5). Unten sind nur noch zwei Tasten: blau „Zum Korb“ bzw. „Backdoor-Cut“, orange „Werfen“ bzw. „Ball fordern“.
 Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` weiter.
 
 ## Auf GitHub Pages veröffentlichen
