@@ -583,6 +583,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="config.js"></script>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
@@ -1609,9 +1610,9 @@ function showSummary(){
 }
 
 // ================= Rangliste =================
-// Online-Rangliste (optional, z. B. für GitHub Pages): Firebase-Projekt eintragen, siehe README.
-// Bleibt projectId leer, wird nur auf diesem Gerät gespeichert.
-const ONLINE={projectId:'',apiKey:''};
+// Online-Rangliste (optional, z. B. für GitHub Pages): Firebase-Projekt in config.js eintragen, siehe README.
+// Fehlt config.js oder bleibt projectId leer, wird nur auf diesem Gerät gespeichert.
+const ONLINE=(()=>{const c=window.ONLINE_CONFIG||{};return{projectId:String(c.projectId||'').trim(),apiKey:String(c.apiKey||'').trim()};})();
 const TEAMID=(()=>{const m=/[?&]team=([^&#]+)/.exec(location.search);let t='';try{t=m?decodeURIComponent(m[1]):'';}catch(e){}t=t.toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,24);return t||'team';})();
 const onlineOn=()=>!!(ONLINE.projectId&&ONLINE.apiKey);
 const FS=()=>`https://firestore.googleapis.com/v1/projects/${encodeURIComponent(ONLINE.projectId)}/databases/(default)/documents/teams/${TEAMID}`;

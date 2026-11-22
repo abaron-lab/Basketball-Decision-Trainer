@@ -56,7 +56,7 @@ Nach jedem Spiel kann man seinen Namen eintragen. Es gibt eine Liste pro Positio
 2. Links **Build → Firestore Database → Datenbank erstellen**, Standort `europe-west3` (Frankfurt), **Produktionsmodus**.
 3. In Firestore auf den Reiter **Regeln** gehen, den Inhalt von [`firestore.rules`](firestore.rules) hineinkopieren und **Veröffentlichen**.
 4. **Projekteinstellungen** (Zahnrad) → **Allgemein** → unten „Meine Apps“ → Web-App (`</>`) hinzufügen. Dort stehen `apiKey` und `projectId`.
-5. In `index.html` die Zeile `const ONLINE={projectId:'',apiKey:''};` suchen und beide Werte eintragen, z. B. `const ONLINE={projectId:'basketball-iq',apiKey:'AIza…'};`. Speichern und auf `main` committen.
+5. Die Datei [`config.js`](config.js) auf github.com öffnen, auf das Stift-Symbol tippen, bei `projectId` und `apiKey` die beiden Werte eintragen und **Commit changes** drücken (auf `main`). `index.html` muss dafür nicht angefasst werden. Ohne `config.js` oder mit leeren Werten wird nur auf dem Gerät gespeichert.
 
 Der Firebase-`apiKey` ist kein Geheimnis, er darf im Code stehen. Wer möchte, kann ihn in der Google Cloud Console auf die eigene GitHub-Pages-Adresse beschränken.
 
@@ -69,6 +69,7 @@ Hinweis: Die Punkte werden im Browser berechnet. Wer sich mit Programmieren ausk
 ## Dateien
 
 - `index.html`: das Spiel (three.js)
+- `config.js`: Zugangsdaten für die Online-Rangliste (Firebase `projectId` und `apiKey`)
 - `firestore.rules`: Sicherheitsregeln für die Online-Rangliste
 - `legacy/2d-version.html`: frühere 2D-Version (Canvas), nur Aufbau über die Mitte
 - `tools/smoke_test.py`: automatischer Test mit Playwright, der Spielzüge durchspielt, Screenshots macht und sich in die Rangliste einträgt

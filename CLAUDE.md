@@ -7,7 +7,7 @@ Hinweise für die Arbeit an diesem Repository.
 
 ## Aufbau
 - Alles steckt in einer Datei: `index.html` (HTML + CSS + JS). Kein Build, keine Abhängigkeiten außer three.js `0.149.0` (jsDelivr, globale `THREE`-Variable) und Google Fonts.
-- Gehostet über GitHub Pages (Branch `main`, Root). Die Online-Rangliste nutzt optional Firestore per REST (`ONLINE`-Konstante, Regeln in `firestore.rules`); ohne Konfiguration bzw. ohne Netz wird lokal gespeichert.
+- Gehostet über GitHub Pages (Branch `main`, Root). Die Online-Rangliste nutzt optional Firestore per REST (Zugangsdaten in `config.js` als `window.ONLINE_CONFIG`, im Code die Konstante `ONLINE`; Regeln in `firestore.rules`); ohne Konfiguration bzw. ohne Netz wird lokal gespeichert.
 - Die Seite wird auch als claude.ai-Artifact veröffentlicht. Dort sind nur Skripte von cdn.jsdelivr.net/npm, cdnjs, unpkg u. a. erlaubt, kein fetch zu anderen Hosts, und localStorage nur mit try/catch.
 
 ### Koordinaten
@@ -47,4 +47,4 @@ Ohne GPU läuft das Rendering sehr langsam (ca. 1–2 Minuten pro Runde). Der Te
 
 ## Offene Punkte
 - Auf dem Handy sind die Spieler eher klein, weil das ganze Halbfeld auf die Breite passen muss.
-- Online-Rangliste ist erst aktiv, wenn `ONLINE` in `index.html` mit einem Firebase-Projekt befüllt ist (siehe README).
+- Online-Rangliste: `config.js` ist mit dem Projekt `basketball-iq` befüllt. Der Smoke-Test blockiert `config.js`, damit er nicht in die echte Rangliste schreibt.
