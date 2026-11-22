@@ -1350,15 +1350,17 @@ function buildDKick(v,T,L,M,from){
   setPath(H,[[0,hS.x,hS.z],[T*.42,lerp(hS.x,hE.x,.16),lerp(hS.z,hE.z,.16)],[T,hE.x,hE.z]],true);H.dside=s;
   const dl=Math.hypot(hE.x,hE.z),tb=pt(-hE.x/dl,-hE.z/dl),d0=Math.hypot(hS.x,hS.z),tb0=pt(-hS.x/d0,-hS.z/d0);
   const sd=pt(-tb.z*s,tb.x*s); // seitlich zur Mitte, weg von der Kamera
+  // Feste Kamera etwas weiter hinten: Du bist schon nah am Korb, die Schützen stehen breit verteilt
+  const cf=wing?pt(hS.x*.8,hS.z*.8):pt(hE.x*.35,-7.4),cd=wing?tb0:pt(0,1),cs=pt(-cd.z*s,cd.x*s);
   // Geschlagener Verteidiger: erst vor dir, am Ende hinter dir auf der anderen Seite
-  setPath(dH,[[0,hS.x+tb0.x*1.25,hS.z+tb0.z*1.25],[T*.42,lerp(hS.x,hE.x,.16)+tb0.x*.9-sd.x*.3,lerp(hS.z,hE.z,.16)+tb0.z*.9-sd.z*.3],[T,hE.x-tb.x*1.15-sd.x*.75,hE.z-tb.z*1.15-sd.z*.75]]);
+  setPath(dH,[[0,hS.x+tb0.x*1.25,hS.z+tb0.z*1.25],[T*.42,lerp(hS.x,hE.x,.16)+tb0.x*.9-sd.x*.3,lerp(hS.z,hE.z,.16)+tb0.z*.9-sd.z*.3],[T,hE.x-cd.x*1.3-cs.x*.6,hE.z-cd.z*1.3-cs.z*.6]]);
   const hr={kickL:'LW',kickR:'RW',kickTop:'TOP',kickOW:'OW',dump:'C',kickK:'K'}[v]||null,helper=hr?'d'+hr:null;
   const spotOf=r=>{const e=off[r].end,dx=e.x-hE.x,dz=e.z-hE.z,lat=dx*-tb.z+dz*tb.x,sg=Math.abs(lat)<.4?-s:Math.sign(lat);
     return pt(hE.x+tb.x*1.05+(-tb.z)*sg*.75,hE.z+tb.z*1.05+tb.x*sg*.75);};
   const homes={};
   mates.forEach(([r])=>{const m=off[r],e=m.end,D=defs[r],st=pt(e.x,e.z-1.6);
     setPath(m,[[0,st.x,st.z],[T*.75,e.x,e.z]]);
-    const h=r==='C'?pt(e.x+s*.55,e.z-.45):homeOf(e,1.15,hE);homes[D.role]=h;
+    const h=r==='C'?pt(e.x+s*.55,e.z-.45):homeOf(e,.85,hE);homes[D.role]=h;
     const ds=r==='C'?pt(e.x+s*.3,e.z-.9):homeOf(st,.9,hS);
     if(helper===D.role){const sp=spotOf(r);setPath(D,[[0,ds.x,ds.z],[T*.5,h.x,h.z],[T*.96,sp.x,sp.z]]);}
     else setPath(D,[[0,ds.x,ds.z],[T*.7,h.x,h.z]]);});
@@ -1373,8 +1375,6 @@ function buildDKick(v,T,L,M,from){
     kickOW:'Der Verteidiger vom Flügel gegenüber ist in die Zone gerückt, um dich zu stoppen. Dadurch stand dein Mitspieler auf der anderen Seite frei. Pass raus!',
     kickK:'Der Verteidiger aus der Ecke ist dir in den Weg gesprungen. Dadurch stand dein Mitspieler in der Ecke frei für den Wurf. Pass raus!'};
   const why=WHY[v];
-  // Feste Kamera etwas weiter hinten: Du bist schon nah am Korb, die Schützen stehen breit verteilt
-  const cf=wing?pt(hS.x*.8,hS.z*.8):pt(hE.x*.35,-7.4),cd=wing?tb0:pt(0,1);
   return{ans,helper,fake,camSide:s,why,labels:{drive:LBL_DEF.drive,shot:null},camFix:{x:cf.x,z:cf.z,dx:cd.x,dz:cd.z},
     rule:v==='lay'?'Zieh zum Korb. Springt dir keiner in den Weg, mach den Korbleger!':'Zieh zum Korb. Springt dir einer in den Weg, pass zu dem, den er allein gelassen hat!',
     driveNote:'Ein Verteidiger ist dir in den Weg gesprungen. Da wärst du direkt hineingelaufen.',
