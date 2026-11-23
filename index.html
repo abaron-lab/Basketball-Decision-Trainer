@@ -1024,7 +1024,7 @@ const ledTex=canvasTex(4096,96,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,0
   const tw=items.reduce((a,s)=>a+g.measureText(s).width,0),gap=(w-tw)/items.length;let x=gap/2;
   items.forEach(s=>{g.fillStyle='#fff';g.fillText(s,x,h/2+3);x+=g.measureText(s).width;g.fillStyle='#ff8a3d';g.beginPath();g.arc(x+gap/2,h/2,16,0,7);g.fill();x+=gap;});});
 ledTex.wrapS=T3.RepeatWrapping;ledTex.repeat.set(1,1);
-const ledMat=new T3.MeshStandardMaterial({map:ledTex,emissive:0xffffff,emissiveMap:ledTex,emissiveIntensity:.85,roughness:.4});
+const ledMat=new T3.MeshStandardMaterial({map:ledTex,emissive:0xffffff,emissiveMap:ledTex,emissiveIntensity:.85,roughness:.4,toneMapped:false}); // ohne Tonemapping: Schrift strahlt im Bloom
 [[V(0,.45,4.2),new T3.BoxGeometry(19,.9,.15)],[V(-9.4,.45,-11),new T3.BoxGeometry(.15,.9,30)],[V(9.4,.45,-11),new T3.BoxGeometry(.15,.9,30)]].forEach(([p,g])=>{const m=new T3.Mesh(g,ledMat);m.position.copy(p);scene.add(m);});
 // Videowand
 const vbTex=canvasTex(1024,440,()=>{});
@@ -1038,8 +1038,8 @@ function drawBoard(){const c=vbTex.userData.canvas,g=c.getContext('2d'),w=c.widt
   const sc=new T3.Mesh(new T3.PlaneGeometry(9,3.9),new T3.MeshBasicMaterial({map:vbTex,toneMapped:false}));sc.position.copy(V(0,10.5,14.44));scene.add(sc);}
 // Deckenlichter
 {const gt=canvasTex(128,128,(g,w)=>{const r=g.createRadialGradient(w/2,w/2,0,w/2,w/2,w/2);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.25,'rgba(255,236,200,.55)');r.addColorStop(1,'rgba(255,220,160,0)');g.fillStyle=r;g.fillRect(0,0,w,w);});
-  const sm=new T3.SpriteMaterial({map:gt,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,fog:false});
-  const fx=new T3.MeshBasicMaterial({color:0xfff6e0});
+  const sm=new T3.SpriteMaterial({map:gt,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,fog:false,toneMapped:false});
+  const fx=new T3.MeshBasicMaterial({color:0xfff6e0,toneMapped:false}); // nicht tonemappen: hell genug für den Bloom
   for(const x of[-8,-2.7,2.7,8])for(const z of[2,-6,-14,-22]){const s=new T3.Sprite(sm);s.scale.set(3.2,3.2,1);s.position.copy(V(x,16,z));scene.add(s);
     const b=new T3.Mesh(new T3.BoxGeometry(1.2,.2,.6),fx);b.position.copy(V(x,16.2,z));scene.add(b);}}
 
@@ -1059,7 +1059,7 @@ const beams=[];
     m.position.copy(V(x,16,z));scene.add(m);beams.push({m,x,ph:i*1.3});});}
 const flashes=[];
 {const ft=canvasTex(64,64,(g,w)=>{const r=g.createRadialGradient(w/2,w/2,0,w/2,w/2,w/2);r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(.2,'rgba(220,235,255,.8)');r.addColorStop(1,'rgba(200,220,255,0)');g.fillStyle=r;g.fillRect(0,0,w,w);});
-  for(let i=0;i<24;i++){const sp=new T3.Sprite(new T3.SpriteMaterial({map:ft,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,fog:false}));sp.visible=false;sp.scale.setScalar(.9);scene.add(sp);flashes.push({sp,t:0});}}
+  for(let i=0;i<24;i++){const sp=new T3.Sprite(new T3.SpriteMaterial({map:ft,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,fog:false,toneMapped:false}));sp.visible=false;sp.scale.setScalar(.9);scene.add(sp);flashes.push({sp,t:0});}}
 let flashT=0,showT=0;
 function camFlash(){flashT=1.6;showT=2.2;}
 function updHall(dt,rdt){
@@ -1180,12 +1180,19 @@ window.initGLB=function(GLTFLoader,skClone){
   if(!GLB.want||GLB.ok)return;
   new GLTFLoader().load('player.glb',g=>{
     GLB.src=g.scene;GLB.clips={};g.animations.forEach(a=>GLB.clips[a.name]=a);GLB.clone=skClone;GLB.ok=true;
+    // Oberkörper-Fassungen von Pass und Fangen: Im Laufen laufen die Beine weiter
+    ['pass','passO','catch'].forEach(n=>{const c=GLB.clips[n];if(c)GLB.clips[n+'U']=new T3.AnimationClip(n+'U',c.duration,c.tracks.filter(t=>UPPER.test(t.name)));});
     if(G.phase==='menu')demo();if(CARD.on)cardRig();
   },undefined,e=>console.warn('player.glb nicht geladen, alte Figuren',e));};
 const LOCO=[['idle',0],['walk',1.4],['jog',3.2],['sprint',5.8]],STRIDE={walk:1.85,jog:2.9,sprint:4.1,jogBack:2.6,runBack:2.9,sadWalk:1.6};
 // Zusätzliche Clips aus Mixamo (tools/add_mixamo.mjs): dribble/dribbleM (rechte/linke Hand), ready (Grundstellung),
 // jogBack/runBack (rückwärts), cheer/clap (Jubel), sadWalk. Fehlen sie, laufen die alten Clips weiter.
 const CHEERS=['cheer','clap','cheer','dance'];
+// Eigene Clips für Aktionen (tools/make_clips.mjs): Sprungwurf, Korbleger (layupM = linke Hand), Pass, Überkopfpass
+// (lange Pässe), Fangen, Block. Der Knoten BALL zeigt, wo der Ball in den Händen liegt; das Spiel setzt den Ball
+// dorthin, solange der Spieler ihn hält (Wurf bis zum Abwurf, Korbleger bis zum Abwurf, Fangen).
+const ACTC={shoot:'shot',layup:'layup',block:'block',pass:'pass',catch:'catch'},ACT_ALL=['shot','layup','layupM','block','pass','passO','catch','passU','passOU','catchU'];
+const UPPER=/spine|neck|head|shoulder|arm|hand|f_|thumb|BALL/,BL={x:0,y:0,z:0};
 const _v1=new T3.Vector3(),_v2=new T3.Vector3(),_v3=new T3.Vector3(),_v4=new T3.Vector3(),_v5=new T3.Vector3(),
   _q1=new T3.Quaternion(),_q2=new T3.Quaternion(),_q3=new T3.Quaternion(),UPV=new T3.Vector3(0,1,0);
 function makeGLBRig(team,num,look){
@@ -1216,7 +1223,7 @@ function makeGLBRig(team,num,look){
   const mx=new T3.AnimationMixer(body),A={};
   for(const k in GLB.clips){const a=mx.clipAction(GLB.clips[k]);a.play();a.timeScale=0;a.setEffectiveWeight(0);A[k]=a;}
   const arm=s=>{const k=s>0?'L':'R';return{s,up:B['upper_arm'+k],lo:B['forearm'+k],hand:B['hand'+k]};};
-  return{glb:true,root,body,B,mx,A,arms:[arm(-1),arm(1)],ph:0,cur:{}};
+  return{glb:true,root,body,B,mx,A,arms:[arm(-1),arm(1)],ph:0,cur:{},ballN:body.getObjectByName('BALL')};
 }
 // Zwei-Knochen-IK: Handgelenk zu T (Welt), Ellbogen Richtung pole, mit Gewicht w über die Clip-Pose geblendet
 function rotWorld(bone,q){const pq=bone.parent.getWorldQuaternion(_q3);bone.quaternion.premultiply(_q2.copy(pq).invert().multiply(q).multiply(pq));bone.updateMatrixWorld(true);}
@@ -1285,20 +1292,36 @@ function poseGLB(p,dt){
   for(const n in tw){c['w_'+n]=c['w_'+n]===undefined?tw[n]:lerp(c['w_'+n],tw[n],k);}
   let sum=0;for(const n in tw)if(r.A[n])sum+=c['w_'+n];
   c.it=(c.it||0)+dt;c.dt2=cheer?(c.dt2||0)+dt:0;
+  // Aktions-Clip: schnell einblenden, nach dem Ende kurz ausblenden (letztes Bild bleibt stehen).
+  // Ganzkörper ersetzt die übrigen Clips; Pass/Fangen im Laufen nur als Oberkörper (Gewicht obendrauf).
+  let cl=A&&ACTC[A.k];if(cl==='layup'&&sb>0)cl='layupM';
+  if(cl==='pass'&&ball.fl&&Math.hypot(ball.fl.b.x-ball.fl.a.x,ball.fl.b.z-ball.fl.a.z)>9&&(!c.la||c.la!==A))cl='passO';
+  if(cl&&!has(cl))cl=null;
+  if(A!==c.la){c.la=A;if(cl){c.ac=(/pass|catch/.test(cl)&&s>.7)?cl+'U':cl;if(!has(c.ac))c.ac=cl;}}
+  if(cl){c.at=clamp(A.t/A.d,0,1);}
+  const awT=cl?1:0;c.aw=awT>(c.aw||0)?Math.min(1,(c.aw||0)+dt/.06):Math.max(0,(c.aw||0)-dt/.15);
+  const up=c.ac&&/U$/.test(c.ac),fa=up?0:c.aw,ua=up?Math.min(c.aw,.97):0;
   const db=((p.drib||0)/Math.PI)%3;   // Ball oben bei ganzen Zahlen; der Clip enthält drei Dribblings
-  for(const n in tw){const an=r.A[n];if(!an)continue;an.setEffectiveWeight(c['w_'+n]/Math.max(sum,.001));const D=an.getClip().duration;
+  for(const n in tw){const an=r.A[n];if(!an)continue;an.setEffectiveWeight(c['w_'+n]/Math.max(sum,.001)*(1-fa));const D=an.getClip().duration;
     an.time=n==='idle'||n==='ready'||n==='crouch'||n==='jump'?(c.it+p.ph)%D:/dance|cheer|clap/.test(n)?c.dt2%D:/dribble/.test(n)?db*D/3:r.ph*D;}
+  for(const n of ACT_ALL){const an=r.A[n];if(!an)continue;const on=n===c.ac&&c.aw>0;an.setEffectiveWeight(on?(up?ua/(1-ua):fa):0);if(on)an.time=(c.at||0)*an.getClip().duration;}
   r.mx.update(0);
   // seitlich laufen: Hüfte dreht in Laufrichtung, Wirbelsäule dreht zurück, damit die Brust zum Ball zeigt
   c.hyw=lerp(c.hyw||0,yawT,1-Math.exp(-dt*10));
   if(Math.abs(c.hyw)>.01){r.root.updateMatrixWorld(true);rotWorldN(r.B.hips,_q1.setFromAxisAngle(UPV,c.hyw));
     rotWorldN(r.B.spine001,_q1.setFromAxisAngle(UPV,-c.hyw*.4));rotWorldN(r.B.spine002,_q1.setFromAxisAngle(UPV,-c.hyw*.3));rotWorldN(r.B.spine003,_q1.setFromAxisAngle(UPV,-c.hyw*.3));}
   r.root.updateMatrixWorld(true);
+  // Ball in den Händen: an den Knoten BALL des Aktions-Clips, weich vom zuletzt gezeigten Platz aus
+  if(r.ballN&&c.aw>0&&A&&/shoot|layup|catch/.test(A.k)&&ball.owner===p&&ball.hold&&!ball.fl){
+    if(!c.ab){c.ab=0;c.b0=[BL.x,BL.y,BL.z];}c.ab=Math.min(1,c.ab+dt/.08);
+    const v=r.ballN.getWorldPosition(_v1),e=smooth(c.ab)*c.aw;
+    ball.x=lerp(c.b0[0],v.x,e);ball.y=lerp(c.b0[1],v.y,e);ball.z=lerp(c.b0[2],-v.z,e);ballMesh.position.set(ball.x,ball.y,-ball.z);}
+  else c.ab=0;
   // Arme: Ziele in Spielkoordinaten (x, y, z) relativ zur Blickrichtung
   const loc=(sx,y,f)=>[p.x+lx*sx+fx*f,y,p.z+lz*sx+fz*f];
   const T=[null,null];let track=false;
   const onBall=sd=>[ball.x+lx*sd*.16-fx*.03,ball.y-.02,ball.z+lz*sd*.16-fz*.03];
-  if(A&&A.k==='block'||p.armsUp>0){T[0]=loc(-.24,2.2+jy,.18);T[1]=loc(.24,2.2+jy,.18);}
+  if(A&&A.k==='block'||p.armsUp>0&&(def||!has('shot'))){T[0]=loc(-.24,2.2+jy,.18);T[1]=loc(.24,2.2+jy,.18);}
   else if(A&&A.k==='shoot'){if(ball.owner===p){track=true;T[sb>0?1:0]=[ball.x-fx*.08,ball.y-.1,ball.z-fz*.08];T[sb>0?0:1]=onBall(-sb);}
     else{T[sb>0?1:0]=loc(sb*.14,2.25+jy,.38);T[sb>0?0:1]=loc(-sb*.22,1.85+jy,.25);}}
   else if(A&&A.k==='layup'){T[sb>0?1:0]=ball.owner===p?(track=true,[ball.x,ball.y-.1,ball.z]):loc(sb*.14,2.3+jy,.3);}
@@ -1312,9 +1335,9 @@ function poseGLB(p,dt){
   for(let i=0;i<2;i++){const ar=r.arms[i],sd=ar.s,t=T[i],wk='aw'+i,tk='at'+i;
     c[wk]=lerp(c[wk]||0,t?1:0,1-Math.exp(-dt*(t?14:6)));
     if(t){const kk=track?1:1-Math.exp(-dt*16);if(!c[tk])c[tk]=t.slice();else for(let j=0;j<3;j++)c[tk][j]=lerp(c[tk][j],t[j],kk);}
-    if(!c[tk]||c[wk]<.002)continue;
+    const iw=c[wk]*(1-(c.aw||0));if(!c[tk]||iw<.002)continue;
     const tt=c[tk],pl=loc(sd*.7,.6,-.35);
-    ik2(ar,_v1.set(tt[0],tt[1],-tt[2]).clone(),new T3.Vector3(pl[0],pl[1]+jy,-pl[2]),c[wk]);}
+    ik2(ar,_v1.set(tt[0],tt[1],-tt[2]).clone(),new T3.Vector3(pl[0],pl[1]+jy,-pl[2]),iw);}
   // Kopf zum Ball, traurig: Kopf und Oberkörper nach vorn
   const want=ball.owner===p?0:clamp(wrapA(angTo(ball.x-p.x,ball.z-p.z)-p.ang),-.9,.9);c.hy=c.hy===undefined?want:lerp(c.hy,want,k*.6);
   rotWorld(r.B.head,_q1.setFromAxisAngle(UPV,c.hy).clone());
@@ -1512,7 +1535,7 @@ function poseP(p,dt){
 function fly(to,d,h,end,o){ball.owner=null;ball.hold=false;ball.fl=Object.assign({a:{x:ball.x,y:ball.y,z:ball.z},b:to,d,h,t:0,end},o||{});}
 // Leuchtspur hinter dem Ball bei Würfen
 const trail=[];{const tt=canvasTex(64,64,(g,w)=>{const r=g.createRadialGradient(w/2,w/2,0,w/2,w/2,w/2);r.addColorStop(0,'rgba(255,220,150,1)');r.addColorStop(.4,'rgba(255,140,40,.6)');r.addColorStop(1,'rgba(255,90,0,0)');g.fillStyle=r;g.fillRect(0,0,w,w);});
-  for(let i=0;i<18;i++){const sp=new T3.Sprite(new T3.SpriteMaterial({map:tt,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,opacity:0}));sp.scale.setScalar(.4);sp.visible=false;scene.add(sp);trail.push({sp,a:0});}}
+  for(let i=0;i<18;i++){const sp=new T3.Sprite(new T3.SpriteMaterial({map:tt,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,opacity:0,toneMapped:false}));sp.scale.setScalar(.4);sp.visible=false;scene.add(sp);trail.push({sp,a:0});}}
 let trailI=0,trailAcc=0;
 function updTrail(dt){if(ball.fl&&ball.fl.shot){trailAcc+=dt;if(trailAcc>.018){trailAcc=0;const t=trail[trailI++%trail.length];t.a=.75;t.sp.position.set(ball.x,ball.y,-ball.z);t.sp.visible=true;}}
   trail.forEach(t=>{if(!t.sp.visible)return;t.a-=dt*2.4;if(t.a<=0){t.sp.visible=false;return;}t.sp.material.opacity=t.a;t.sp.scale.setScalar(.12+t.a*.4);});}
@@ -2441,7 +2464,7 @@ function camPose(hx,hz,dx,dz){const cs=G.sc&&G.sc.camSide||1,rx=dz*cs,rz=-dx*cs;
   return{pos:[hx-dx*CP.back+rx*CP.side,CP.h,hz-dz*CP.back+rz*CP.side],look:[hx+dx*CP.look+rx*CP.side*.4,CP.lookY,hz+dz*CP.look+rz*CP.side*.4]};}
 const tmpCam=new T3.PerspectiveCamera(50,1,.1,200);
 function computeFit(){
-  W=innerWidth;H=innerHeight;renderer.setSize(W,H,false);
+  W=innerWidth;H=innerHeight;renderer.setSize(W,H,false);fxSize();
   const ctrl=$('bottom'),ch=ctrl.classList.contains('hidden')?170:ctrl.offsetHeight;
   const top=56+(G.sc&&passers().length?32:0),bot=H-ch-10,left=6,right=W-6,rw=right-left,rh=Math.max(120,bot-top);
   const t=clamp((rh/rw-.55)/1.1,0,1);
@@ -2535,7 +2558,10 @@ function score(after){sfx.swish();netKick(ball.x*3,ball.z*3);G.excite=1;G.slowT=
 function shootFrom(S,make,after){S.armsUp=1.3;ball.owner=S;ball.hold=true;act(S,'shoot',1.0);shooter=S;
   later(.24,()=>{const d=Math.hypot(S.x,S.z);rimCam(S);fly({x:0,y:3.25,z:make?0:-.12},.75+d*.04,1.1+d*.13,()=>{
     if(make)score(()=>after&&after(true));else{sfx.rim();rimHit();G.slowT=.35;sfx.ooh();fly({x:rand(-2.5,2.5),y:.13,z:-2.6},.75,1.6,()=>after&&after(false));}},{shot:true});});}
-function layShot(S,after){S.armsUp=1;act(S,'layup',.85);shooter=S;ball.owner=null;rimCam(S);fly({x:0,y:3.25,z:0},.46,.5,()=>score(after),{shot:true});}
+function layShot(S,after){S.armsUp=1;act(S,'layup',.85);shooter=S;rimCam(S);
+  // mit eigenem Korbleger-Clip: Ball bleibt bis zum Abwurf (0,28 s) in der Hand
+  if(S.rig.glb&&S.rig.A.layup){ball.owner=S;ball.hold=true;later(.28,()=>fly({x:0,y:3.25,z:0},.3,.28,()=>score(after),{shot:true}));}
+  else{ball.owner=null;fly({x:0,y:3.25,z:0},.46,.5,()=>score(after),{shot:true});}}
 function layup(S,after){const sx=Math.sign(S.x)||1,tx=sx*.6,tz=-.9,d=Math.hypot(S.x-tx,S.z-tz),du=Math.max(.25,d/6.5);
   goTo(S,[[du,tx,tz]],true);later(du,()=>layShot(S,after));}
 // Kamera-Moment: Schnitt auf eine tiefe Kamera neben dem Korb
@@ -3148,14 +3174,49 @@ function update(rdt){
   if(ball.owner)ball.owner.drib+=dt*(G.phase==='decide'?2.4:G.phase==='feedback'||G.phase==='summary'?0:7.5);
   updBall(G.phase==='feedback'||G.phase==='summary'?0:dt);
   players.forEach(p=>poseP(p,dt));
+  BL.x=ball.x;BL.y=ball.y;BL.z=ball.z;
   updRing();posMe();
   updNet(dt,gclock);updFans(gclock,G.excite,dt);updTrail(dt);updHall(dt,rdt);updCam(rdt,false);
   if(bubbles.length)posBubbles();
 }
-// Schwache Geräte: nach dem Start Schatten und Auflösung automatisch reduzieren
+// ================= Bildeffekte =================
+// Bloom: Hallenlichter, LED-Banden, Anzeigetafel, Fotoblitze und die Leuchtspur des Balls strahlen (Fernseh-Look).
+// Tiefenunschärfe (Bokeh) nur in der Wurfkamera (camMode), scharf ist der Werfer bzw. der Ball; im Entscheidungsmoment
+// nie, damit nichts unruhig wird. Über EffectComposer (Module am Ende der Seite). Aus mit ?lite oder ?fx=0, ohne WebGL2
+// und auf langsamen Geräten (perfCheck; ?fx=1 lässt sie dort an). Fehlt etwas, wird wie bisher direkt gerendert.
+const FX={on:false,want:!LITE&&!/[?&]fx=0\b/.test(location.search),force:/[?&]fx=1\b/.test(location.search),dof:0,ap:.005,mb:.009};
+window.initFX=function(M){
+  if(!FX.want||FX.on||!renderer.capabilities.isWebGL2)return;
+  try{const ex=renderer.extensions,hf=ex.has('EXT_color_buffer_float')||ex.has('EXT_color_buffer_half_float');
+    const rt=new T3.WebGLRenderTarget(W,H,{type:hf?T3.HalfFloatType:T3.UnsignedByteType,samples:4});
+    const C=new M.EffectComposer(renderer,rt);C.addPass(new M.RenderPass(scene,cam));
+    const bok=new M.BokehPass(scene,cam,{focus:6,aperture:0,maxblur:.008});bok.enabled=false;bok.needsSwap=true;C.addPass(bok); // in r149 sonst nur als letzter Pass
+    const bl=new M.UnrealBloomPass(new T3.Vector2(W,H),.5,.45,.9);C.addPass(bl);
+    C.addPass(new M.ShaderPass(M.GammaCorrectionShader));
+    Object.assign(FX,{C,bok,bl,on:true});fxSize();
+    // Prüfen, ob das Gerät in die Zwischenbilder rendern kann, sonst ohne Effekte weiter
+    const gl=renderer.getContext();renderer.setRenderTarget(rt);const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;renderer.setRenderTarget(null);
+    if(!ok)throw new Error('Framebuffer');
+  }catch(e){console.warn('Bildeffekte aus',e);FX.on=false;}};
+function fxSize(){if(!FX.on)return;FX.C.setPixelRatio(renderer.getPixelRatio());FX.C.setSize(W,H);}
+const _fp=new T3.Vector3();
+function draw(rdt){
+  if(!FX.on){renderer.render(scene,cam);return;}
+  // Tiefenunschärfe: nur in der Wurfkamera einblenden; Fokus auf dem Werfer, solange der Ball in der Hand ist, dann auf dem Ball
+  const cine=!!camMode&&(G.phase==='outcome'||G.phase==='feedback');FX.dof=lerp(FX.dof,cine?1:0,1-Math.exp(-(rdt||.016)*(cine?5:12)));
+  const bk=FX.bok;bk.enabled=FX.dof>.02;
+  if(bk.enabled){const S=shooter&&ball.owner===shooter?shooter:null;if(S)_fp.set(S.x,1.5+(S.jy||0),-S.z);else _fp.set(ball.x,ball.y,-ball.z);
+    const d=cam.position.distanceTo(_fp);bk.uniforms.focus.value=lerp(bk.uniforms.focus.value,d,bk.uniforms.aperture.value>0?.25:1);
+    bk.uniforms.aperture.value=FX.ap*FX.dof;bk.uniforms.maxblur.value=FX.mb*FX.dof;}
+  // Bloom: kräftiger bei der Lichtshow nach einem Treffer
+  FX.bl.strength=.45+.35*Math.min(1,showT*1.5);
+  FX.C.render(rdt);}
+// Schwache Geräte: nach dem Start Bildeffekte, Schatten und Auflösung automatisch reduzieren
 let perfN=0,perfSum=0,perfDone=LITE;
-function perfCheck(dt){if(perfDone)return;perfN++;if(perfN<30)return;perfSum+=dt;if(perfN>=120){perfDone=true;if(perfSum/90>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}}
-function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;perfCheck(raw);try{update(dt);if(!CARD.on||W>560)renderer.render(scene,cam);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
+function perfCheck(dt){if(perfDone)return;perfN++;if(perfN<30)return;perfSum+=dt;if(perfN>=120){perfDone=true;const a=perfSum/90;
+  if(a>.03&&FX.on&&!FX.force){FX.on=false;if(a>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}
+  else if(a>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}}
+function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;perfCheck(raw);try{update(dt);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
 if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2,-7);scene.updateMatrixWorld(true);
   scene.environment=pm.fromScene(scene,.03,.1,120).texture;scene.position.set(0,0,0);scene.updateMatrixWorld(true);pm.dispose();
   }catch(e){scene.position.set(0,0,0);}}
@@ -3164,7 +3225,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');render
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
-window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);renderer.render(scene,cam);}; // nur für Tests: Spielzeit vorspulen
+window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 })();
 </script>
@@ -3174,6 +3235,12 @@ window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene
 import {GLTFLoader} from 'https://cdn.jsdelivr.net/npm/three@0.149.0/examples/jsm/loaders/GLTFLoader.js';
 import {clone} from 'https://cdn.jsdelivr.net/npm/three@0.149.0/examples/jsm/utils/SkeletonUtils.js';
 if(window.initGLB)window.initGLB(GLTFLoader,clone);
+</script>
+<!-- Bildeffekte (Bloom, Tiefenunschärfe in der Wurfkamera); eigenes Modul, damit die Figuren auch ohne laden -->
+<script type="module">
+const J='https://cdn.jsdelivr.net/npm/three@0.149.0/examples/jsm/';
+Promise.all(['postprocessing/EffectComposer.js','postprocessing/RenderPass.js','postprocessing/ShaderPass.js','postprocessing/UnrealBloomPass.js','postprocessing/BokehPass.js','shaders/GammaCorrectionShader.js'].map(f=>import(J+f)))
+  .then(m=>{if(window.initFX)window.initFX(Object.assign({},...m));}).catch(e=>console.warn('Bildeffekte nicht geladen',e));
 </script>
 </body>
 </html>
