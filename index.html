@@ -292,7 +292,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .seg .chip.sel{background:linear-gradient(180deg,#ffd257,#f0b31f);color:#1d1500;box-shadow:0 4px 12px rgba(255,200,61,.3)}
 .posb{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1a1300;font:900 12px/1 Nunito,system-ui,sans-serif;font-style:normal;margin-right:7px;vertical-align:-4px;letter-spacing:0}
 .seg .chip .posb{margin-right:5px}
-@media (max-height:700px){.pico svg{width:46px;height:37px}.sec-t{margin:9px 0 5px}.btn.big{padding:10px 16px 8px}.mhead .logo{width:42px;height:42px;flex-basis:42px}h1{font-size:36px}}
+@media (max-height:700px){.pico svg{width:46px;height:37px}.sec-t{margin:8px 0 5px}.chip{padding:5px 10px}.chips{gap:5px}.btn.big{padding:10px 16px 8px}.mhead .logo{width:42px;height:42px;flex-basis:42px}h1{font-size:36px}}
 @media (max-height:600px){#pos .lvb span,.seg .lvb span{display:none}}
 .seg .chip.sel .posb{background:#1d1500;color:var(--gold)}
 /* Spielerkarte */
@@ -501,15 +501,18 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
       </div>
       <div class="tpane" data-t="1">
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-up"/></svg></div><div><b>Zum Korb oder passen?</b><p>Kommt keiner zur Hilfe, geh zum Korb. Kommt Hilfe, pass zum freien Mitspieler. Weicht dein Verteidiger weit zurück, wirf.</p></div></div>
-        <div class="tip"><div class="ic"><svg class="i"><use href="#i-bolt"/></svg></div><div><b>Schnellangriff</b><p>Stellt sich dir keiner in den Weg, mach den Korbleger. Sonst pass zum freien Läufer.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-bolt"/></svg></div><div><b>Schnellangriff</b><p>Ist ein Läufer allein vorne, wirf sofort den langen Pass. Stellt sich dir keiner in den Weg, mach den Korbleger.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-pass"/></svg></div><div><b>Durchbruch</b><p>Zieh in die Zone. Springt dir einer in den Weg, pass zu dem, den er allein gelassen hat.</p></div></div>
       </div>
       <div class="tpane" data-t="2">
-        <div class="tip"><div class="ic"><svg class="i"><use href="#i-ball"/></svg></div><div><b>Nach dem Fangen</b><p>Ist dein Verteidiger weit weg, wirf. Steht er neben dir, zieh zum Korb. Kommt Hilfe, pass weiter.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-ball"/></svg></div><div><b>Nach dem Fangen</b><p>Ist dein Verteidiger weit weg, wirf. Steht er neben dir, zieh zum Korb.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-pass"/></svg></div><div><b>Durchbruch</b><p>Springt dir in der Zone einer in den Weg, pass zu dem, den er allein gelassen hat.</p></div></div>
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-cut"/></svg></div><div><b>Ohne Ball</b><p>Stellt dein Verteidiger den Passweg zu, lauf hinter seinem Rücken zum Korb (Backdoor). Steht er weit weg, fordere den Ball.</p></div></div>
       </div>
       <div class="tpane" data-t="3">
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-spin"/></svg></div><div><b>Ball am Brett</b><p>Dreh dich zur Mitte. Kommt keiner zur Hilfe, mach den Korbleger. Hilft ein zweiter Verteidiger aus, pass raus zu dem, der frei geworden ist.</p></div></div>
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-dive"/></svg></div><div><b>Wenn der Aufbau zieht</b><p>Hilft dein Verteidiger aus, lauf zum Korb und zeig die Hände. Bleibt er bei dir, halt die Zone frei.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-bolt"/></svg></div><div><b>Nach dem Rebound</b><p>Schau sofort nach vorne. Ist ein Läufer allein, wirf den langen Pass. Sonst kurz zum freien Aufbau.</p></div></div>
       </div>
       <div class="tpane" data-t="4">
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-shield"/></svg></div><div><b>Am Ball</b><p>Stell dich zwischen deinen Gegenspieler und den Korb, eine Armlänge weg. Ist er einen Pass vom Ball entfernt: eine Hand in den Passweg.</p></div></div>
@@ -968,7 +971,8 @@ const LZ={luecke:{n:'Lücke erkennen',s:'Lücke',i:'up'},umspielen:{n:'Gegenspie
   lauf:{n:'In den Lauf passen',s:'In den Lauf',i:'cut'},zusammen:{n:'Zusammenspiel',s:'Zusammen',i:'pass'},anbieten:{n:'Anbieten und Orientieren',s:'Anbieten',i:'eye'},
   wurf:{n:'Guter Wurf',s:'Wurf',i:'ball'},vert:{n:'Mann-Mann-Verteidigung',s:'Abwehr',i:'shield'}};
 const LZ_OVR={'break':'ueberzahl',wbreak:'ueberzahl',two:'ueberzahl','backdoor:cut':'lauf','chigh:backdoor':'lauf','cpost:drive':'umspielen','chigh:drive':'umspielen','wcatch:drive':'umspielen',
-  'xpass:fly':'umspielen','give:cut':'zusammen','rimrun:run':'ueberzahl'};
+  'xpass:fly':'umspielen','give:cut':'zusammen','rimrun:run':'ueberzahl',
+  'plong:longL':'lauf','plong:longR':'lauf','plong:drive':'ueberzahl','clong:longL':'lauf','clong:longR':'lauf'};
 function lzOf(play,variant,ans,off){if(PLAYS[play]&&PLAYS[play].pos==='def')return'vert';const o=LZ_OVR[play+':'+variant]||LZ_OVR[play];if(o)return o;
   if(off)return'anbieten';if(ans.startsWith('pass:'))return'zusammen';return ans==='drive'?'luecke':'wurf';}
 // ================= Spielerprofil =================
@@ -1452,6 +1456,110 @@ function buildCDive(v,T,L,M){
     notes:{drive:'Dein Verteidiger ist mitgelaufen. Jetzt standen zwei Spieler mehr in der Zone, und dein Aufbau kam nicht durch.',shot:'Dein Verteidiger hat dich allein gelassen. Wärst du zum Korb gelaufen, hättest du den Ball bekommen.'}};
 }
 
+// ================= DURCHBRUCH & KICK-OUT =================
+// Du ziehst zum Korb. Entschieden wird erst in der Zone: Springt dir einer in den Weg, ist sein Mitspieler frei.
+function buildDKick(v,T,L,M,from){
+  const s=R()<.5?-1:1,wing=from==='wing';
+  const H=addP('H','off',wing?(s<0?3:2):1);
+  let hS,hE,mates;
+  if(!wing){hS=pt(s*rand(.3,.8),-9.6);hE=pt(s*rand(.75,1.0),-3.5);
+    mates=[['LW',3,'Flügel links',pt(rand(-6.3,-5.8),rand(-4.6,-3.8))],['RW',2,'Flügel rechts',pt(rand(5.8,6.3),rand(-4.6,-3.8))],['C',5,'Center',pt(-s*rand(2.7,3.0),rand(-.8,-.4)),'layup']];
+    if(M===5)mates.push(['K',7,s<0?'Ecke links':'Ecke rechts',pt(s*rand(6.6,6.9),rand(.2,.6))]);}
+  else{hS=pt(s*5.5,-6.9);hE=pt(s*1.75,-2.3);
+    mates=[['TOP',1,'Aufbau oben',pt(-s*rand(.6,1.2),rand(-8.0,-7.4))],['OW',s<0?2:3,'Flügel gegenüber',pt(-s*rand(5.8,6.3),rand(-4.6,-3.8))],['C',5,'Center',pt(-s*rand(2.7,3.0),rand(-.8,-.4)),'layup']];
+    if(M===5)mates.push(['K',7,'Ecke',pt(s*rand(6.6,6.9),rand(.2,.6))]);}
+  const off={};mates.forEach(([r,n,name,e,fin])=>{off[r]=addP(r,'off',n,{name,finish:fin||'shot'});off[r].end=e;});
+  const dH=addP('dH','def',4),defs={};mates.forEach(([r],i)=>{defs[r]=addP('d'+r,'def',[8,6,9,10][i]);});
+  GUARD={};mates.forEach(([r])=>GUARD[r]=defs[r]);
+  // Laufweg: kurz antäuschen, dann schnell in die Zone
+  setPath(H,[[0,hS.x,hS.z],[T*.42,lerp(hS.x,hE.x,.16),lerp(hS.z,hE.z,.16)],[T,hE.x,hE.z]],true);H.dside=s;
+  const dl=Math.hypot(hE.x,hE.z),tb=pt(-hE.x/dl,-hE.z/dl),d0=Math.hypot(hS.x,hS.z),tb0=pt(-hS.x/d0,-hS.z/d0);
+  const sd=pt(-tb.z*s,tb.x*s); // seitlich zur Mitte, weg von der Kamera
+  // Feste Kamera etwas weiter hinten: Du bist schon nah am Korb, die Schützen stehen breit verteilt
+  const cf=wing?pt(hS.x*.8,hS.z*.8):pt(hE.x*.35,-7.4),cd=wing?tb0:pt(0,1),cs=pt(-cd.z*s,cd.x*s);
+  // Geschlagener Verteidiger: erst vor dir, am Ende hinter dir auf der anderen Seite
+  setPath(dH,[[0,hS.x+tb0.x*1.25,hS.z+tb0.z*1.25],[T*.42,lerp(hS.x,hE.x,.16)+tb0.x*.9-sd.x*.3,lerp(hS.z,hE.z,.16)+tb0.z*.9-sd.z*.3],[T,hE.x-cd.x*1.3-cs.x*.6,hE.z-cd.z*1.3-cs.z*.6]]);
+  const hr={kickL:'LW',kickR:'RW',kickTop:'TOP',kickOW:'OW',dump:'C',kickK:'K'}[v]||null,helper=hr?'d'+hr:null;
+  const spotOf=r=>{const e=off[r].end,dx=e.x-hE.x,dz=e.z-hE.z,lat=dx*-tb.z+dz*tb.x,sg=Math.abs(lat)<.4?-s:Math.sign(lat);
+    return pt(hE.x+tb.x*1.05+(-tb.z)*sg*.75,hE.z+tb.z*1.05+tb.x*sg*.75);};
+  const homes={};
+  mates.forEach(([r])=>{const m=off[r],e=m.end,D=defs[r],st=pt(e.x,e.z-1.6);
+    setPath(m,[[0,st.x,st.z],[T*.75,e.x,e.z]]);
+    const h=r==='C'?pt(e.x+s*.55,e.z-.45):homeOf(e,.85,hE);homes[D.role]=h;
+    const ds=r==='C'?pt(e.x+s*.3,e.z-.9):homeOf(st,.9,hS);
+    if(helper===D.role){const sp=spotOf(r);setPath(D,[[0,ds.x,ds.z],[T*.5,h.x,h.z],[T*.96,sp.x,sp.z]]);}
+    else setPath(D,[[0,ds.x,ds.z],[T*.7,h.x,h.z]]);});
+  const cand=mates.filter(([r])=>'d'+r!==helper).map(([r])=>[defs[r],spotOf(r)]);
+  const fake=maybeFake(L,cand,homes,T);
+  const ans=v==='lay'?'drive':'pass:'+hr;
+  const WHY={lay:'Du bist an deinem Verteidiger vorbeigezogen, und keiner ist dir in den Weg gesprungen. Freie Bahn: Mach den Korbleger!',
+    dump:'Der Verteidiger des Centers ist dir unter dem Korb in den Weg gesprungen. Dadurch stand dein Center ganz allein. Kurzer Pass, leichter Korb!',
+    kickL:'Der Verteidiger deines linken Flügelspielers ist dir in der Zone in den Weg gesprungen. Dadurch stand dein Mitspieler links frei für den Wurf. Pass raus!',
+    kickR:'Der Verteidiger deines rechten Flügelspielers ist dir in der Zone in den Weg gesprungen. Dadurch stand dein Mitspieler rechts frei für den Wurf. Pass raus!',
+    kickTop:'Der Verteidiger deines Aufbauspielers ist dir in den Weg gesprungen. Dadurch stand dein Aufbau oben frei für den Wurf. Pass raus!',
+    kickOW:'Der Verteidiger vom Flügel gegenüber ist in die Zone gerückt, um dich zu stoppen. Dadurch stand dein Mitspieler auf der anderen Seite frei. Pass raus!',
+    kickK:'Der Verteidiger aus der Ecke ist dir in den Weg gesprungen. Dadurch stand dein Mitspieler in der Ecke frei für den Wurf. Pass raus!'};
+  const why=WHY[v];
+  return{ans,helper,fake,camSide:s,why,labels:{drive:LBL_DEF.drive,shot:null},camFix:{x:cf.x,z:cf.z,dx:cd.x,dz:cd.z},
+    rule:v==='lay'?'Zieh zum Korb. Springt dir keiner in den Weg, mach den Korbleger!':'Zieh zum Korb. Springt dir einer in den Weg, pass zu dem, den er allein gelassen hat!',
+    driveNote:'Ein Verteidiger ist dir in den Weg gesprungen. Da wärst du direkt hineingelaufen.',
+    prompt:'Du ziehst zum Korb. Was machst du?'};
+}
+
+// ================= LANGER PASS =================
+// Früh nach vorne schauen: Ist ein Läufer allein vorne, wirf den langen Pass.
+// who='center': nach dem Rebound unter dem eigenen Korb, sonst kurzer Pass zum Aufbau an der Seite.
+// who='pg': nach dem Ballgewinn, sonst selbst nach vorne dribbeln.
+function buildLong(v,T,L,M,who){
+  const s=R()<.5?-1:1,ctr=who==='center';
+  const H=addP('H','off',ctr?5:1);
+  const RL=addP('RL','off',3,{name:'Läufer links',finish:'layup'}),RR=addP('RR','off',2,{name:'Läufer rechts',finish:'layup'});
+  const PG=ctr?addP('PG','off',1,{name:'Aufbau an der Seite'}):null;
+  const TR=M===5?addP('TR','off',ctr?4:5,{sel:false}):null;
+  const dH=addP('dH','def',ctr?9:4),dL=addP('dRL','def',8),dR=addP('dRR','def',6),dP=addP(ctr?'dPG':'dX','def',ctr?4:9),dT=M===5?addP('dTR','def',10):null;
+  GUARD={RL:dL,RR:dR};if(PG)GUARD.PG=dP;
+  [TR,dT].forEach(p=>p&&(p.trail=true));
+  const zH=ctr?-23.2:-15.6,zR=ctr?-10.2:-6.4,run=ctr?11.5:10.5;
+  if(ctr){setPath(H,[[0,s*.9,-24.4],[T*.55,s*1.2,-23.6],[T,s*1.3,zH]]);}
+  else setPath(H,[[0,s*.5,-19.6],[T,s*.3,zH]],true);
+  const fL=v==='longL',fR=v==='longR';
+  const xr=ctr?4.3:4.4;
+  setPath(RL,[[0,-xr,zR-run],[T,-xr-.2,zR+(fL?.4:0)]],true);setPath(RR,[[0,xr,zR-run-.3],[T,xr+.2,zR+(fR?.4:0)]],true);
+  // Verteidiger beim Läufer: läuft mit und steht zwischen Läufer und Korb. Sonst weit hinten.
+  const guard=(D,sg,free)=>{if(free){setPath(D,[[0,sg*(xr-.6),zR-run-1.5],[T,sg*(xr+.9),zR-7.4]],true);} // hängt hinten an der Seitenlinie, nicht im Passweg
+    else{setPath(D,[[0,sg*(xr-1.0),zR-run+1.2],[T,sg*(xr-.75),zR+1.1]],true);}};
+  guard(dL,-1,fL);guard(dR,1,fR);
+  if(ctr){setPath(dH,[[0,-s*.2,-23.0],[T,-s*.4,zH+.6]]);
+    const pS=pt(s*5.4,-20.4),pE=pt(s*5.0,-20.9);setPath(PG,[[0,pS.x,pS.z],[T*.7,pE.x,pE.z]]);
+    if(v==='outlet')setPath(dP,[[0,s*3.2,-19.0],[T,s*1.4,-15.6]],true); // zurückgelaufen, der Aufbau ist frei
+    else setPath(dP,[[0,s*4.4,-19.4],[T*.7,lerp(pE.x,H.path[2][1],.18),lerp(pE.z,zH,.18)+.35]]);} // stellt den kurzen Pass zu
+  else{setPath(dH,[[0,s*.9,-21.0],[T,s*2.2,zH-3.6]],true);setPath(dP,[[0,-s*1.6,-22.4],[T,-s*1.4,zH-3.2]],true);}
+  if(TR){setPath(TR,[[0,-s*2.2,ctr?-25:-21.6],[T,-s*2.0,zH-1.2]],true);setPath(dT,[[0,-s*2.8,ctr?-24.6:-21],[T,-s*2.6,zH-.8]],true);}
+  const ans=fL?'pass:RL':fR?'pass:RR':ctr?'pass:PG':'drive';
+  const side=fL?'links':'rechts';
+  const why=fL||fR?`Dein Läufer ${side} ist an allen Verteidigern vorbeigesprintet. Vor ihm war nur noch der Korb. ${ctr?'Der lange Pass ist der schnellste Weg nach vorne!':'Ein langer Pass ist schneller als jedes Dribbling!'}`
+    :ctr?'Beide Läufer waren gedeckt, ein langer Pass wäre abgefangen worden. Der Aufbau an der Seite war frei: kurzer Pass, und er bringt den Ball nach vorne.'
+    :'Beide Läufer waren gedeckt, ein langer Pass wäre abgefangen worden. Vor dir war aber die Mitte frei: selbst nach vorne dribbeln!';
+  const out={};
+  if(ctr){out.outcome=(choice,ok,finish)=>{
+    if(choice==='pass:PG'&&ok){ball.y=Math.max(1,ball.y);sfx.pass();act(H,'pass',.4);const tf=.25+Math.hypot(PG.x-ball.x,PG.z-ball.z)/15;
+      fly({x:PG.x,y:1.2,z:PG.z},tf,.3,()=>{ball.owner=PG;ball.hold=false;act(PG,'catch',.25);flash('Guter Pass!','#7ff0ad');sfx.good();
+        goTo(PG,[[1.6,s*3.4,-13.5]],true);goTo(H,[[1.6,s*1.2,-17]]);finish(1.4);});}
+    else if(choice.startsWith('pass:')){const Wp=role(choice.slice(5));if(ok)passOk(Wp,finish);else passBad(Wp,finish,GUARD[Wp.role]);}};}
+  else out.outcome=(choice,ok,finish)=>{
+    if(choice==='drive'&&ok){ball.hold=false;const sx=Math.sign(H.x)||1,tx=sx*.55,tz=-1.2,du=Math.hypot(H.x-tx,H.z-tz)/6.3;
+      goTo(H,[[du,tx,tz]],true);goTo(dH,[[du,tx-sx*1.2,tz-4]]);later(du,()=>layShot(H,()=>{flash('Korbleger!','#7ff0ad');sfx.good();finish(.7);}));}
+    else if(choice==='drive'){goTo(H,[[1.4,H.x,-9.6]],true);[dL,dR].forEach((D,i)=>goTo(D,[[1.2,(i?1:-1)*1.3,-7.2]]));goTo(fL?RL:RR,[[1.2,(fL?-1:1)*3.6,-3.6]]);
+      later(1.35,()=>{G.slowT=.4;sfx.bad();sfx.ooh();flash('Verteidigung ist zurück','#ff7b72');finish(1.1);});}
+    else{const Wp=role(choice.slice(5));if(ok)passOk(Wp,finish);else passBad(Wp,finish,GUARD[Wp.role]);}};
+  return Object.assign(out,{ans,helper:ctr?null:(fL||fR?'dX':null),fake:false,hold:ctr,onBall:true,q:fL||fR?{t:'Wer war frei?',r:fL?'RL':'RR'}:ctr?{t:'Wer war frei?',r:'PG'}:{t:'Wer lief neben dem linken Läufer?',r:'dRL'},camSide:-s,why,
+    labels:ctr?{drive:null,shot:null}:{drive:['▲','Selbst dribbeln'],shot:null},
+    prompt:ctr?'Rebound! Wohin passt du?':'Ballgewinn! Was machst du?',
+    rule:fL||fR?'Ist ein Läufer allein vorne, wirf sofort den langen Pass!':ctr?'Sind die Läufer gedeckt, spiel den kurzen Pass zum freien Aufbau.':'Sind die Läufer gedeckt, dribbel selbst schnell nach vorne.',
+    driveNote:'Selbst dribbeln dauert zu lange. Bis du vorne bist, ist die Verteidigung zurück. Der Ball fliegt schneller!',
+    notes:{pass:fL||fR?'Dieser Pass ging zu einem gedeckten Mitspieler. Schau zuerst ganz nach vorne!':'Der Verteidiger lief direkt neben deinem Läufer. Der lange Pass wäre abgefangen worden.'}});
+}
+
 // ================= NEUE SPIELZÜGE (Prinzipien aus der DBB-Spielkonzeption, ohne Blöcke) =================
 // Zuspiel ohne Wurf: Ball fliegt zu Wp, danach after()
 function passTo(Wp,after){ball.y=Math.max(1,ball.y);sfx.pass();act(ball.owner,'pass',.4);const tf=.25+Math.hypot(Wp.x-ball.x,Wp.z-ball.z)/15;
@@ -1707,11 +1815,15 @@ const PLAYS={
   dhelp:{pos:'def',name:'Zwei Pässe entfernt',desc:'Der Ball ist auf der anderen Seite',T:[3.2,2.8,2.4],vars:()=>['wing','corner'],build:buildDHelp},
   drot:{pos:'def',name:'Aushelfen',desc:'Der Ballführer ist an seinem Verteidiger vorbei',T:[3.2,2.8,2.4],vars:()=>['top','mid'],build:buildDRot},
   dclose:{pos:'def',name:'Zurück zum Gegenspieler',desc:'Der Ball kommt zu deinem Gegenspieler',T:[3.4,3.0,2.6],vars:()=>['wing','corner'],build:buildDClose},
-  rimrun:{pos:'center',name:'Rim Run',desc:'Schnellangriff: Sprint zum Korb oder hinten bleiben?',T:[3.6,3.1,2.7],vars:()=>['run','back'],build:buildRimRun}
+  rimrun:{pos:'center',name:'Rim Run',desc:'Schnellangriff: Sprint zum Korb oder hinten bleiben?',T:[3.6,3.1,2.7],vars:()=>['run','back'],build:buildRimRun},
+  dkick:{pos:'pg',name:'Durchbruch & Kick-out',desc:'Zieh in die Zone. Wer springt dir in den Weg?',T:[3.4,3.0,2.6],vars:(M)=>M===5?['lay','kickL','kickR','dump','kickK']:['lay','kickL','kickR','dump'],build:(v,T,L,M)=>buildDKick(v,T,L,M,'top')},
+  plong:{pos:'pg',name:'Ballgewinn: langer Pass?',desc:'Schau sofort nach vorne!',T:[3.2,2.8,2.4],vars:()=>['longL','longR','drive'],build:(v,T,L,M)=>buildLong(v,T,L,M,'pg')},
+  wdrive:{pos:'wing',name:'Durchbruch vom Flügel',desc:'Zieh zum Korb und lies die Hilfe',T:[3.4,3.0,2.6],vars:(M)=>M===5?['lay','kickTop','kickOW','dump','kickK']:['lay','kickTop','dump','kickOW'],build:(v,T,L,M)=>buildDKick(v,T,L,M,'wing')},
+  clong:{pos:'center',name:'Rebound & langer Pass',desc:'Du hast den Rebound. Wer ist vorne frei?',T:[3.2,2.8,2.4],vars:()=>['longL','longR','outlet'],build:(v,T,L,M)=>buildLong(v,T,L,M,'center')}
 };
 const playsOf=pos=>Object.keys(PLAYS).filter(k=>PLAYS[k].pos===pos);
 // Kurznamen für die Auswahl im Menü (passt auf kleinen Handys in zwei Zeilen)
-const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann'};
+const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound'};
 
 function buildScenario(seed,play,variant){
   R=mulberry(seed);clearPlayers();
@@ -1721,7 +1833,7 @@ function buildScenario(seed,play,variant){
   // Tasten für Pässe
   players.forEach(p=>{p.x=p.path[0][1];p.z=p.path[0][2];p.pt=0;p.ang=angTo(-p.x,-p.z);p.rig.cur={};});
   const owner=info.feed?role(info.feed.from):info.ballAt?role(info.ballAt):Hd;
-  ball.owner=owner;ball.hold=false;ball.fl=null;owner.drib=0;
+  ball.owner=owner;ball.hold=!!info.hold;ball.fl=null;owner.drib=0;
   // Kamera-Rahmen für den Entscheidungsmoment
   const end=p=>{const l=p.path[p.path.length-1];return pt(l[1],l[2]);};
   let he=end(Hd),dl=Math.hypot(he.x,he.z),dir;
@@ -1754,7 +1866,7 @@ function computeFit(){
   const ctrl=$('bottom'),ch=ctrl.classList.contains('hidden')?170:ctrl.offsetHeight;
   const top=56+(G.sc&&passers().length?32:0),bot=H-ch-10,left=6,right=W-6,rw=right-left,rh=Math.max(120,bot-top);
   const t=clamp((rh/rw-.55)/1.1,0,1);
-  CP.h=lerp(3.5,10.5,t);CP.back=lerp(6.2,3.4,t);CP.look=lerp(6.5,3.8,t);CP.side=lerp(.95,.5,t);
+  CP.h=lerp(2.6,6.2,t);CP.back=lerp(4.8,8.0,t);CP.look=lerp(7,4,t);CP.side=lerp(.85,.6,t);
   const sc=G.sc;if(!sc)return;
   let mnx,mxx,mny,mxy,f;const v=new T3.Vector3();
   {
@@ -1764,7 +1876,7 @@ function computeFit(){
     sc.fitPts.forEach(p=>{v.copy(V(p[0],p[1],p[2])).applyMatrix4(tmpCam.matrixWorldInverse);const d=-v.z;if(d<1)return;const nx=v.x/d,ny=v.y/d;mnx=Math.min(mnx,nx);mxx=Math.max(mxx,nx);mny=Math.min(mny,ny);mxy=Math.max(mxy,ny);});
     f=Math.min(rw/(mxx-mnx),rh/(mxy-mny))*.93;f=Math.min(f,H*1.5);
   }
-  let px=left+rw/2-f*(mnx+mxx)/2,py=top+rh/2+f*(mny+mxy)/2;const slack=rh-f*(mxy-mny);if(slack>0)py+=slack*.2;
+  let px=left+rw/2-f*(mnx+mxx)/2,py=top+rh/2+f*(mny+mxy)/2;const slack=rh-f*(mxy-mny);if(slack>0)py+=slack*.42;
   fit={f,px,py};applyFit();
 }
 function applyFit(){const{f,px,py}=fit;const Fw=2*Math.max(px,W-px),Fh=2*Math.max(py,H-py);
@@ -1827,7 +1939,7 @@ function resolve(choice){
   if(!G.replay){let pts=0;
     if(ok){const bonus=G.noLimit?0:Math.round(50*clamp(1-rt/G.win,0,1));pts=Math.round((100+bonus)*(1+.1*Math.min(G.streak,5)));G.score+=pts;G.streak++;G.bestStreak=Math.max(G.bestStreak,G.streak);}
     else G.streak=0;
-    G.results.push({play:sc.play,ans:sc.ans,choice,ok,rt:choice?rt:null,pts,off:!!sc.outcome&&!sc.def,def:!!sc.def,lz:lzOf(sc.play,sc.variant,sc.ans,!!sc.outcome)});updateHud();
+    G.results.push({play:sc.play,ans:sc.ans,choice,ok,rt:choice?rt:null,pts,off:!!sc.outcome&&!sc.def&&!sc.onBall,def:!!sc.def,lz:lzOf(sc.play,sc.variant,sc.ans,!!sc.outcome&&!sc.onBall)});updateHud();
     if(ok){vib(25);ptsPop('+'+pts);}else vib([40,60,40]);}
   animateOutcome(choice,ok);
 }
@@ -1943,12 +2055,17 @@ function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
 $('fbQskip').onclick=()=>quizReveal(null);
 $('mini').addEventListener('pointerdown',e=>{const q=G.quiz;if(!q||G.phase!=='feedback')return;const m=$('mini'),r=m.getBoundingClientRect(),k=Math.min(r.width/m.width,r.height/m.height);
   const x=(e.clientX-r.left-(r.width-m.width*k)/2)/k,y=(e.clientY-r.top-(r.height-m.height*k)/2)/k,M=miniMap();let best=null,bd=1e9;
-  G.snap.forEach(p=>{if(p.z<-10.8)return;const d=Math.hypot(M.sx(p.x)-x,M.sz(p.z)-y);if(d<bd){bd=d;best=p;}});
+  G.snap.forEach(p=>{if(p.z<-10.8&&!M.far)return;const d=Math.hypot(M.sx(p.x)-x,M.sz(p.z)-y);if(d<bd){bd=d;best=p;}});
   if(!best||bd>48)return;quizReveal(best.role===q.r);});
-function miniMap(){const m=$('mini'),w=m.width,h=m.height,S=w/15.6,zr=(h-34)/12.2;return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr};}
+// Langer Pass: ganzes Feld zeigen, sonst nur das Halbfeld
+function miniMap(){const m=$('mini'),w=m.width,h=m.height,far=!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel))),zr=(h-34)/(far?28.4:12.2),S=far?zr*1.3:w/15.6;return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far};}
 function drawMini(choice,o){o=o||{};
-  const m=$('mini'),c=m.getContext('2d'),w=m.width,h=m.height,{S,zr,sx,sz}=miniMap();
-  c.fillStyle='#d29b5f';c.fillRect(0,0,w,h);
+  const m=$('mini'),c=m.getContext('2d'),w=m.width,h=m.height,{S,zr,sx,sz,far}=miniMap();
+  c.fillStyle=far?'#10141f':'#d29b5f';c.fillRect(0,0,w,h);
+  if(far){c.fillStyle='#d29b5f';c.fillRect(sx(-HW),sz(BASE),2*HW*S,sz(-26.425)-sz(BASE));c.strokeStyle='#fff';c.lineWidth=3;
+    c.beginPath();c.moveTo(sx(-HW),sz(-12.425));c.lineTo(sx(HW),sz(-12.425));c.stroke();c.beginPath();c.ellipse(sx(0),sz(-12.425),1.8*S,1.8*zr,0,0,7);c.stroke();
+    c.fillStyle='#1d4fb4';c.fillRect(sx(-2.45),sz(-20.625),4.9*S,sz(-26.425)-sz(-20.625));c.strokeRect(sx(-2.45),sz(-20.625),4.9*S,sz(-26.425)-sz(-20.625));
+    c.strokeStyle='#ff6a1a';c.lineWidth=3;c.beginPath();c.arc(sx(0),sz(-24.85),6,0,7);c.stroke();}
   c.fillStyle='rgba(150,80,25,.18)';c.beginPath();c.moveTo(sx(-TC),sz(BASE));for(let i=0;i<=40;i++){const a=lerp(-TA,TA,i/40);c.lineTo(sx(Math.sin(a)*R3),sz(-Math.cos(a)*R3));}c.lineTo(sx(TC),sz(BASE));c.fill();
   c.fillStyle='#1d4fb4';c.fillRect(sx(-2.45),sz(BASE),4.9*S,sz(-4.225)-sz(BASE));
   c.strokeStyle='#fff';c.lineWidth=3;c.strokeRect(sx(-2.45),sz(BASE),4.9*S,sz(-4.225)-sz(BASE));
@@ -1957,7 +2074,7 @@ function drawMini(choice,o){o=o||{};
   c.strokeStyle='#ff6a1a';c.lineWidth=4;c.beginPath();c.arc(sx(0),sz(0),8,0,7);c.stroke();
   c.strokeStyle='#222';c.lineWidth=5;c.beginPath();c.moveTo(sx(-.9),sz(.375));c.lineTo(sx(.9),sz(.375));c.stroke();
   const snap=G.snap,me=snap.find(p=>p.role==='H');
-  const off=!!G.sc.outcome&&!G.sc.def;
+  const off=!!G.sc.outcome&&!G.sc.def&&!G.sc.onBall;
   const arrow=(a,col,dash)=>{if(a==='shot'&&off){const bo=snap.find(p=>p.ball)||me,an=Math.atan2(sz(bo.z)-sz(me.z),sx(bo.x)-sx(me.x))+(G.sc.shotDir==='away'?Math.PI:0);
       c.strokeStyle=col;c.fillStyle=col;c.lineWidth=6;c.setLineDash(dash?[12,9]:[]);const x0=sx(me.x),y0=sz(me.z),ex=x0+Math.cos(an)*46,ey=y0+Math.sin(an)*46;
       c.beginPath();c.moveTo(x0+Math.cos(an)*20,y0+Math.sin(an)*20);c.lineTo(ex,ey);c.stroke();c.setLineDash([]);
@@ -1973,7 +2090,7 @@ function drawMini(choice,o){o=o||{};
   c.textAlign='center';c.textBaseline='middle';
   if(G.sc.spots)G.sc.spots.forEach(sp=>{const x=sx(sp.x),y=sz(sp.z);c.fillStyle='rgba(255,140,90,.35)';c.strokeStyle='#ff8a5a';c.lineWidth=3;c.beginPath();c.arc(x,y,15,0,7);c.fill();c.stroke();
     c.fillStyle='#fff';c.font='900 15px Nunito,Arial,sans-serif';c.fillText(sp.id,x,y+1);});
-  snap.forEach(p=>{if(p.z<-10.8)return;const x=sx(p.x),y=sz(p.z);
+  snap.forEach(p=>{if(p.z<-10.8&&!far)return;const x=sx(p.x),y=sz(p.z);
     if(p.team==='def'&&p.role!=='H'){c.fillStyle='#e2453b';c.beginPath();c.arc(x,y,14,0,7);c.fill();c.strokeStyle='#fff';c.lineWidth=2;c.stroke();}
     else{const me=p.role==='H';c.fillStyle=me?'#ffd23d':G.sc.def?'#2f6fe4':'#2f6fe4';c.beginPath();c.arc(x,y,18,0,7);c.fill();c.strokeStyle='#fff';c.lineWidth=3;c.stroke();
       c.fillStyle=me?'#201600':'#fff';c.font='900 17px Nunito,Arial,sans-serif';c.fillText(me?'DU':p.num,x,y+1);
@@ -2098,9 +2215,9 @@ $('boardClose').onclick=$('boardX').onclick=()=>$('board').classList.add('hidden
 
 // ================= Trainer: Themen, Aufgabe, Team =================
 const THEMES=[
- {id:'hilfe',n:'Wer hilft, lässt jemanden frei',d:'Hilfe erkennen, freien Mitspieler finden',i:'pass',plays:['top','wing','wcatch','cpost']},
+ {id:'hilfe',n:'Wer hilft, lässt jemanden frei',d:'Hilfe erkennen, freien Mitspieler finden',i:'pass',plays:['top','wing','dkick','wcatch','wdrive','cpost']},
  {id:'ohneball',n:'Ohne Ball',d:'Backdoor, Pass und geh, Platz machen',i:'cut',plays:['backdoor','give','wcut','cdive']},
- {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, Rim Run',i:'bolt',plays:['break','wbreak','two','rimrun']},
+ {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, langer Pass, Rim Run',i:'bolt',plays:['break','plong','wbreak','two','clong','rimrun']},
  {id:'wurf',n:'Guter Wurf',d:'Wann werfen, wann ziehen, wann passen?',i:'ball',plays:['top','wcatch','xpass','chigh']},
  {id:'backdoor',n:'Backdoor',d:'Steht der Verteidiger im Passweg: hinten rum!',i:'cut',plays:['backdoor','wcut','chigh']},
  {id:'abwehr',n:'Mann-Mann-Verteidigung',d:'Am Ball, ein Pass weg, helfen, zurück',i:'shield',plays:['dball','dpass','dhelp','drot','dclose']}];
@@ -2328,6 +2445,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
+window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);renderer.render(scene,cam);}; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 })();
 </script>
