@@ -1063,6 +1063,25 @@ function poseGLB(p,dt){
 }
 const ring=new T3.Mesh(new T3.RingGeometry(.52,.64,48),new T3.MeshBasicMaterial({color:0xffd23d,transparent:true,opacity:.9,depthWrite:false}));
 ring.rotation.x=-Math.PI/2;ring.position.y=.012;scene.add(ring);
+// ================= Kontaktschatten =================
+// Weiche Flecken unter Körper und Füßen. Billig und auch dort sichtbar, wo die Sonne keine Schatten wirft
+// (?lite, schwache Geräte über perfCheck). Fuß angehoben oder Sprung → Fleck kleiner und heller.
+const blobTex=canvasTex(64,64,(g,w)=>{const r=g.createRadialGradient(w/2,w/2,0,w/2,w/2,w/2);r.addColorStop(0,'#fff');r.addColorStop(.45,'rgba(255,255,255,.6)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,w,w);});
+blobTex.encoding=T3.LinearEncoding;
+const blobGeo=new T3.PlaneGeometry(1,1).rotateX(-Math.PI/2);
+function blob(){const m=new T3.Mesh(blobGeo,new T3.MeshBasicMaterial({color:0x000000,alphaMap:blobTex,transparent:true,depthWrite:false}));m.renderOrder=1;m.position.y=.006;scene.add(m);return m;}
+const _bh=new T3.Vector3(),_bt=new T3.Vector3();
+function updBlobs(p){const r=p.rig,bl=p.blobs,vis=r.root.visible,sh=sun.castShadow;
+  bl.forEach(b=>b.visible=vis);if(!vis)return;
+  const h=p.jy||0,fade=1-clamp(h/.6,0,.75),b=bl[0];
+  b.position.set(p.x,.005,-p.z);b.rotation.y=p.ang;b.scale.set(.78*(1+h),1,.6*(1+h));b.material.opacity=(sh?.2:.34)*fade;
+  if(!r.glb)r.root.updateMatrixWorld(true);
+  for(let i=0;i<2;i++){let lift;
+    if(r.glb){const k=r.arms[i].s>0?'L':'R';r.B['foot'+k].getWorldPosition(_bh);r.B['toe'+k].getWorldPosition(_bt);lift=Math.max(0,Math.min(_bh.y-.1,_bt.y-.015));}
+    else{r.kn[i].localToWorld(_bh.set(0,-.43,-.07));r.kn[i].localToWorld(_bt.set(0,-.43,.17));lift=Math.max(0,Math.min(_bh.y,_bt.y)-.03);}
+    const f=bl[1+i],g=1+lift*1.6;f.position.set((_bh.x+_bt.x)/2,.006,(_bh.z+_bt.z)/2);f.rotation.y=Math.atan2(_bt.x-_bh.x,_bt.z-_bh.z);
+    f.scale.set(.17*g,1,.36*g);f.material.opacity=(sh?.42:.58)*clamp(1-lift/.25,0,1);}
+}
 
 // ================= Ball =================
 const ballTex=canvasTex(256,128,(g,w,h)=>{g.fillStyle='#e0661c';g.fillRect(0,0,w,h);for(let i=0;i<1400;i++){g.fillStyle=`rgba(0,0,0,${Math.random()*.12})`;g.fillRect(Math.random()*w,Math.random()*h,2,2);}
@@ -1139,8 +1158,8 @@ function role(r){return ROLE[r];}
 function addP(r,team,num,o={}){
   const p={act:null,jy:0,role:r,team,num,x:0,z:0,path:null,pt:0,lin:false,spd:0,vx:0,vz:0,ph:R()*6,armsUp:0,drib:0,dside:1,ang:Math.PI,sel:o.sel!==undefined?o.sel:(team==='off'&&r!=='H'),name:o.name||'',key:0,finish:o.finish||'shot'};
   if(r==='H'){num=PROFILE.num;p.num=num;HTEAM=team;}else if(team===HTEAM&&num===PROFILE.num){num=PROFILE.num===1?9:1;p.num=num;}
-  p.rig=(GLB.ok?makeGLBRig:makeRig)(team,num,r==='H'?myLook():null);scene.add(p.rig.root);players.push(p);ROLE[r]=p;return p;}
-function clearPlayers(){players.forEach(p=>scene.remove(p.rig.root));players=[];ROLE={};GUARD={};HTEAM='off';}
+  p.rig=(GLB.ok?makeGLBRig:makeRig)(team,num,r==='H'?myLook():null);scene.add(p.rig.root);p.blobs=[blob(),blob(),blob()];players.push(p);ROLE[r]=p;return p;}
+function clearPlayers(){players.forEach(p=>{scene.remove(p.rig.root);p.blobs.forEach(b=>{scene.remove(b);b.material.dispose();});});players=[];ROLE={};GUARD={};HTEAM='off';}
 function setPath(p,pts,lin){p.path=pts;p.pt=0;p.lin=!!lin;}
 function goTo(p,list,lin){setPath(p,[[0,p.x,p.z],...list],lin);}
 function evalPath(P,t,lin){const L=P[P.length-1];if(t<=P[0][0])return[P[0][1],P[0][2]];if(t>=L[0])return[L[1],L[2]];
@@ -1165,7 +1184,7 @@ function faceP(p,dt){
   r.root.visible=Math.hypot(cam.position.x-p.x,cam.position.z+p.z)>2.6&&!(p.trail&&Hd&&p.z<Hd.z-2.2);
 }
 function poseP(p,dt){
-  if(p.rig.glb)return poseGLB(p,dt);
+  if(p.rig.glb){poseGLB(p,dt);updBlobs(p);return;}
   const r=p.rig,k=1-Math.exp(-dt*14),c=r.cur;
   faceP(p,dt);
   const run=clamp(p.spd/5.5,0,1),ph=p.ph,def=p.team==='def',A=p.act;
@@ -1205,6 +1224,7 @@ function poseP(p,dt){
   p.jy=jy;r.root.position.y=jy;
   {const want=ball.owner===p?0:clamp(wrapA(angTo(ball.x-p.x,ball.z-p.z)-p.ang),-.9,.9);c.hy=c.hy===undefined?want:lerp(c.hy,want,k*.6);r.head.rotation.y=c.hy;}
   for(let i=0;i<2;i++){r.hip[i].rotation.x=c['hx'+i];r.hip[i].rotation.z=c['hz'+i];r.kn[i].rotation.x=c['kx'+i];r.sh[i].rotation.x=c['sx'+i];r.sh[i].rotation.z=c['sz'+i];r.el[i].rotation.x=c['ex'+i];}
+  updBlobs(p);
 }
 
 // ================= Ball-Logik =================
