@@ -1,7 +1,9 @@
 # 🏀 Basketball IQ Trainer
 
-Ein Browser-Spiel für Kinder und Jugendliche im Verein (U10/U12, etwa 10–14 Jahre), mit dem sie Spielentscheidungen üben:
-**Zum Korb, passen, werfen oder ohne Ball richtig laufen?**
+Ein Browser-Spiel für Kinder und Jugendliche im Verein (Minibasketball U10/U12 und U14), mit dem sie Spielentscheidungen üben:
+**Zum Korb, passen, werfen, ohne Ball richtig laufen oder richtig verteidigen?**
+
+Die Inhalte orientieren sich an den DBB-Miniregeln, dem DBB-Leitfaden Minibasketball, der DBB-Spielkonzeption und den DBB-Kriterien zur Mann-Mann-Verteidigung. **Für Trainer und Eltern:** [docs/TRAINER.md](docs/TRAINER.md) (Lernziele, Quellen, Trainer-Werkzeuge).
 
 Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden Stelle friert das Bild ein, und man hat ein paar Sekunden Zeit. Danach erklärt das Spiel mit einer Skizze von oben, was die beste Lösung war und warum. Am Ende kann man sich mit Namen in die Rangliste eintragen.
 
@@ -15,13 +17,20 @@ Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden S
 
 | Position | Spielzüge | Was man lernt |
 |---|---|---|
-| ① Aufbau (Point Guard) | Aufbau über die Mitte · Schnellangriff 3 gegen 2 · Angriff über den Flügel · Backdoor-Cut | Hilfe erkennen und den freien Mitspieler finden, Korbleger bei freier Bahn, Wurf bei viel Platz |
-| ③ Flügel | Pass auf den Flügel · Ohne Ball: Backdoor? · Schnellangriff als Läufer | Nach dem Fangen werfen, ziehen oder weiterpassen; ohne Ball backdoor schneiden oder den Ball fordern |
-| ⑤ Center | Ball am Brett · Ball an der Freiwurflinie · Aufbau zieht zum Korb | Allein: drehen und Korbleger; Doppeln: rauspassen; Backdoor-Pass von der Freiwurflinie; ohne Ball zum Korb laufen oder Platz lassen |
+| ① Aufbau (Point Guard) | Aufbau über die Mitte · Schnellangriff 3 gegen 2 · Angriff über den Flügel · Pass und geh · Backdoor-Cut | Hilfe erkennen und den freien Mitspieler finden, Korbleger bei freier Bahn, Wurf bei viel Platz, nach dem Pass schneiden oder Platz machen |
+| ③ Flügel | Pass auf den Flügel · Ohne Ball: Backdoor? · Schnellangriff als Läufer · Extra-Pass · Einer gegen zwei | Nach dem Fangen werfen, ziehen oder weiterpassen; ohne Ball backdoor schneiden oder den Ball fordern; Überzahl nutzen |
+| ⑤ Center | Ball am Brett · Ball an der Freiwurflinie · Aufbau zieht zum Korb · Rim Run | Zur Mitte drehen und die Hilfe lesen; Backdoor-Pass von der Freiwurflinie; ohne Ball zum Korb laufen oder Platz lassen; im Schnellangriff zum Korb sprinten |
+| Ⓥ Abwehr | Gegenspieler mit Ball · Ein Pass entfernt · Zwei Pässe entfernt · Aushelfen · Zurück zum Gegenspieler | Mann-Mann-Verteidigung: die richtige Position antippen |
 
-Alles bewusst **ohne Blöcke/Screens**. Jeder Spielzug hat mehrere Varianten (wer hilft, wo steht der Verteidiger), Seite und Positionen sind zufällig.
+Alles bewusst **ohne Blöcke/Screens** und ohne Doppeln (DBB-Miniregeln). Jeder Spielzug hat mehrere Varianten (wer hilft, wo steht der Verteidiger), Seite und Positionen sind zufällig.
 
-**Spielmodus:** U10 · 4 gegen 4 oder U12 · 5 gegen 5 (zusätzlich ein Spieler in der Ecke).
+**Spielform:** 4 gegen 4 (Miniregeln U10/U12) oder 5 gegen 5 (leistungsorientierte U12 und U14, zusätzlich ein Spieler in der Ecke).
+
+**Lernziele:** Jede Situation gehört zu einem Lernziel aus dem DBB-Leitfaden Minibasketball (Lücke erkennen, Gegenspieler umspielen, Überzahl nutzen, In den Lauf passen, Zusammenspiel, Anbieten und Orientieren) oder zu „Guter Wurf“ bzw. „Mann-Mann-Verteidigung“. Die Spielerkarte zeigt den Stand je Lernziel.
+
+**Erst fragen, dann erklären:** Nach einer falschen Entscheidung stellt das Spiel eine Frage („Wer hat ausgeholfen?“, „Wo stand dein Verteidiger?“). Das Kind tippt auf der Skizze auf den Spieler, danach kommt die Erklärung.
+
+**Für Trainer** (Klemmbrett-Symbol im Menü): Trainingsthemen über alle Positionen, Aufgaben-Links für die Team-Gruppe (`?aufgabe=…`), eine Team-Ansicht je Lernziel und eine Info-Seite mit Quellen.
 
 **Schwierigkeit:** Anfänger (4 s), Mittel (2,5 s, angetäuschte Hilfe), Profi (1,8 s, viele Täuschungen). Dazu gibt es einen Lernmodus ohne Zeitlimit.
 
@@ -46,7 +55,7 @@ Nach dem ersten Öffnen funktioniert es auch ohne Internet (die Online-Rangliste
 
 ## Rangliste
 
-Nach jedem Spiel kann man seinen Namen eintragen. Es gibt eine Liste pro Position, Spielmodus (U10/U12) und Schwierigkeit. Pro Name zählt das beste Ergebnis. Im Menü zeigt „🏆 Rangliste“ alle Listen.
+Nach jedem Spiel kann man seinen Namen eintragen. Es gibt eine Liste pro Position (inkl. Abwehr und Trainingsthema), Spielform (4 gegen 4 / 5 gegen 5) und Schwierigkeit. Pro Name zählt das beste Ergebnis. Im Menü zeigt „🏆 Rangliste“ alle Listen.
 
 **Ohne Einrichtung** werden die Einträge nur auf dem jeweiligen Gerät gespeichert (gut für ein gemeinsames Tablet im Training).
 
@@ -54,7 +63,7 @@ Nach jedem Spiel kann man seinen Namen eintragen. Es gibt eine Liste pro Positio
 
 1. Auf <https://console.firebase.google.com> mit einem Google-Konto anmelden und **Projekt hinzufügen** (Name z. B. `basketball-iq`, Google Analytics kann aus bleiben).
 2. Links **Build → Firestore Database → Datenbank erstellen**, Standort `europe-west3` (Frankfurt), **Produktionsmodus**.
-3. In Firestore auf den Reiter **Regeln** gehen, den Inhalt von [`firestore.rules`](firestore.rules) hineinkopieren und **Veröffentlichen**.
+3. In Firestore auf den Reiter **Regeln** gehen, den Inhalt von [`firestore.rules`](firestore.rules) hineinkopieren und **Veröffentlichen**. (Nach einem Update der Regeln im Repository diesen Schritt wiederholen. Aktuell neu: Lernziele `lz` und die Positionen `def`/`mix` für die Team-Ansicht.)
 4. **Projekteinstellungen** (Zahnrad) → **Allgemein** → unten „Meine Apps“ → Web-App (`</>`) hinzufügen. Dort stehen `apiKey` und `projectId`.
 5. Die Datei [`config.js`](config.js) auf github.com öffnen, auf das Stift-Symbol tippen, bei `projectId` und `apiKey` die beiden Werte eintragen und **Commit changes** drücken (auf `main`). `index.html` muss dafür nicht angefasst werden. Ohne `config.js` oder mit leeren Werten wird nur auf dem Gerät gespeichert.
 
@@ -71,6 +80,7 @@ Hinweis: Die Punkte werden im Browser berechnet. Wer sich mit Programmieren ausk
 - `index.html`: das Spiel (three.js)
 - `config.js`: Zugangsdaten für die Online-Rangliste (Firebase `projectId` und `apiKey`)
 - `firestore.rules`: Sicherheitsregeln für die Online-Rangliste
+- `docs/TRAINER.md`: Hinweise für Trainer und Eltern, Lernziele und Quellen
 - `legacy/2d-version.html`: frühere 2D-Version (Canvas), nur Aufbau über die Mitte
 - `tools/smoke_test.py`: automatischer Test mit Playwright, der Spielzüge durchspielt, Screenshots macht und sich in die Rangliste einträgt
 
