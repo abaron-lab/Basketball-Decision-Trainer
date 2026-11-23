@@ -18,16 +18,12 @@
 :root{--blue:#2f6fe4;--red:#e2453b;--gold:#ffc83d;--green:#2ecc71;--card:#141b2d;--line:rgba(255,255,255,.12)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:#05070d;font-family:Nunito,system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-canvas#c{position:fixed;inset:0;display:block;width:100%;height:100%}
+canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height:100lvh} /* lvh: auch hinter der Safari-Leiste, sonst bleibt unten ein dunkler Streifen */
 .hidden{display:none!important}
 #vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:radial-gradient(ellipse at 50% 45%,rgba(0,0,0,0) 45%,rgba(0,0,15,.6) 100%);opacity:0;transition:opacity .25s}
 #vig.on{opacity:1}
-#cine{position:fixed;inset:0;pointer-events:none;z-index:3}
 #bottom{transition:transform .35s ease,opacity .35s}
 .cinema #bottom{transform:translateY(105%);opacity:0}
-#cine:before,#cine:after{content:'';position:absolute;left:0;right:0;height:9vh;background:#000;transition:transform .35s ease}
-#cine:before{top:0;transform:translateY(-100%)}#cine:after{bottom:0;transform:translateY(100%)}
-.cinema #cine:before,.cinema #cine:after{transform:none}
 #hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));z-index:5;pointer-events:none}
 .pill{background:rgba(8,12,24,.72);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;white-space:nowrap;backdrop-filter:blur(6px)}
 .pill b{color:var(--gold)}
@@ -510,7 +506,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="vig"></div><div id="cine"></div>
+<div id="vig"></div>
 <div id="meTag" class="hidden" aria-hidden="true"><span>DU</span></div>
 <div id="tags"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -925,7 +921,7 @@ renderer.outputEncoding=T3.sRGBEncoding;renderer.toneMapping=T3.ACESFilmicToneMa
 const scene=new T3.Scene();
 scene.background=new T3.Color(0x05070d);scene.fog=new T3.Fog(0x05070d,34,80);
 const cam=new T3.PerspectiveCamera(50,1,.1,200);
-let W=innerWidth,H=innerHeight;
+let W=innerWidth,H=cv.clientHeight||innerHeight;
 
 // Licht
 scene.add(new T3.HemisphereLight(0xcfdcff,0x3b2a1a,.62));
@@ -2466,7 +2462,7 @@ function camPose(hx,hz,dx,dz){const cs=G.sc&&G.sc.camSide||1,rx=dz*cs,rz=-dx*cs;
   return{pos:[hx-dx*CP.back+rx*CP.side,CP.h,hz-dz*CP.back+rz*CP.side],look:[hx+dx*CP.look+rx*CP.side*.4,CP.lookY,hz+dz*CP.look+rz*CP.side*.4]};}
 const tmpCam=new T3.PerspectiveCamera(50,1,.1,200);
 function computeFit(){
-  W=innerWidth;H=innerHeight;renderer.setSize(W,H,false);fxSize();
+  W=innerWidth;H=cv.clientHeight||innerHeight;renderer.setSize(W,H,false);fxSize();
   const ctrl=$('bottom'),ch=ctrl.classList.contains('hidden')?170:ctrl.offsetHeight;
   const top=56+(G.sc&&passers().length?32:0),bot=H-ch-10,left=6,right=W-6,rw=right-left,rh=Math.max(120,bot-top);
   const t=clamp((rh/rw-.55)/1.1,0,1);
