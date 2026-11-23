@@ -971,7 +971,7 @@ function courtTexture(){
 }
 {const m=new T3.Mesh(new T3.PlaneGeometry(XMAX-XMIN,ZMAX-ZMIN),new T3.MeshStandardMaterial({map:courtTexture(),roughness:.26,metalness:.05,envMapIntensity:1.1}));
   m.rotation.x=-Math.PI/2;m.position.copy(V((XMIN+XMAX)/2,0,(ZMIN+ZMAX)/2));m.receiveShadow=true;scene.add(m);
-  const f=new T3.Mesh(new T3.PlaneGeometry(90,110),new T3.MeshStandardMaterial({color:0x10141f,roughness:.9}));f.rotation.x=-Math.PI/2;f.position.copy(V(0,-.01,-10));f.receiveShadow=true;scene.add(f);}
+  const f=new T3.Mesh(new T3.PlaneGeometry(90,110),new T3.MeshStandardMaterial({color:0x10141f,roughness:.9}));f.rotation.x=-Math.PI/2;f.position.copy(V(0,-.04,-10));f.receiveShadow=true;scene.add(f);}
 
 // ================= Halle =================
 function canvasTex(w,h,draw){const c=document.createElement('canvas');c.width=w;c.height=h;draw(c.getContext('2d'),w,h);const t=new T3.CanvasTexture(c);t.encoding=T3.sRGBEncoding;t.userData.canvas=c;return t;}
@@ -3193,7 +3193,8 @@ const FX={on:false,want:!LITE&&!/[?&]fx=0\b/.test(location.search),force:/[?&]fx
 window.initFX=function(M){
   if(!FX.want||FX.on||!renderer.capabilities.isWebGL2)return;
   try{const ex=renderer.extensions,hf=ex.has('EXT_color_buffer_float')||ex.has('EXT_color_buffer_half_float');
-    const rt=new T3.WebGLRenderTarget(W,H,{type:hf?T3.HalfFloatType:T3.UnsignedByteType,samples:4});
+    // stencilBuffer:true → 24-Bit-Tiefe (sonst nimmt three.js nur 16 Bit: Boden und Untergrund flimmern als Streifen ineinander)
+    const rt=new T3.WebGLRenderTarget(W,H,{type:hf?T3.HalfFloatType:T3.UnsignedByteType,samples:4,stencilBuffer:true});
     const C=new M.EffectComposer(renderer,rt);C.addPass(new M.RenderPass(scene,cam));
     const bok=new M.BokehPass(scene,cam,{focus:6,aperture:0,maxblur:.008});bok.enabled=false;bok.needsSwap=true;C.addPass(bok); // in r149 sonst nur als letzter Pass
     const bl=new M.UnrealBloomPass(new T3.Vector2(W,H),.5,.45,.9);C.addPass(bl);
