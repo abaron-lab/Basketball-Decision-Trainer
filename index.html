@@ -12,8 +12,10 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Basketball IQ Trainer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+<style>/* Schriften lokal (fonts/), damit beim Öffnen keine Daten an Google gehen. Lizenz: SIL OFL 1.1, siehe lizenzen.html */
+@font-face{font-family:'Bebas Neue';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/bebas-neue-latin.woff2) format('woff2')}
+@font-face{font-family:'Nunito';font-style:normal;font-weight:200 1000;font-display:swap;src:url(fonts/nunito-latin.woff2) format('woff2')}
+</style>
 <style>
 :root{--blue:#2f6fe4;--red:#e2453b;--gold:#ffc83d;--green:#2ecc71;--card:#141b2d;--line:rgba(255,255,255,.12)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -126,6 +128,8 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .kid.none{opacity:.5}
 .info h3{font-size:15px;margin:10px 0 4px;color:#ffe39a}.info p,.info li{font-size:13.5px;line-height:1.45;color:#d7deef;margin:0 0 6px}.info ul{margin:0 0 6px;padding-left:18px}
 .info a{color:#8fb4ff;font-weight:800}.info small{color:#8fa0c6}
+.legal{font-size:12px;color:#8fa0c6;text-align:center;margin:8px 0 0}.legal a{color:#9fb0d4;font-weight:800;text-decoration:none}.legal a:hover{text-decoration:underline}
+.nhint{font-size:12px;color:#8fa0c6;margin:4px 2px 0;line-height:1.35}.nhint a{color:#9fb0d4;font-weight:800}
 .logo{width:48px;height:48px;flex:0 0 48px;filter:drop-shadow(0 6px 14px rgba(255,120,30,.35))}
 .mhead .sp{flex:1}
 .rbtn{cursor:pointer;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#e6ecfb;flex:0 0 auto}
@@ -661,6 +665,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       </div>
       <p class="note"><button class="lnk" id="tipsInfo" style="padding:0">Für Trainer und Eltern: Lernziele und Quellen</button></p>
       <p class="note">Ab „Mittel“ tun manche Verteidiger nur so, als würden sie helfen. Entscheidend ist, wo sie stehen, wenn das Bild einfriert. Am Computer: Zahlen 1–4 für Pässe, ↑ für die blaue Taste, Leertaste für die orange Taste.</p>
+      <p class="legal"><a href="impressum.html" target="_blank" rel="noopener">Impressum</a> · <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a> · <a href="lizenzen.html" target="_blank" rel="noopener">Lizenzen</a></p>
     </div>
     <div class="foot"><button class="btn" id="tipsClose">Verstanden</button></div>
   </div>
@@ -711,6 +716,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <button class="taskbar blue hidden" id="sSave"><svg class="i"><use href="#i-link"/></svg><span><small>Spieler sichern</small><b>Mit deinem Link auf jedes Gerät</b></span><em>Sichern</em></button>
       <div class="sec-t">Rangliste</div>
       <div id="nameRow" class="namerow"><input id="nameIn" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done"><button class="btn" id="saveBtn">Eintragen</button></div>
+      <p class="nhint" id="nameHint">Dein Name ist danach für dein Team sichtbar. Nimm deinen Vornamen oder einen Spitznamen. <a href="datenschutz.html#rangliste" target="_blank" rel="noopener">Datenschutz</a></p>
       <div id="sBoard" class="lbwrap"></div>
       <details class="more"><summary>Details: Lernziele und Spielzüge ▾</summary><div id="sBreak"></div></details>
     </div>
@@ -877,6 +883,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="seg" id="bPos"></div>
       <div class="seg" id="bMode" style="margin-top:8px"></div><div class="seg" id="bLvl" style="margin-top:8px"></div>
       <div id="bList"></div>
+      <p class="legal">Einträge sind für alle mit dem Team-Link sichtbar · <a href="datenschutz.html#rangliste" target="_blank" rel="noopener">Datenschutz</a></p>
     </div>
     <div class="foot"><button class="btn" id="boardClose">Zurück</button></div>
   </div>
@@ -2768,7 +2775,8 @@ const INFO_HTML=`<h3>Was ist das?</h3>
 <li><a href="https://basketball-bund.de/wp-content/uploads/sites/2/2022/12/SPIELKONZEPTION-ZUR-ENTWICKLUNG-VON-NATIONALSPIELERN-NATIONALSPIELERIN....pdf" target="_blank" rel="noopener">DBB: Spielkonzeption zur Entwicklung von Nationalspieler:innen (2022)</a></li>
 <li><a href="https://www.basketball-bund.de/wp-content/uploads/sites/2/2021/08/MMV-Kriterien.pdf" target="_blank" rel="noopener">DBB: Kriterien Mann-Mann-Verteidigung U14/U16</a></li>
 <li><a href="https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-manual-mini-basketball-eng.pdf" target="_blank" rel="noopener">FIBA/WABC: Coaching Manual Mini-Basketball</a></li></ul>
-<p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird nur auf dem Gerät gespeichert. In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt.</small></p>`;
+<p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird nur auf dem Gerät gespeichert. In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt.</small></p>
+<p class="legal"><a href="impressum.html" target="_blank" rel="noopener">Impressum</a> · <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a> · <a href="lizenzen.html" target="_blank" rel="noopener">Lizenzen</a></p>`;
 function cleanName(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,14);}
 function jget(k){try{return JSON.parse(store.get(k)||'[]')||[]}catch(e){return[]}}
 function localBoard(){return jget('pgt_board_'+TEAMID);}
@@ -2818,6 +2826,7 @@ async function saveScore(){
   $('saveBtn').innerHTML=svgI('check')+'Gespeichert';
   showBoardIn($('sBoard'),{pos:G.pos,mode:G.mode,level:G.level},name);}
 $('saveBtn').onclick=saveScore;
+if(!onlineOn())$('nameHint').firstChild.textContent='Dein Name wird nur auf diesem Gerät gespeichert. ';
 $('nameIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();saveScore();$('nameIn').blur();}});
 // Ranglisten-Fenster
 const bF={pos:'pg',mode:4,level:1};let bData=null;
