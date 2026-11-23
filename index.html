@@ -1179,11 +1179,20 @@ const WIN=[4,2.5,1.8];
 const LZ={luecke:{n:'Lücke erkennen',s:'Lücke',i:'up'},umspielen:{n:'Gegenspieler umspielen',s:'1 gegen 1',i:'spin'},ueberzahl:{n:'Überzahl nutzen',s:'Überzahl',i:'bolt'},
   lauf:{n:'In den Lauf passen',s:'In den Lauf',i:'cut'},zusammen:{n:'Zusammenspiel',s:'Zusammen',i:'pass'},anbieten:{n:'Anbieten und Orientieren',s:'Anbieten',i:'eye'},
   wurf:{n:'Guter Wurf',s:'Wurf',i:'ball'},vert:{n:'Mann-Mann-Verteidigung',s:'Abwehr',i:'shield'}};
-const LZ_OVR={'break':'ueberzahl',wbreak:'ueberzahl',two:'ueberzahl','backdoor:cut':'lauf','chigh:backdoor':'lauf','cpost:drive':'umspielen','chigh:drive':'umspielen','wcatch:drive':'umspielen',
-  'xpass:fly':'umspielen','give:cut':'zusammen','rimrun:run':'ueberzahl',
+// Zuordnung nach dem, was gelesen werden muss:
+// - Lücke erkennen: Raum und Helfer lesen. Kommt keine Hilfe, ist der Weg frei (Lücke zum Durchschlüpfen),
+//   oder ein Mitspieler steht in der Lücke zwischen zwei Verteidigern (Lücke für einen Pass, Leitfaden Kap. 3.1).
+// - Gegenspieler umspielen: den eigenen Verteidiger lesen (steht neben dir statt vor dir, kommt mit Schwung angerannt).
+// - Guter Wurf (Wurfauswahl): Ist Werfen richtig, zählt die Runde dazu. Wer wirft, obwohl Korbleger oder Pass besser waren,
+//   bekommt zusätzlich einen Fehlversuch bei „Guter Wurf“ (lz2, siehe resolve), z. B. „lieber Korbleger als weiter Wurf“.
+const LZ_OVR={'break':'ueberzahl',wbreak:'ueberzahl',two:'ueberzahl','backdoor:cut':'lauf','chigh:backdoor':'lauf','chigh:drive':'umspielen','wcatch:drive':'umspielen',
+  'xpass:fly':'umspielen','give:cut':'zusammen','rimrun:run':'ueberzahl','swing:gap':'luecke','swing:drive':'umspielen',
   'plong:longL':'lauf','plong:longR':'lauf','plong:drive':'ueberzahl','clong:longL':'lauf','clong:longR':'lauf'};
 function lzOf(play,variant,ans,off){if(PLAYS[play]&&PLAYS[play].pos==='def')return'vert';const o=LZ_OVR[play+':'+variant]||LZ_OVR[play];if(o)return o;
   if(off)return'anbieten';if(ans.startsWith('pass:'))return'zusammen';return ans==='drive'?'luecke':'wurf';}
+// Falscher Wurf (mit Ball): zählt zusätzlich als Fehlversuch bei „Guter Wurf“
+function lz2Of(sc,choice,lz,off){return choice==='shot'&&sc.ans!=='shot'&&!off&&!sc.def&&lz!=='wurf'?'wurf':null;}
+const lzKeys=r=>r.lz2?[r.lz,r.lz2]:[r.lz];
 // ================= Spielerprofil =================
 const PK='pgt_profile';
 function jparse(v){try{return JSON.parse(v)||{}}catch(e){return{}}}
@@ -1217,7 +1226,7 @@ function medal(b,on,big){return`<span class="medal${on?' on':''}${big?' big':''}
 function recordGame(g){ // nach jedem Spiel: Werte, XP und neue Abzeichen
   const P=PROFILE,before=lvlOf(P.xp).i;P.games++;P.pos[G.pos]=1;
   G.results.forEach(r=>{P.rounds++;if(r.ok)P.correct++;const k=r.def?'def':r.off?'off':r.ans.startsWith('pass:')?'pass':r.ans==='drive'?'drive':'shot';P.cat[k][1]++;if(r.ok)P.cat[k][0]++;if(r.ok&&r.rt!=null){P.rtS+=r.rt;P.rtN++;}
-    const z=P.lz[r.lz]||(P.lz[r.lz]=[0,0]);z[1]++;if(r.ok)z[0]++;});
+    lzKeys(r).forEach(k=>{const z=P.lz[k]||(P.lz[k]=[0,0]);z[1]++;if(r.ok)z[0]++;});});
   P.best=Math.max(P.best,G.bestStreak);
   const neu=BADGES.filter(b=>!P.badges[b.id]&&b.t(P,g));neu.forEach(b=>P.badges[b.id]=Date.now());
   const xp=Math.round(G.score/10)+neu.length*50;P.xp+=xp;saveProf();
@@ -1893,6 +1902,81 @@ function buildRimRun(v,T,L,M){
     notes:{drive:'Dein Verteidiger stand schon in der Zone und hat den Pass abgefangen.',shot:'Dein Verteidiger war hinter dir. Als du stehen geblieben bist, hat er dich eingeholt.'}};
 }
 
+// ================= BALL BEWEGEN (FIBA Mini-Basketball: Ball umkehren, Flash-Cut, Space and Movement) =================
+// --------- Aufbau 8: Ball umkehren ---------
+// Der Ball kommt vom Flügel zurück zu dir nach oben. Die Abwehr steht noch auf der Seite, wo der Ball war.
+function buildSwing(v,T,L,M){
+  const s=R()<.5?-1:1; // Ball kommt von Seite s, umgekehrt wird zur Seite -s
+  const H=addP('H','off',1),W1=addP('W1','off',s<0?3:2,{name:'Flügel'}),OW=addP('OW','off',s<0?2:3,{name:'Flügel gegenüber'}),C=addP('C','off',5,{name:'Center',finish:v==='gap'?'shot':'layup'});
+  const K=M===5?addP('K','off',7,{sel:false}):null;
+  const dH=addP('dH','def',4),dW=addP('dW1','def',8),dO=addP('dOW','def',6),dC=addP('dC','def',9),dK=M===5?addP('dK','def',10):null;
+  GUARD={W1:dW,OW:dO,C:dC};
+  const wD=pt(s*rand(5.3,5.7),rand(-5.0,-4.4));setPath(W1,[[0,s*5.8,-6.8],[T*.3,wD.x,wD.z]]);
+  setPath(dW,[[0,s*5.2,-6.0],[T*.3,wD.x-s*.5,wD.z+.8],[T*.75,wD.x-s*.8,wD.z-.15]]); // nach dem Pass: Passweg zurück zustellen
+  const hS=pt(s*2.6,-9.6),hE=pt(s*rand(.35,.6),rand(-8.1,-7.7));
+  setPath(H,[[0,hS.x,hS.z],[T*.6,lerp(hS.x,hE.x,.8),lerp(hS.z,hE.z,.8)],[T,hE.x,hE.z]]);
+  const dFin=v==='swing'?pt(hE.x*.8,hE.z+1.15):v==='gap'?pt(hE.x+s*.4,hE.z+.8):pt(hE.x-s*1.0,hE.z+.25);
+  setPath(dH,[[0,hS.x-s*.2,hS.z+1.2],[T*.6,lerp(hS.x,hE.x,.8),lerp(hS.z,hE.z,.8)+1.1],[T*.97,dFin.x,dFin.z]]);
+  const oD=pt(-s*rand(5.4,5.8),rand(-5.0,-4.4));setPath(OW,[[0,-s*5.6,-6.8],[T*.5,oD.x,oD.z]]);
+  const oHelp=pt(-s*rand(1.6,1.9),rand(-3.4,-2.9)),oHome=homeOf(oD,1.0,hE);
+  if(v==='swing'){if(L>=2){const mid=pt(lerp(oHelp.x,oHome.x,.3),lerp(oHelp.z,oHome.z,.3));setPath(dO,[[0,oHelp.x,oHelp.z-.6],[T*.4,oHelp.x,oHelp.z],[T*.68,mid.x,mid.z],[T*.95,oHelp.x,oHelp.z]]);}
+    else setPath(dO,[[0,oHelp.x,oHelp.z-.6],[T*.4,oHelp.x,oHelp.z]]);}
+  else setPath(dO,[[0,oHelp.x,oHelp.z-.6],[T*.42,oHelp.x,oHelp.z],[L>=2?T*.95:T*.72,oHome.x,oHome.z]]);
+  const cL=pt(-s*rand(2.7,3.0),rand(-.7,-.3));
+  if(v==='gap'){const cF=pt(-s*rand(1.3,1.6),rand(-4.8,-4.5));setPath(C,[[0,cL.x,cL.z-.4],[T*.45,cL.x,cL.z],[T*.95,cF.x,cF.z]]);setPath(dC,[[0,cL.x+s*.6,cL.z-.9],[T*.5,cL.x+s*.6,cL.z-.5],[T,cL.x+s*.8,cL.z-1.0]]);}
+  else{setPath(C,[[0,cL.x,cL.z-.4],[T*.6,cL.x,cL.z]]);setPath(dC,[[0,cL.x+s*.6,cL.z-.9],[T*.6,cL.x+s*.55,cL.z-.45]]);}
+  if(K){const kD=pt(s*rand(6.6,6.9),rand(.2,.6));setPath(K,[[0,s*6.2,-1.6],[T*.6,kD.x,kD.z]]);const hK=homeOf(kD,.9,wD);setPath(dK,[[0,s*5.4,-1.4],[T*.6,hK.x,hK.z]]);}
+  const ans={swing:'pass:OW',gap:'pass:C',drive:'drive'}[v];
+  return{ans,helper:v==='drive'?null:'dH',fake:false,camSide:s,feed:{from:'W1',t0:T*.3,t1:T*.62},
+    why:{swing:'Der Ball kam von der einen Seite, und die Verteidigung stand noch dort. Der Verteidiger von der anderen Seite war in der Zone. Ball umkehren: schnell auf die andere Seite, dort war dein Mitspieler frei!',
+      gap:'Der Verteidiger von der anderen Seite war zurück bei seinem Mitspieler. Dafür ist dein Center zur Freiwurflinie gelaufen, genau in die Lücke zwischen den Verteidigern. Pass in die Lücke!',
+      drive:'Dein Verteidiger ist zur Seite gesprungen, um den Pass auf die andere Seite zu stoppen. Er stand neben dir statt vor dir: Zieh an ihm vorbei zum Korb!'}[v],
+    rule:{swing:'Steht die Abwehr auf einer Seite, spiel den Ball schnell auf die andere Seite!',gap:'Läuft ein Mitspieler in die Lücke zwischen zwei Verteidigern, spiel ihm den Ball!',drive:'Steht dein Verteidiger neben dir statt vor dir? Ab zum Korb!'}[v],
+    driveNote:'Dein Verteidiger stand direkt vor dir, da war kein Weg frei.',
+    notes:{shot:v==='drive'?'Dein Verteidiger stand neben dir, der Weg zum Korb war frei. Ein Korbleger ist viel sicherer als ein weiter Wurf.':'Von so weit draußen ist ein Wurf schwer, und ein Mitspieler war frei.'},
+    q:v==='swing'?{t:'Wo stand der Verteidiger vom Flügel gegenüber?',r:'dOW'}:v==='gap'?{t:'Wer war frei?',r:'C'}:null};
+}
+// --------- Center 6: Flash-Cut (ohne Ball) ---------
+// Dein Flügel wird bedrängt. Ist der Platz an der Freiwurflinie frei, lauf zum Ball. Steht dort schon jemand, bleib unten und lass Platz.
+function buildCFlash(v,T,L,M){
+  const s=R()<.5?-1:1; // Ball auf Seite s, du stehst unten auf der anderen Seite
+  const H=addP('H','off',5),W=addP('W','off',s<0?3:2,{sel:false}),PG=addP('PG','off',1,{sel:false}),OW=addP('OW','off',s<0?2:3,{sel:false});
+  const K=M===5?addP('K','off',7,{sel:false}):null;
+  const dH=addP('dH','def',9),dW=addP('dW','def',8),dP=addP('dPG','def',4),dO=addP('dOW','def',6),dK=M===5?addP('dK','def',10):null;
+  GUARD={};
+  const hD=pt(-s*rand(2.7,2.9),rand(-.7,-.4));setPath(H,[[0,-s*3.5,-1.8],[T*.6,hD.x,hD.z]]);
+  const wD=pt(s*rand(5.4,5.7),rand(-5.2,-4.7));setPath(W,[[0,s*5.9,-7.2],[T*.5,wD.x,wD.z]]);
+  setPath(dW,[[0,s*5.3,-6.4],[T*.5,wD.x-s*.3,wD.z+.95]]);
+  const pD=pt(s*rand(2.0,2.4),rand(-9.4,-9.0));setPath(PG,[[0,s*.4,-10.6],[T*.6,pD.x,pD.z]]);
+  setPath(dP,[[0,-s*.2,-9],[T*.6,lerp(pD.x,wD.x,.25),lerp(pD.z,wD.z,.25)+.45]]);
+  const oD=pt(-s*rand(5.5,5.8),rand(-5.0,-4.5));setPath(OW,[[0,-s*5.6,-7.2],[T*.7,oD.x,oD.z]]);
+  if(K){const kD=pt(s*rand(6.6,6.9),rand(.2,.6));setPath(K,[[0,s*6.2,-1.6],[T*.6,kD.x,kD.z]]);setPath(dK,[[0,s*5.4,-1.4],[T*.6,kD.x-s*.7,kD.z-.9]]);}
+  const elbow=pt(s*1.5,-4.9),oHome=homeOf(oD,1.6,wD),oHelp=pt(s*rand(.6,.9),rand(-4.8,-4.4)),dLow=pt(hD.x+s*.6,hD.z+.25);
+  setPath(dH,[[0,-s*3.0,-1.2],[T*.6,dLow.x,dLow.z]]);
+  let fake=false;
+  if(v==='flash'){if(L>=2&&R()<(L===3?.7:.45)){fake=true;setPath(dO,[[0,-s*5.0,-6.4],[T*.45,oHelp.x,oHelp.z],[T*.62,oHelp.x,oHelp.z],[T*.97,oHome.x,oHome.z]]);}
+    else setPath(dO,[[0,-s*5.0,-6.4],[T*.7,oHome.x,oHome.z]]);}
+  else{if(L>=2&&R()<(L===3?.7:.45))setPath(dO,[[0,-s*5.0,-6.4],[T*.6,oHome.x,oHome.z],[T*.97,oHelp.x,oHelp.z]]); // kommt spät: genau hinschauen
+    else setPath(dO,[[0,-s*5.0,-6.4],[T*.4,oHome.x,oHome.z],[T*.85,oHelp.x,oHelp.z]]);}
+  const outcome=(choice,ok,finish)=>{
+    if(choice==='drive'){goTo(H,[[.6,elbow.x,elbow.z]]);
+      if(ok){H.finish='shot';later(.25,()=>passOk(H,finish));later(.3,()=>goTo(dH,[[.9,lerp(dLow.x,elbow.x,.55),lerp(dLow.z,elbow.z,.55)+.5]]));}
+      else later(.3,()=>passBad(H,finish,dO));}
+    else{goTo(H,[[.4,hD.x,hD.z+.15]]);
+      if(ok){later(.15,()=>passOk(OW,finish));later(.4,()=>goTo(dO,[[1.1,lerp(oHelp.x,oD.x,.6),lerp(oHelp.z,oD.z,.6)]]));}
+      else later(.5,()=>{goTo(dW,[[.4,lerp(dW.x,W.x,.6),lerp(dW.z,W.z,.6)]]);later(.2,()=>{dW.armsUp=1.2;act(dW,'block',.8);});
+        shootFrom(W,false,()=>{flash('Chance verpasst','#ff7b72');sfx.bad();finish(.6);});});}};
+  const n=Math.hypot(.16,1);
+  return{ans:v==='flash'?'drive':'shot',helper:null,fake,outcome,ballAt:'W',driveTo:elbow,shotDir:'stay',rel:['W','dW','OW','dOW'],camSide:-s,
+    camFix:{x:-s*.9,z:-5.6,dx:s*.16/n,dz:1/n},
+    labels:{drive:['↗','Flash zum Ball'],shot:['✋','Unten bleiben']},prompt:'Dein Flügel wird bedrängt. Was machst du?',
+    why:v==='flash'?'Dein Verteidiger stand unten und hat auf den Ball geschaut. An der Freiwurflinie war alles frei: Flash-Cut zum Ball! Dort bekommst du den Pass und kannst werfen.'
+      :'An der Freiwurflinie stand schon ein Helfer. Wärst du dorthin gelaufen, hätte er den Pass abgefangen. Also unten bleiben und Platz lassen: Der Helfer hat seinen Flügel allein gelassen, und der Pass geht zu ihm.',
+    rule:v==='flash'?'Ist der Platz zwischen dir und dem Ball frei, lauf ihm entgegen: Flash-Cut!':'Steht dort schon jemand, lauf nicht auch noch hin. Bleib unten und lass Platz.',
+    notes:{drive:'An der Freiwurflinie stand der Helfer. Du bist direkt zu ihm gelaufen, und er hat den Pass abgefangen.',shot:'Dein Flügel war bedrängt und brauchte Hilfe. Der Platz an der Freiwurflinie war frei, aber keiner kam zum Ball.'},
+    q:v==='busy'?{t:'Wer stand an der Freiwurflinie?',r:'dOW'}:null};
+}
+
 // ================= VERTEIDIGUNG (Mann-Mann, nach DBB-Miniregeln und MMV-Kriterien) =================
 // Du bist der rote Verteidiger H, dein Gegenspieler ist M. Im Entscheidungsmoment tippst du eine von drei Positionen an.
 const unitV=(x,z)=>{const d=Math.hypot(x,z)||1;return[x/d,z/d];};
@@ -1989,6 +2073,80 @@ function buildDClose(v,T,L,M5){
     why:'Der Ball ging zu deinem Gegenspieler. Lauf schnell zurück und stopp eine Armlänge vor ihm, zwischen ihm und dem Korb. Hände hoch!',
     rule:'Ball zu deinem Gegenspieler? Zurück, abstoppen, Hände hoch!'});
 }
+// --------- Abwehr 6: Mitgehen beim Pass (FIBA: jump to the ball) ---------
+// Der Ball wird gepasst. Danach ist dein Gegenspieler weiter weg vom Ball (ab in die Zone) oder näher dran (zurück in den Passweg).
+function buildDJump(v,T,L,M5){
+  const s=R()<.5?-1:1,away=v==='away';
+  const H=addP('H','def',5),Mp=addP('M','off',s<0?3:2,{sel:false}),B=addP('B','off',away?1:(s<0?2:3),{sel:false}),dB=addP('dB','def',6);
+  const O=addP('O','off',away?(s<0?2:3):1,{sel:false}),dO=addP('dO','def',8);
+  const m=pt(s*rand(5.2,5.6),rand(-5.0,-4.4));
+  const b=away?pt(s*rand(.3,.8),rand(-8.2,-7.7)):pt(-s*rand(5.2,5.6),rand(-5.0,-4.4));
+  const o=away?pt(-s*rand(5.2,5.6),rand(-5.0,-4.4)):pt(s*rand(.4,.9),rand(-8.2,-7.7));
+  setPath(Mp,[[0,m.x,m.z-1.0],[T*.5,m.x,m.z]]);setPath(B,[[0,b.x,b.z-1.2],[T*.35,b.x,b.z]]);setPath(O,[[0,o.x,o.z-1.0],[T*.45,o.x,o.z]]);
+  const hb=homeOf(b,1.1,b),sag=pt(lerp(b.x,o.x,.3),lerp(b.z,o.z,.3)+1.5);setPath(dB,[[0,hb.x,hb.z-1.1],[T*.35,hb.x,hb.z],[T*.55,hb.x,hb.z],[T*.95,sag.x,sag.z]]);
+  const[ob0,ob1]=unitV(b.x-o.x,b.z-o.z),[ou0,ou1]=unitV(-o.x,-o.z),oDeny=pt(o.x+ou0*.7+ob0*.9,o.z+ou1*.7+ob1*.9),oHome=pt(o.x+ou0*1.1,o.z+ou1*1.1);
+  setPath(dO,[[0,oDeny.x,oDeny.z-1],[T*.4,oDeny.x,oDeny.z],[T*.55,oDeny.x,oDeny.z],[T*.88,oHome.x,oHome.z]]);
+  const[u0,u1]=unitV(-m.x,-m.z),[b0,b1]=unitV(b.x-m.x,b.z-m.z),[n0,n1]=unitV(o.x-m.x,o.z-m.z);
+  const hDen=pt(m.x+u0*.85+b0*.95,m.z+u1*.85+b1*.95),hHelp=pt(s*rand(1.1,1.4),rand(-3.1,-2.7)),h0=away?hDen:hHelp;
+  setPath(H,[[0,h0.x,h0.z-.8],[T*.4,h0.x,h0.z]]);
+  others(M5===5?[['C',5,9,-s*2.8,-.4],['K',7,10,-s*6.6,.3]]:[['C',5,9,-s*2.8,-.4]],o);
+  let good,spots;
+  if(away){good={x:s*rand(.8,1.0),z:-2.7,name:'Helfer in der Zone',res:'stopDrive'};
+    spots=mkSpots([good,{x:hDen.x,z:hDen.z,name:'im alten Passweg',res:'driveB',note:'Der Ball war auf der anderen Seite. Du standest noch im alten Passweg, und in der Zone hat keiner geholfen.'},
+      {x:o.x+s*1.1,z:o.z+.7,name:'beim Ballführer',res:'passShot',note:'Zu zweit auf den Ballführer gehen heißt Doppeln. Das ist im Minibasketball verboten, und dein Gegenspieler war ganz frei.'}]);}
+  else{good={x:m.x+u0*.85+n0*.95,z:m.z+u1*.85+n1*.95,name:'Hand im Passweg',res:'steal'};
+    spots=mkSpots([good,{x:hHelp.x,z:hHelp.z,name:'in der Zone bleiben',res:'passShot',note:'Der Ball war jetzt nur noch einen Pass entfernt. In der Zone warst du zu weit weg, und dein Gegenspieler hat in Ruhe geworfen.'},
+      {x:m.x-n0*1.05+u0*.35,z:m.z-n1*1.05+u1*.35,name:'auf der falschen Seite',res:'passDrive',note:'Du standest auf der Seite weg vom Ball. Der Passweg war offen, und er ist gleich zum Korb gezogen.'}]);}
+  return defRet(good,spots,{ballAt:'B',give:{to:'O',t0:T*.5,t1:T*.78},rel:['M','B','O'],slowRes:away?'driveB':'passShot',camFix:{x:away?0:s*1.3,z:-10.4,dx:0,dz:1},q:{t:'Wohin ging der Pass?',r:'O'},
+    why:away?'Der Ball ging auf die andere Seite. Jetzt ist dein Gegenspieler zwei Pässe vom Ball entfernt. Geh mit: ab in die Zone als Helfer. Zieht der neue Ballführer zum Korb, bist du schon da.'
+      :'Der Ball kam zu dem Spieler neben deinem Gegenspieler. Jetzt ist er nur noch einen Pass entfernt. Raus aus der Zone und zurück in den Passweg: Ball, du, Gegenspieler.',
+    rule:'Bei jedem Pass mitgehen: Geht der Ball weg, ab in die Zone. Kommt er näher, zurück in den Passweg.'});
+}
+// --------- Abwehr 7: Zurück in die Abwehr (Umschalten nach Ballverlust) ---------
+// DBB-Spielkonzeption (Transition-Verteidigung) und FIBA: erst den Korb sichern, dann den Ball stoppen, dann den Gegenspieler finden.
+function buildDBack(v,T,L,M5){
+  const s=R()<.5?-1:1;
+  const H=addP('H','def',5),Mp=addP('M','off',s<0?3:2,{sel:false}),B=addP('B','off',1,{sel:false}),dB=addP('dB','def',6);
+  const O=addP('O','off',s<0?2:3,{sel:false}),dO=addP('dO','def',8),C=addP('C','off',5,{sel:false}),dC=addP('dC','def',9);
+  const K=M5===5?addP('K','off',7,{sel:false}):null,dK=M5===5?addP('dK','def',10):null;
+  [C,dC,K,dK].forEach(p=>p&&(p.trail=true));
+  setPath(C,[[0,-s*1.6,-25],[T,-s*1.4,-15.6]],true);setPath(dC,[[0,-s*2.2,-25.6],[T,-s*2.0,-16.4]],true);
+  if(K){setPath(K,[[0,s*1.0,-26],[T,s*1.2,-16.6]],true);setPath(dK,[[0,s*1.6,-26.6],[T,s*1.8,-17.4]],true);}
+  let good,spots,slowRes,q,why,rel=['M','B','dB','dO'];
+  if(v==='first'){
+    const b=pt(-s*rand(.6,.9),-10.0),m=pt(s*rand(3.8,4.1),rand(-8.4,-8.0));
+    setPath(B,[[0,s*.4,-21.5],[T,b.x,b.z]],true);setPath(dB,[[0,s*.2,-23.4],[T,b.x+s*.5,b.z-3.0]],true);dB.trail=true;
+    setPath(Mp,[[0,s*3.6,-21],[T,m.x,m.z]],true);setPath(H,[[0,s*2.0,-20.4],[T,s*1.2,-7.0]],true);
+    setPath(O,[[0,-s*4.2,-21.5],[T,-s*4.6,-11.4]],true);setPath(dO,[[0,-s*3.6,-23.4],[T,-s*3.9,-13.6]],true);dO.trail=true;
+    good={x:s*.35,z:-1.9,name:'unter dem Korb',res:'stopDrive'};
+    spots=mkSpots([good,{x:b.x+s*.9,z:b.z+.9,name:'beim Ballführer',res:'driveM',note:'Du bist zum Ball gelaufen. Der Ballführer hat einfach nach vorne gepasst, und unter dem Korb war keiner.'},
+      {x:m.x-s*.7,z:m.z+.9,name:'bei deinem Gegenspieler',res:'driveB',note:'Du bist mit deinem Gegenspieler an die Seite gelaufen. Der Korb war leer, und der Ballführer hatte freie Bahn.'}]);
+    slowRes='driveB';q={t:'Wo war der Ballführer?',r:'B'};rel=['M','B'];
+    why='Ballverlust! Du warst als Erster zurück, und unter eurem Korb stand noch keiner. Dann sicherst du zuerst den Korb: Sprint unter den Korb. Um Ball und Gegenspieler kümmerst du dich danach.';}
+  else if(v==='ball'){
+    const b=pt(s*rand(.1,.4),-9.4);
+    setPath(B,[[0,s*.3,-21.6],[T,b.x,b.z]],true);setPath(dB,[[0,-s*.4,-23],[T,b.x+s*.5,-12.2]],true);dB.trail=true;
+    setPath(O,[[0,-s*4.0,-19.8],[T,-s*4.6,-5.6]],true);setPath(dO,[[0,-s*1.8,-15.5],[T,-s*.7,-1.9]],true);
+    setPath(H,[[0,s*3.6,-19.5],[T,s*2.3,-8.3]],true);setPath(Mp,[[0,s*4.3,-23.2],[T,s*4.6,-10.6]],true);
+    good={x:b.x*.5,z:b.z+1.7,name:'vor dem Ballführer',res:'stopDrive'};
+    spots=mkSpots([good,{x:s*.8,z:-1.7,name:'unter dem Korb',res:'pullB',note:'Unter dem Korb stand schon dein Mitspieler. Der Ballführer konnte ungestört bis zur Freiwurflinie dribbeln und werfen.'},
+      {x:s*4.0,z:-10.0,name:'bei deinem Gegenspieler',res:'driveB',note:'Dein Gegenspieler war noch hinten. Vor dem Ballführer stand keiner, und er ist bis zum Korb durchgezogen.'}]);
+    slowRes='pullB';q={t:'Wer sicherte schon euren Korb?',r:'dO'};
+    why='Unter eurem Korb stand schon ein Mitspieler. Vor dem Ballführer war aber keiner, sein Verteidiger war noch hinten. Dann stoppst du den Ball: Stell dich ihm in den Weg. Das ist kein Doppeln, denn du bist der Einzige am Ball.';}
+  else{
+    const b=pt(-s*rand(.3,.5),-8.6),m=pt(s*rand(4.8,5.1),rand(-5.6,-5.1));
+    setPath(B,[[0,-s*.5,-20],[T*.8,b.x,b.z-.4],[T,b.x,b.z]],true);setPath(dB,[[0,-s*.2,-17.8],[T*.8,b.x+s*.1,b.z+.9],[T,b.x+s*.1,b.z+1.25]],true);
+    setPath(O,[[0,-s*4.2,-19],[T,-s*4.8,-5.0]],true);setPath(dO,[[0,-s*1.5,-14],[T,-s*1.2,-2.4]],true);
+    setPath(H,[[0,s*1.6,-17.6],[T,s*1.0,-3.0]],true);setPath(Mp,[[0,s*4.0,-20.5],[T,m.x,m.z]],true);
+    const[u0,u1]=unitV(-m.x,-m.z);
+    good={x:m.x+u0*1.1,z:m.z+u1*1.1,name:'eine Armlänge vor ihm',res:'goodClose'};
+    spots=mkSpots([good,{x:b.x+s*1.0,z:b.z+.7,name:'auch beim Ballführer',res:'passShot',note:'Der Ballführer war schon gestoppt. Zu zweit auf ihn gehen heißt Doppeln. Das ist im Minibasketball verboten, und dein Gegenspieler war ganz frei.'},
+      {x:s*1.0,z:-3.0,name:'unter dem Korb bleiben',res:'openShot',note:'Unter dem Korb stand schon dein Mitspieler. Dein Gegenspieler war allein außen und konnte frei werfen.'}]);
+    slowRes='openShot';q={t:'Wo war dein Gegenspieler?',r:'M'};
+    why='Der Korb war gesichert, und der Ballführer wurde von seinem Verteidiger gestoppt. Jetzt suchst du deinen Gegenspieler: Lauf zu ihm und stopp eine Armlänge vor ihm, zwischen ihm und dem Korb.';}
+  return defRet(good,spots,{ballAt:'B',rel,slowRes,camFix:{x:0,z:-14.6,dx:0,dz:1},q,why,prompt:'Zurück in die Abwehr! Wohin läufst du?',
+    rule:'Zurück in die Abwehr: erst den Korb sichern, dann den Ball stoppen, dann deinen Gegenspieler finden.'});
+}
 function defCheer(){sfx.crowd();players.forEach(p=>{if(p.team==='def')act(p,'cheer',2.2,{dl:Math.random()*.3});else if(Math.random()<.6)act(p,'sad',2.2);});}
 function defOutcome(choice,ok,finish){const sc=G.sc,sp=sc.spots.find(p=>'spot:'+p.id===choice);
   goTo(Hd,[[.45,sp.x,sp.z]]);later(.45,()=>defRun(sp.res,finish));}
@@ -2002,6 +2160,7 @@ function defRun(res,finish){const Mp=role('M'),Hb=ball.owner||role('B'),H=Hd;
   else if(res==='openShot')withM(()=>shootFrom(Mp,true,bad));
   else if(res==='passShot')withM(()=>shootFrom(Mp,true,bad));
   else if(res==='driveM'||res==='passDrive')withM(()=>layup(Mp,bad));
+  else if(res==='pullB'){const D=Hb,tx=D.x*.4,tz=-5.3,du=Math.max(.5,Math.hypot(tx-D.x,tz-D.z)/6);goTo(D,[[du,tx,tz]],true);later(du,()=>shootFrom(D,true,bad));}
   else layup(Hb,bad);}
 
 const POS={pg:{name:'Aufbau (Point Guard)',short:'Aufbau',num:1,at:[30,37]},wing:{name:'Flügel',short:'Flügel',num:3,at:[11,27]},center:{name:'Center',short:'Center',num:5,at:[14.5,12.5]},def:{name:'Verteidigung',short:'Abwehr',num:'V',at:[30,26],red:true},mix:{name:'Trainingsthema',short:'Thema',num:'T',at:[30,26]}};
@@ -2030,15 +2189,19 @@ const PLAYS={
   dhelp:{pos:'def',name:'Zwei Pässe entfernt',desc:'Der Ball ist auf der anderen Seite',T:[3.2,2.8,2.4],vars:()=>['wing','corner'],build:buildDHelp},
   drot:{pos:'def',name:'Aushelfen',desc:'Der Ballführer ist an seinem Verteidiger vorbei',T:[3.2,2.8,2.4],vars:()=>['top','mid'],build:buildDRot},
   dclose:{pos:'def',name:'Zurück zum Gegenspieler',desc:'Der Ball kommt zu deinem Gegenspieler',T:[3.4,3.0,2.6],vars:()=>['wing','corner'],build:buildDClose},
+  djump:{pos:'def',name:'Mitgehen beim Pass',desc:'Der Ball wandert. Wo stehst du jetzt?',T:[3.4,3.0,2.6],vars:()=>['away','toward'],build:buildDJump},
+  dback:{pos:'def',name:'Zurück in die Abwehr',desc:'Ballverlust! Sprint zurück. Wohin?',T:[3.4,3.0,2.6],vars:()=>['first','ball','man'],build:buildDBack},
   rimrun:{pos:'center',name:'Rim Run',desc:'Schnellangriff: Sprint zum Korb oder hinten bleiben?',T:[3.6,3.1,2.7],vars:()=>['run','back'],build:buildRimRun},
   dkick:{pos:'pg',name:'Durchbruch & Kick-out',desc:'Zieh in die Zone. Wer springt dir in den Weg?',T:[3.4,3.0,2.6],vars:(M)=>M===5?['lay','kickL','kickR','dump','kickK']:['lay','kickL','kickR','dump'],build:(v,T,L,M)=>buildDKick(v,T,L,M,'top')},
   plong:{pos:'pg',name:'Ballgewinn: langer Pass?',desc:'Schau sofort nach vorne!',T:[3.2,2.8,2.4],vars:()=>['longL','longR','drive'],build:(v,T,L,M)=>buildLong(v,T,L,M,'pg')},
   wdrive:{pos:'wing',name:'Durchbruch vom Flügel',desc:'Zieh zum Korb und lies die Hilfe',T:[3.4,3.0,2.6],vars:(M)=>M===5?['lay','kickTop','kickOW','dump','kickK']:['lay','kickTop','dump','kickOW'],build:(v,T,L,M)=>buildDKick(v,T,L,M,'wing')},
-  clong:{pos:'center',name:'Rebound & langer Pass',desc:'Du hast den Rebound. Wer ist vorne frei?',T:[3.2,2.8,2.4],vars:()=>['longL','longR','outlet'],build:(v,T,L,M)=>buildLong(v,T,L,M,'center')}
+  clong:{pos:'center',name:'Rebound & langer Pass',desc:'Du hast den Rebound. Wer ist vorne frei?',T:[3.2,2.8,2.4],vars:()=>['longL','longR','outlet'],build:(v,T,L,M)=>buildLong(v,T,L,M,'center')},
+  swing:{pos:'pg',name:'Ball umkehren',desc:'Die Abwehr steht auf einer Seite. Wohin mit dem Ball?',T:[3.6,3.1,2.7],vars:()=>['swing','gap','drive'],build:buildSwing},
+  cflash:{pos:'center',name:'Flash-Cut',desc:'Dein Flügel braucht Hilfe. Zum Ball laufen oder unten bleiben?',T:[3.4,3.0,2.6],vars:()=>['flash','busy'],build:buildCFlash}
 };
 const playsOf=pos=>Object.keys(PLAYS).filter(k=>PLAYS[k].pos===pos);
 // Kurznamen für die Auswahl im Menü (passt auf kleinen Handys in zwei Zeilen)
-const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound'};
+const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound',swing:'Umkehren',cflash:'Flash-Cut',djump:'Mitgehen',dback:'Zurück'};
 
 function buildScenario(seed,play,variant){
   R=mulberry(seed);clearPlayers();
@@ -2154,7 +2317,8 @@ function resolve(choice){
   if(!G.replay){let pts=0;
     if(ok){const bonus=G.noLimit?0:Math.round(50*clamp(1-rt/G.win,0,1));pts=Math.round((100+bonus)*(1+.1*Math.min(G.streak,5)));G.score+=pts;G.streak++;G.bestStreak=Math.max(G.bestStreak,G.streak);}
     else G.streak=0;
-    G.results.push({play:sc.play,ans:sc.ans,choice,ok,rt:choice?rt:null,pts,off:!!sc.outcome&&!sc.def&&!sc.onBall,def:!!sc.def,lz:lzOf(sc.play,sc.variant,sc.ans,!!sc.outcome&&!sc.onBall)});updateHud();
+    const off=!!sc.outcome&&!sc.onBall,lz=lzOf(sc.play,sc.variant,sc.ans,off),lz2=lz2Of(sc,choice,lz,off);
+    G.results.push({play:sc.play,ans:sc.ans,choice,ok,rt:choice?rt:null,pts,off:off&&!sc.def,def:!!sc.def,lz,lz2});updateHud();
     if(ok){vib(25);ptsPop('+'+pts);}else vib([40,60,40]);}
   animateOutcome(choice,ok);
 }
@@ -2290,12 +2454,12 @@ function drawMini(choice,o){o=o||{};
   c.strokeStyle='#222';c.lineWidth=5;c.beginPath();c.moveTo(sx(-.9),sz(.375));c.lineTo(sx(.9),sz(.375));c.stroke();
   const snap=G.snap,me=snap.find(p=>p.role==='H');
   const off=!!G.sc.outcome&&!G.sc.def&&!G.sc.onBall;
-  const arrow=(a,col,dash)=>{if(a==='shot'&&off){const bo=snap.find(p=>p.ball)||me,an=Math.atan2(sz(bo.z)-sz(me.z),sx(bo.x)-sx(me.x))+(G.sc.shotDir==='away'?Math.PI:0);
+  const arrow=(a,col,dash)=>{if(a==='shot'&&off&&G.sc.shotDir!=='stay'){const bo=snap.find(p=>p.ball)||me,an=Math.atan2(sz(bo.z)-sz(me.z),sx(bo.x)-sx(me.x))+(G.sc.shotDir==='away'?Math.PI:0);
       c.strokeStyle=col;c.fillStyle=col;c.lineWidth=6;c.setLineDash(dash?[12,9]:[]);const x0=sx(me.x),y0=sz(me.z),ex=x0+Math.cos(an)*46,ey=y0+Math.sin(an)*46;
       c.beginPath();c.moveTo(x0+Math.cos(an)*20,y0+Math.sin(an)*20);c.lineTo(ex,ey);c.stroke();c.setLineDash([]);
       c.beginPath();c.moveTo(ex+Math.cos(an)*14,ey+Math.sin(an)*14);c.lineTo(ex+Math.cos(an+2.4)*14,ey+Math.sin(an+2.4)*14);c.lineTo(ex+Math.cos(an-2.4)*14,ey+Math.sin(an-2.4)*14);c.fill();return;}
     if(a==='shot'){c.strokeStyle=col;c.lineWidth=5;c.setLineDash(dash?[10,8]:[]);c.beginPath();c.arc(sx(me.x),sz(me.z),28,0,7);c.stroke();c.setLineDash([]);return;}
-    let tg=a==='drive'?{x:0,z:-.8}:a.startsWith('spot:')?G.sc.spots.find(p=>'spot:'+p.id===a):snap.find(p=>p.role===a.slice(5));if(!tg)return;
+    let tg=a==='drive'?(G.sc.driveTo||{x:0,z:-.8}):a.startsWith('spot:')?G.sc.spots.find(p=>'spot:'+p.id===a):snap.find(p=>p.role===a.slice(5));if(!tg)return;
     const x0=sx(me.x),y0=sz(me.z),x1=sx(tg.x),y1=sz(tg.z),an=Math.atan2(y1-y0,x1-x0),L=Math.hypot(x1-x0,y1-y0)-24,ex=x0+Math.cos(an)*L,ey=y0+Math.sin(an)*L;
     c.strokeStyle=col;c.fillStyle=col;c.lineWidth=6;c.setLineDash(dash?[12,9]:[]);c.beginPath();c.moveTo(x0+Math.cos(an)*20,y0+Math.sin(an)*20);c.lineTo(ex,ey);c.stroke();c.setLineDash([]);
     c.beginPath();c.moveTo(ex+Math.cos(an)*14,ey+Math.sin(an)*14);c.lineTo(ex+Math.cos(an+2.4)*14,ey+Math.sin(an+2.4)*14);c.lineTo(ex+Math.cos(an-2.4)*14,ey+Math.sin(an-2.4)*14);c.fill();};
@@ -2325,7 +2489,7 @@ function showSummary(){
   const cat=[['Zum Korb (mit Ball)',r=>r.ans==='drive'&&!r.off],['Pass zum freien Mitspieler',r=>r.ans.startsWith('pass:')],['Selbst werfen',r=>r.ans==='shot'&&!r.off],['Ohne Ball: zum Korb laufen',r=>r.ans==='drive'&&r.off],['Ohne Ball: Ball fordern / Platz lassen',r=>r.ans==='shot'&&r.off]];
   const rowH=(label,rs)=>{if(!rs.length)return'';const k=rs.filter(r=>r.ok).length;return`<div class="br"><span>${label}</span><span style="color:${k===rs.length?'#7ff0ad':k?'#ffc83d':'#ff8a80'}">${k}/${rs.length}</span></div>`;};
   const played=[...new Set(G.results.map(r=>r.play))];
-  $('sBreak').innerHTML='<div class="sec-t">Nach Lernziel</div>'+Object.keys(LZ).map(k=>rowH(svgI(LZ[k].i)+LZ[k].n,G.results.filter(r=>r.lz===k))).join('')+
+  $('sBreak').innerHTML='<div class="sec-t">Nach Lernziel</div>'+Object.keys(LZ).map(k=>rowH(svgI(LZ[k].i)+LZ[k].n,G.results.filter(r=>lzKeys(r).includes(k)))).join('')+
     '<div class="sec-t">Nach Spielzug</div>'+played.map(p=>rowH(PLAYS[p].name,G.results.filter(r=>r.play===p))).join('')+(G.results.some(r=>r.def)?'':'<div class="sec-t">Nach Entscheidung</div>'+cat.map(([l,f])=>rowH(l,G.results.filter(f))).join(''));
   const key=bestKey(),prev=+(store.get(key)||0);
   if(G.score>prev){store.set(key,G.score);$('sBest').innerHTML=svgI('star','fill')+(prev?`Neuer Rekord! (vorher ${prev})`:'Erster Rekord gesetzt!');if(st)setTimeout(()=>confetti(60),400);}
@@ -2350,13 +2514,17 @@ const LVN=['Anfänger','Mittel','Profi'];
 const INFO_HTML=`<h3>Was ist das?</h3>
 <p>Der Basketball IQ Trainer ist ein Entscheidungstrainer für Kinder im Minibasketball und darüber (etwa 8 bis 14 Jahre). Geübt wird keine Technik, sondern das <b>Lesen der Verteidigung</b>: Zum Korb, passen, werfen, ohne Ball laufen oder richtig verteidigen.</p>
 <h3>Lernziele</h3>
-<ul><li><b>Lücke erkennen, Gegenspieler umspielen, Überzahl nutzen, In den Lauf passen, Zusammenspiel, Anbieten und Orientieren</b>: die taktischen Grundfertigkeiten aus dem DBB-Leitfaden Minibasketball.</li>
-<li><b>Guter Wurf</b>: „Wofür spielen wir? Korbnahe Abschlüsse, freie Dreier, Freiwürfe“ (DBB-Spielkonzeption).</li>
-<li><b>Mann-Mann-Verteidigung</b>: im Minibasketball Pflicht (Miniregeln). Am Ball, ein Pass weg, zwei Pässe weg, Aushelfen, zurück zum Gegenspieler.</li></ul>
+<p>Der DBB-Leitfaden Minibasketball nennt sieben taktische Grundfertigkeiten. Sechs davon übt das Spiel direkt, die siebte als Entscheidung:</p>
+<ul><li><b>Lücke erkennen</b>: Raum und Helfer lesen. Kommt keine Hilfe, ist der Weg zum Korb frei, oder ein Mitspieler steht in der Lücke zwischen zwei Verteidigern (Lücke für einen Pass).</li>
+<li><b>Gegenspieler umspielen</b>: den eigenen Verteidiger lesen. Steht er neben dir statt vor dir oder kommt mit Schwung angerannt, ziehst du an ihm vorbei.</li>
+<li><b>Überzahl nutzen, In den Lauf passen, Zusammenspiel, Anbieten und Orientieren</b>: wie im Leitfaden.</li>
+<li><b>Ins Ziel treffen</b> heißt im Spiel <b>Guter Wurf</b>. Treffen übt man in der Halle, hier geht es um die Wurfauswahl: „Wofür spielen wir? Korbnahe Abschlüsse, freie Dreier, Freiwürfe“ (DBB-Spielkonzeption). Wer wirft, obwohl ein Korbleger oder ein Pass besser war, bekommt dort einen Fehlversuch.</li>
+<li><b>Mann-Mann-Verteidigung</b>: im Minibasketball Pflicht (Miniregeln). Am Ball, ein Pass weg, zwei Pässe weg, Aushelfen, zurück zum Gegenspieler, beim Pass mitgehen, zurück in die Abwehr.</li></ul>
 <h3>Woran sich das Spiel hält</h3>
 <ul><li><b>Miniregeln 2024</b>: U10 und U12 spielen 4 gegen 4 (5 gegen 5 nur in der leistungsorientierten U12). Keine Blöcke, keine Übergaben aus der Hand, Doppeln verboten. Deshalb gibt es im Spiel keine Screens, und bei „Ball am Brett“ hilft ein zweiter Verteidiger erst aus, wenn der Center zum Korb zieht.</li>
 <li><b>Lernen durch Ausprobieren</b>: Der Leitfaden empfiehlt, den Kindern keine fertige Lösung vorzugeben, sondern Fragen zu stellen. Nach einer falschen Entscheidung fragt das Spiel deshalb zuerst, z. B. „Wer hat ausgeholfen?“, und erklärt erst danach.</li>
-<li><b>Prinzipien der Nachwuchs-Nationalteams</b> (DBB-Spielkonzeption): schnelle Entscheidung Wurf, Drive oder Pass, Extra-Pass, „1 can’t guard 2“, Attackieren und Platz machen (Pass und raus), Rim Run im Schnellangriff.</li>
+<li><b>Prinzipien der Nachwuchs-Nationalteams</b> (DBB-Spielkonzeption): schnelle Entscheidung Wurf, Drive oder Pass, Extra-Pass, „1 can’t guard 2“, Attackieren und Platz machen (Pass und raus), Rim Run im Schnellangriff, nach Ballverlust zurück: erst den Korb sichern, dann den Ball.</li>
+<li><b>FIBA Coaching Manual Mini-Basketball</b>: spielnah lernen und Fragen stellen statt vorsagen („game-based teaching“). Aus dem 3 gegen 3 und 4 gegen 4: Backdoor-Cut, Pass und geh, Flash-Cut, Ball umkehren, Platz lassen statt zum Ball laufen, Schnellangriff mit Pass nach vorne. In der Verteidigung: ein Pass weg, zwei Pässe weg, bei jedem Pass mitgehen („jump to the ball“), im Umschalten erst Korb, dann Ball.</li>
 <li><b>Mann-Mann-Kriterien</b> (DBB, U14/U16): am Ball höchstens 1,5 m Abstand zwischen Gegenspieler und Korb, einen Passweg weg höchstens 1,5 m absinken, Helfen nach einem Durchbruch und sofort zurück zum eigenen Gegenspieler. Für Minis gelten die Miniregeln, die Kriterien dienen hier als Orientierung. Aushelfen ist erlaubt, Doppeln nicht.</li></ul>
 <h3>So nutzt ihr es im Verein</h3>
 <ul><li><b>Themen</b>: passende Spielzüge zu einem Trainingsthema, gemischt über alle Positionen.</li>
@@ -2411,7 +2579,7 @@ async function saveScore(){
   if(G.saved)return;const name=cleanName($('nameIn').value);
   if(!name){$('nameIn').focus();$('nameIn').placeholder='Bitte Namen eingeben';return;}
   G.saved=true;store.set('pgt_name',name);$('saveBtn').disabled=true;$('saveBtn').textContent='…';
-  const lzc={};G.results.forEach(r=>{const a=lzc[r.lz]||(lzc[r.lz]=[0,0]);a[1]++;if(r.ok)a[0]++;});
+  const lzc={};G.results.forEach(r=>lzKeys(r).forEach(k=>{const a=lzc[k]||(lzc[k]=[0,0]);a[1]++;if(r.ok)a[0]++;}));
   const e={name,score:G.score,correct:G.results.filter(r=>r.ok).length,rounds:G.results.length,pos:G.pos,mode:G.mode,level:G.level,learn:G.noLimit,ts:Date.now(),lz:Object.entries(lzc).map(([k,a])=>`${k}:${a[0]}/${a[1]}`).join(',')};
   saveLocal(e);
   if(onlineOn()){try{await postOnline(e);}catch(err){if(!err.rejected){const p=jget('pgt_pending_'+TEAMID);p.push(e);store.set('pgt_pending_'+TEAMID,JSON.stringify(p));}}}
@@ -2431,11 +2599,13 @@ $('boardClose').onclick=$('boardX').onclick=()=>$('board').classList.add('hidden
 // ================= Trainer: Themen, Aufgabe, Team =================
 const THEMES=[
  {id:'hilfe',n:'Wer hilft, lässt jemanden frei',d:'Hilfe erkennen, freien Mitspieler finden',i:'pass',plays:['top','wing','dkick','wcatch','wdrive','cpost']},
- {id:'ohneball',n:'Ohne Ball',d:'Backdoor, Pass und geh, Platz machen',i:'cut',plays:['backdoor','give','wcut','cdive']},
+ {id:'ohneball',n:'Ohne Ball',d:'Backdoor, Flash-Cut, Pass und geh, Platz machen',i:'cut',plays:['backdoor','give','wcut','cdive','cflash']},
+ {id:'ballbewegen',n:'Ball bewegen',d:'Den Ball dorthin spielen, wo die Abwehr nicht ist',i:'pass',plays:['swing','xpass','cflash','give']},
  {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, langer Pass, Rim Run',i:'bolt',plays:['break','plong','wbreak','two','clong','rimrun']},
+ {id:'umschalten',n:'Umschalten',d:'Nach Ballgewinn nach vorne, nach Ballverlust zurück',i:'bolt',plays:['plong','clong','break','rimrun','dback']},
  {id:'wurf',n:'Guter Wurf',d:'Wann werfen, wann ziehen, wann passen?',i:'ball',plays:['top','wcatch','xpass','chigh']},
  {id:'backdoor',n:'Backdoor',d:'Steht der Verteidiger im Passweg: hinten rum!',i:'cut',plays:['backdoor','wcut','chigh']},
- {id:'abwehr',n:'Mann-Mann-Verteidigung',d:'Am Ball, ein Pass weg, helfen, zurück',i:'shield',plays:['dball','dpass','dhelp','drot','dclose']}];
+ {id:'abwehr',n:'Mann-Mann-Verteidigung',d:'Am Ball, ein Pass weg, helfen, mitgehen, zurück',i:'shield',plays:['dball','dpass','dhelp','drot','dclose','djump','dback']}];
 const TASK=(()=>{const q=new URLSearchParams(location.search),t=THEMES.find(x=>x.id===q.get('aufgabe'));if(!t)return null;
   const r=+q.get('r'),l=+q.get('l');return{theme:t.id,txt:cleanName2(q.get('txt')||'')||t.n,r:r===5?5:10,l:[1,2,3].includes(l)?l:0};})();
 function cleanName2(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,60);}
@@ -2580,7 +2750,8 @@ const ICO={
 '✋':'<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 11V5a1.5 1.5 0 0 1 3 0v6M14 11V6.5a1.5 1.5 0 0 1 3 0V14a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.6-2.2L4 15.2a1.5 1.5 0 0 1 2.3-1.9L8 15"/>',
 '↻':'<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/>',
 '⤓':'<path d="M12 4v12M7 11l5 5 5-5M6 20h12"/>',
-'→':'<path d="M4 12h14M13 6l6 6-6 6"/>'};
+'→':'<path d="M4 12h14M13 6l6 6-6 6"/>',
+'↗':'<path d="M6 18 18 6M9 6h9v9"/>'};
 const icoSvg=c=>`<svg viewBox="0 0 24 24">${ICO[c]||ICO['▲']}</svg>`;
 function buildButtons(){const sc=G.sc,np=passers().length;
   const lb=sc.labels;document.querySelectorAll('#actRow .cb').forEach(b=>{const l=lb[b.dataset.c];b.classList.toggle('hidden',!l);if(l){b.querySelector('.ar').innerHTML=icoSvg(l[0]);b.querySelector('.lb').textContent=l[1];}});
