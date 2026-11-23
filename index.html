@@ -1469,14 +1469,77 @@ const ballMesh=new T3.Mesh(new T3.SphereGeometry(.122,28,20),new T3.MeshStandard
 const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,spin:0};
 
 // ================= Sound =================
+// Aufnahmen in sfx/: erstellt mit ElevenLabs Sound Effects (Free Plan: Namensnennung Pflicht, siehe lizenzen.html und INFO_HTML;
+// kommerzielle Nutzung eingeschränkt). Pfiff, Publikum und Signaltöne sind synthetisch (Web Audio).
 let AC=null,muted=store.get('pgt_mute')==='1';
-function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});return AC;}
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});loadSmp();return AC;}
+// Echte Geräusche aus sfx/ (ElevenLabs, tools/make_sfx.mjs + tools/trim_sfx.sh): SMP_N = Anzahl Varianten je Geräusch.
+// Geladen beim ersten ac() (Nutzer-Geste); fehlt eine Datei oder das Netz, bleibt der synthetische Ton (smp liefert false).
+// Zufall hier nur über Math.random, nicht R (R ist für „Nochmal ansehen“ geseedet).
+const SMP_N={dribble:2,catch:3,squeak:3,step:2,swish:3,rim:3},SMP={},SMP_L={};let smpOn=false;
+function loadSmp(){if(smpOn||!AC||!window.fetch)return;smpOn=true;
+  const q=[];for(const k in SMP_N)for(let i=1;i<=SMP_N[k];i++)q.push([k,'sfx/'+k+i+'.mp3']);
+  // nacheinander laden (schont langsame Verbindungen); fehlt die erste Datei eines Geräuschs, die übrigen überspringen
+  const miss={},next=()=>{const j=q.shift();if(!j)return;const[k,u]=j;if(miss[k])return next();
+    fetch(u).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);}))
+      .then(buf=>{(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;}).then(next);};next();}
+function smp(k,v,pv){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
+  try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;
+    const s=a.createBufferSource(),g=a.createGain();s.buffer=L[i];s.playbackRate.value=1+(Math.random()*2-1)*(pv||.06);
+    g.gain.value=v*(.8+Math.random()*.35);s.connect(g).connect(a.destination);s.start();}catch(e){}return true;}
+// Lautstärke nach Abstand zur Kamera (Spieler weit weg leiser)
+const nearV=p=>p?clamp(1.25-Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z)/22,.2,1):1;
+let sqkT=0;
+// Publikum im Hintergrund: Gemurmel aus ~24 synthetischen Stimmen (Puls + Rauschen durch zwei Formant-Resonatoren,
+// Silben mit Pausen), einmal als 6-s-Schleife berechnet, zwei versetzte Wiedergaben. Lautstärke folgt G.excite, aus im Menü/stumm.
+let BED=null;
+// Zwei Schichten: ruhiges Gemurmel (immer) und Jubel (höhere Stimmen, lang gehaltene Rufe, kaum Pausen), eingeblendet nach G.excite und La-Ola.
+// Schrittweise berechnet: höchstens ms Millisekunden pro Aufruf (Zeitscheiben), damit es auf dem Handy nicht ruckelt;
+// perfAdapt misst währenddessen nicht (bedSt). Zustand der aktuellen Stimme liegt in st.c.
+function bedInit(roar){const sr=AC.sampleRate;return{sr,roar,nv:roar?32:24,n:sr*6|0,fd:sr*.5|0,out:new Float32Array((sr*6|0)+(sr*.5|0)),v:0,c:null};}
+function bedVoice(st,ms){const{sr,out,roar}=st,T=performance.now()+(ms||1e9);
+  while(st.v<st.nv){if(!st.c)st.c={i:0,f0:roar?170+Math.random()*210:95+Math.random()*160,pan:.4+Math.random()*.6,ph:0,y1:0,y2:0,z1:0,z2:0,w1:0,w2:0,env:0,tgt:0,left:0,c1:0,c2:0,c3:0,g1:0,g2:0,g3:0,cons:0,hp1:0,nz0:0,gl:1};
+    const C=st.c,v=st.v,f0=C.f0,pan=C.pan,r1=.982,r2=.978;let{i,ph,y1,y2,z1,z2,w1,w2,env,tgt,left,c1,c2,c3,g1,g2,g3,cons,hp1,nz0,gl}=C;
+    for(;i<out.length;i++){
+      if((i&2047)===0&&performance.now()>T)break;
+      if(--left<=0){const talk=Math.random()<(roar?.97:.8)&&tgt===0;tgt=talk?.4+Math.random()*.6:0;
+        left=sr*(talk?(roar?.25+Math.random()*.45:.08+Math.random()*.2):(roar?.02+Math.random()*.08:Math.random()<.15?.6+Math.random():.03+Math.random()*.15))|0;
+        // Jubel: offene Vokale („aah“, „jaa“), Ton steigt beim Rufen etwas an
+        const F1=roar?650+Math.random()*300:400+Math.random()*500,F2=roar?1100+Math.random()*700:1100+Math.random()*1500,F3=2400+Math.random()*900;gl=roar?1.15+Math.random()*.25:1;
+        c1=2*r1*Math.cos(2*Math.PI*F1/sr);c2=2*r2*Math.cos(2*Math.PI*F2/sr);c3=2*.97*Math.cos(2*Math.PI*F3/sr);
+        // Resonanzverstärkung ausgleichen (tiefe Formanten wären sonst viel lauter → dumpf)
+        g1=(1-r1)*2*Math.sin(2*Math.PI*F1/sr);g2=(1-r2)*2*Math.sin(2*Math.PI*F2/sr);g3=.03*2*Math.sin(2*Math.PI*F3/sr);
+        if(talk&&Math.random()<(roar?.3:.6))cons=sr*(.015+Math.random()*.035)|0;}
+      env+=(tgt-env)*(roar?.002:.004);const pf=roar?1+(gl-1)*Math.min(1,env/.7):1;ph+=f0*pf*(1+(roar?.05:.03)*Math.sin(i/sr*(roar?6:5)+v))/sr;if(ph>=1)ph-=1;
+      const nz=Math.random()*2-1,x=(ph<(roar?.05:.08)?1:0)*.7+nz*.3,a1=c1*y1-r1*r1*y2+x;y2=y1;y1=a1;const a2=c2*z1-r2*r2*z2+x;z2=z1;z1=a2;const a3=c3*w1-.9409*w2+x;w2=w1;w1=a3;
+      // Konsonant (s/t/k): kurzes helles Rauschen (Hochpass erster Ordnung) am Silbenanfang
+      let k=0;if(cons>0){cons--;hp1=.6*(hp1+nz-nz0);k=hp1*9;}nz0=nz;
+      out[i]+=(a1*g1*.4+a2*g2*.4+a3*g3*.3+k*.012)*env*pan;}
+    Object.assign(C,{i,ph,y1,y2,z1,z2,w1,w2,env,tgt,left,c1,c2,c3,g1,g2,g3,cons,hp1,nz0,gl});
+    if(i<out.length)return false;st.v++;st.c=null;if(performance.now()>T)return st.v>=st.nv;}
+  return true;}
+function bedFinish(st){const a=AC,{sr,n,fd,out}=st;
+  for(let i=0;i<fd;i++){const u=i/fd;out[i]=out[i]*u+out[n+i]*(1-u);}  // Schleife ohne Naht
+  let m=0;for(let i=0;i<n;i++)m=Math.max(m,Math.abs(out[i]));const b=a.createBuffer(1,n,sr),ch=b.getChannelData(0);for(let i=0;i<n;i++)ch[i]=out[i]/(m||1)*.9;
+  const g=a.createGain(),lp=a.createBiquadFilter(),hp=a.createBiquadFilter();g.gain.value=0;lp.type='lowpass';lp.frequency.value=6000;hp.type='highpass';hp.frequency.value=240;
+  lp.connect(hp).connect(g).connect(a.destination);
+  [[1,0],[.94,2.7]].forEach(([r,o])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;s.connect(lp);s.start(0,o);});
+  return g;}
+function makeBed(roar){const st=bedInit(roar);while(!bedVoice(st));return bedFinish(st);}
+let bedSt=null;
+function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED)return;
+  if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;}
+  if(!BED.g)return;BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&G.phase!=='menu',wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
+  BED.g.gain.setTargetAtTime(on?.05+.03*ex:0,a.currentTime,on?.4:.25);
+  BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,ex>BED.ex?.12:.6);BED.ex=ex;}
 function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02);}catch(e){}}
 function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(a.destination);s.start();}catch(e){}}
 function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
   for(let i=0;i<n;i++){const t=i/n,e=t<att?t/att:Math.pow(1-(t-att)/(1-att),1.6);ch[i]=(Math.random()*2-1)*e*(.75+.25*Math.sin(i/a.sampleRate*40));}
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(a.destination);s.start();}catch(e){}}
-const sfx={crowd:()=>crowdN(2.2,.5,1100,.12),ooh:()=>crowdN(1.1,.35,520,.3),dribble:()=>tone(120,.07,'sine',.18,60),whistle:()=>{tone(2300,.18,'square',.035);tone(2500,.18,'square',.02)},swish:()=>noise(.35,.25,2500),good:()=>{tone(660,.12,'triangle',.15);tone(990,.22,'triangle',.15,null,.11);noise(.9,.05,600)},bad:()=>tone(180,.4,'sawtooth',.09,90),buzz:()=>tone(110,.6,'square',.07),rim:()=>tone(330,.2,'triangle',.12,200),pass:()=>noise(.08,.08,1200)};
+const sfx={crowd:()=>crowdN(2.2,.5,1100,.12),ooh:()=>crowdN(1.1,.35,520,.3),dribble:p=>smp('dribble',.5*nearV(p))||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.45*nearV(p)),
+  squeak:p=>{if(clock-sqkT<.15)return;sqkT=clock;smp('squeak',.32*nearV(p),.1);},step:(p,v)=>smp('step',v*nearV(p),.1),
+  whistle:()=>{tone(2300,.18,'square',.035);tone(2500,.18,'square',.02)},swish:()=>smp('swish',.6)||noise(.35,.25,2500),good:()=>{tone(660,.12,'triangle',.15);tone(990,.22,'triangle',.15,null,.11);noise(.9,.05,600)},bad:()=>tone(180,.4,'sawtooth',.09,90),buzz:()=>tone(110,.6,'square',.07),rim:()=>smp('rim',.5)||tone(330,.2,'triangle',.12,200),pass:()=>noise(.08,.08,1200)};
 
 // ================= Spielzustand =================
 const G={ts:1,slowT:0,wave:-9,phase:'menu',pos:'pg',level:1,mode:4,noLimit:false,round:0,rounds:10,score:0,streak:0,bestStreak:0,results:[],sc:null,t:0,dStart:0,win:4,timers:[],replay:false,choice:null,snap:null,bag:[],plays:['top','break','wing','backdoor'],excite:0,saved:false};
@@ -1561,10 +1624,21 @@ function goTo(p,list,lin){setPath(p,[[0,p.x,p.z],...list],lin);}
 function evalPath(P,t,lin){const L=P[P.length-1];if(t<=P[0][0])return[P[0][1],P[0][2]];if(t>=L[0])return[L[1],L[2]];
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];if(t<=b[0]){let u=(t-a[0])/(b[0]-a[0]);if(!lin)u=smooth(u);return[lerp(a[1],b[1],u),lerp(a[2],b[2],u)];}}return[L[1],L[2]];}
 function updP(p,dt){
+  if(p.path&&dt>0&&G.phase!=='menu')footSfx(p,dt);
   if(p.path&&dt>0){p.pt+=dt;const[x,z]=evalPath(p.path,p.pt,p.lin);const vx=(x-p.x)/dt,vz=(z-p.z)/dt;p.vx=lerp(p.vx,vx,.25);p.vz=lerp(p.vz,vz,.25);p.spd=Math.hypot(p.vx,p.vz);p.x=x;p.z=z;}
   else if(dt>0){p.vx*=.8;p.vz*=.8;p.spd=Math.hypot(p.vx,p.vz);}
   p.ph+=dt*(1.2+p.spd*1.9);p.armsUp=Math.max(0,p.armsUp-dt*.55);
 }
+// Schuhquietschen an Wegpunkten mit scharfem Richtungswechsel oder harter Bremsung (aus der Wegpunktliste,
+// nicht aus der geglätteten Geschwindigkeit). Schritte nur für den eigenen Spieler und den Ballführer, leise.
+function footSfx(p,dt){const P=p.path,t0=p.pt,t1=p.pt+dt;
+  for(let i=1;i<P.length;i++){const b=P[i];if(b[0]<=t0)continue;if(b[0]>t1)break;
+    const a=P[i-1],c=P[i+1],da=b[0]-a[0];if(da<=.05)continue;
+    const v1x=(b[1]-a[1])/da,v1z=(b[2]-a[2])/da,s1=Math.hypot(v1x,v1z);
+    let s2=0,cs=1;if(c&&c[0]-b[0]>.05){const db=c[0]-b[0],v2x=(c[1]-b[1])/db,v2z=(c[2]-b[2])/db;s2=Math.hypot(v2x,v2z);if(s1>.3&&s2>.3)cs=(v1x*v2x+v1z*v2z)/(s1*s2);}
+    if((Math.max(s1,s2)>2.4&&cs<.35)||(s1>3.6&&s2<.4))sfx.squeak(p);}
+  if((p===ROLE.H||p===ball.owner)&&p.spd>1.3&&!(p.jy>.05)){p.stepD=(p.stepD||0)+p.spd*dt;
+    if(p.stepD>.55+.13*p.spd){p.stepD=0;sfx.step(p,clamp(.08+.035*p.spd,.1,.28));}}}
 function angTo(dx,dz){return Math.atan2(dx,-dz);}
 function wrapA(a){while(a>Math.PI)a-=2*Math.PI;while(a<-Math.PI)a+=2*Math.PI;return a;}
 function faceP(p,dt){
@@ -1639,7 +1713,7 @@ function updBall(dt){
   else if(ball.owner){const o=ball.owner,a=o.ang,lx=Math.cos(a),lz=Math.sin(a),fx=Math.sin(a),fz=-Math.cos(a);
     if(ball.hold){const sa=o.act&&o.act.k==='shoot'?o.act:null;ball.x=o.x+fx*(sa?.2:.33);ball.z=o.z+fz*(sa?.2:.33);ball.y=(sa?lerp(1.25,2.3,clamp((sa.t-.08)/.14,0,1)):o.armsUp>0?2.25:1.18)+(o.jy||0);}
     else{ball.x=o.x+lx*o.dside*.36+fx*.3;ball.z=o.z+lz*o.dside*.36+fz*.3;const c=Math.cos(o.drib);ball.y=.13+.8*Math.abs(c);ball.spin+=dt*8;
-      if(Math.sign(c)!==Math.sign(lastCos)&&G.phase==='approach')sfx.dribble();lastCos=c;}}
+      if(Math.sign(c)!==Math.sign(lastCos)&&G.phase==='approach')sfx.dribble(o);lastCos=c;}}
   ballMesh.position.set(ball.x,ball.y,-ball.z);ballMesh.rotation.x=ball.spin;ballMesh.visible=ball.fl&&ball.fl.shot||cam.position.distanceTo(ballMesh.position)>1.3;
 }
 
@@ -2641,7 +2715,7 @@ function resolve(choice){
 function nearestDef(x,z,excl){let b=null,bd=1e9;players.forEach(p=>{if(p.team!=='def'||p===excl)return;const d=Math.hypot(p.x-x,p.z-z);if(d<bd){bd=d;b=p;}});return b;}
 function blocker(){const sc=G.sc;if(sc.helper&&role(sc.helper))return role(sc.helper);
   let b=null,bd=1e9;players.forEach(p=>{if(p.team!=='def')return;const ax=-Hd.x,az=-Hd.z,L=Math.hypot(ax,az),t=((p.x-Hd.x)*ax+(p.z-Hd.z)*az)/(L*L);if(t<.05||t>1)return;const qx=Hd.x+ax*t,qz=Hd.z+az*t,d=Math.hypot(p.x-qx,p.z-qz);if(d<bd){bd=d;b=p;}});return b||nearestDef(Hd.x,Hd.z);}
-function act(p,k,d,o){if(p)p.act=Object.assign({k,t:0,d},o||{});}
+function act(p,k,d,o){if(p)p.act=Object.assign({k,t:0,d},o||{});if(p&&k==='catch')sfx.catch(p);}
 let shooter=null;
 function score(after){sfx.swish();netKick(ball.x*3,ball.z*3);G.excite=1;G.slowT=Math.max(G.slowT,.5);sfx.crowd();camFlash();
   if(G.phase==='outcome'&&!G.replay&&G.streak>=3)G.wave=gclock;
@@ -2863,6 +2937,7 @@ const INFO_HTML=`<h3>Was ist das?</h3>
 <li><a href="https://www.basketball-bund.de/wp-content/uploads/sites/2/2021/08/MMV-Kriterien.pdf" target="_blank" rel="noopener">DBB: Kriterien Mann-Mann-Verteidigung U14/U16</a></li>
 <li><a href="https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-manual-mini-basketball-eng.pdf" target="_blank" rel="noopener">FIBA/WABC: Coaching Manual Mini-Basketball</a></li></ul>
 <p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird nur auf dem Gerät gespeichert. In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt.</small></p>
+<p><small>Geräusche (Dribbeln, Fangen, Schuhe, Netz, Ring) erstellt mit <a href="https://elevenlabs.io/" target="_blank" rel="noopener">ElevenLabs</a>.</small></p>
 <p class="legal"><a href="impressum.html" target="_blank" rel="noopener">Impressum</a> · <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a> · <a href="lizenzen.html" target="_blank" rel="noopener">Lizenzen</a></p>`;
 function cleanName(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,14);}
 function jget(k){try{return JSON.parse(store.get(k)||'[]')||[]}catch(e){return[]}}
@@ -3265,7 +3340,7 @@ function update(rdt){
   // Zeitlupe bei Würfen, Blocks und Ballgewinnen
   let tsT=1;if(G.phase==='outcome'){if(ball.fl&&ball.fl.shot&&ball.fl.t/ball.fl.d>.42)tsT=.3;if(G.slowT>0){G.slowT-=rdt;tsT=Math.min(tsT,.32);}}
   G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));const dt=rdt*G.ts;
-  clock+=rdt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
+  clock+=rdt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);updBed(rdt);ledTex.offset.x+=dt*.03;
   const sc=G.sc;if(!sc)return;
   let pdt=dt;
   if(G.phase==='approach'||G.phase==='menu'){G.t+=dt;feedBall(sc);
@@ -3326,7 +3401,7 @@ function perfCheck(dt){if(perfDone)return;perfN++;if(perfN<30)return;perfSum+=dt
 // Laufend nachregeln: Ist das Spiel (nicht das Menü) über ~30 Bilder zu langsam, eine Stufe herunter, dann wieder messen.
 // Reihenfolge: Tiefenunschärfe → Auflösung (bis 1,25) → Bildeffekte → Schatten und Auflösung 1. Nie wieder hoch (kein Flackern).
 let adN=0,adS=0;
-function perfAdapt(raw){if(LITE||FX.force||!/approach|decide|outcome|feedback/.test(G.phase)||raw>.25||document.hidden)return;
+function perfAdapt(raw){if(LITE||FX.force||bedSt||!/approach|decide|outcome|feedback/.test(G.phase)||raw>.25||document.hidden)return;
   adN++;adS+=raw;if(adN<30)return;const a=adS/adN;adN=0;adS=0;const pr=renderer.getPixelRatio();
   if(a<.022)return;
   if(FX.on&&FX.bokeh&&camMode){FX.bokeh=false;return;}
@@ -3343,6 +3418,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');render
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
+window.__snd={SMP,sfx,mute:v=>{muted=v;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
 window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 })();
