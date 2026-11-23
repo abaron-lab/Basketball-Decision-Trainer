@@ -41,6 +41,12 @@ canvas#c{position:fixed;inset:0;display:block;width:100%;height:100%}
 #flash.go{animation:fl 1.3s ease-out forwards}
 @keyframes fl{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}30%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
 #tags{position:fixed;inset:0;z-index:4;pointer-events:none}
+#meTag{position:fixed;left:0;top:0;z-index:4;pointer-events:none;will-change:transform}
+#meTag span{display:block;padding:0 9px;height:24px;line-height:20px;border-radius:12px;border:2px solid #fff;background:linear-gradient(180deg,#ffe36e,#f5b800);color:#3a2a00;font-family:Nunito,system-ui,sans-serif;font-weight:900;font-size:13px;letter-spacing:.5px;box-shadow:0 3px 10px rgba(0,0,0,.45);animation:bob .9s ease-in-out infinite alternate}
+#meTag:after{content:'';position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border:6px solid transparent;border-top-color:#fff;border-bottom:0}
+#meTag.dec span{animation:mePulse .5s ease-in-out infinite alternate}
+@keyframes mePulse{to{transform:scale(1.12)}}
+.cinema #meTag{opacity:0}
 .tag.spot{background:linear-gradient(180deg,#ff9f6b,#e2563b)}
 .tag.who{background:linear-gradient(180deg,#5b8cff,#2f5fd0);pointer-events:none;padding-left:9px}
 .tag{position:absolute;left:0;top:0;pointer-events:auto;cursor:pointer;display:flex;align-items:center;height:30px;padding:0 9px 0 3px;max-width:108px;border-radius:15px;border:2px solid #fff;background:linear-gradient(180deg,#9b7bff,#6440e0);color:#fff;font-family:Nunito,system-ui,sans-serif;font-weight:900;font-size:12px;line-height:1.05;box-shadow:0 3px 10px rgba(0,0,0,.45);-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:background .2s}
@@ -378,6 +384,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 <body>
 <canvas id="c"></canvas>
 <div id="vig"></div><div id="cine"></div>
+<div id="meTag" class="hidden" aria-hidden="true"><span>DU</span></div>
 <div id="tags"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <radialGradient id="lgB" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="#ffb066"/><stop offset=".6" stop-color="#f26b1d"/><stop offset="1" stop-color="#b8430a"/></radialGradient>
@@ -495,7 +502,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
         <button class="lvb" data-t="4"><b>Abwehr</b></button>
       </div>
       <div class="tpane on" data-t="0">
-        <div class="tip"><div class="ic"><svg class="i"><use href="#i-eye"/></svg></div><div><b>Schau genau hin</b><p>Du stehst hinter deinem Spieler mit dem <b style="color:#ffd23d">gelben Ring</b>. Beobachte die <b style="color:#ff7b72">roten Verteidiger</b>. Dann friert das Bild ein.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-eye"/></svg></div><div><b>Schau genau hin</b><p>Du stehst hinter deinem Spieler mit dem <b style="color:#ffd23d">gelben Ring</b> und dem Schild <b style="color:#ffd23d">DU</b>. Beobachte die <b style="color:#ff7b72">roten Verteidiger</b>. Dann friert das Bild ein.</p></div></div>
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-bolt"/></svg></div><div><b>Entscheide schnell</b><p>Für einen Pass tippst du direkt auf das <b style="color:#b7a2ff">lila Schild</b> über deinem Mitspieler. Zum Korb oder Werfen geht es mit den Tasten unten.</p></div></div>
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-bulb"/></svg></div><div><b>Die wichtigste Regel</b><p>Wer hilft, lässt jemanden frei. Läuft ein Verteidiger von seinem Spieler weg, ist dieser Spieler frei. Finde ihn!</p></div></div>
       </div>
@@ -1061,8 +1068,14 @@ function poseGLB(p,dt){
   const sad=A&&A.k==='sad'?1:0;c.sad=lerp(c.sad||0,sad,k);
   if(c.sad>.01){const ax=new T3.Vector3(lx,0,-lz);rotWorld(r.B.spine003,_q1.setFromAxisAngle(ax,.35*c.sad).clone());rotWorld(r.B.head,_q1.setFromAxisAngle(ax,.45*c.sad).clone());}
 }
-const ring=new T3.Mesh(new T3.RingGeometry(.52,.64,48),new T3.MeshBasicMaterial({color:0xffd23d,transparent:true,opacity:.9,depthWrite:false}));
-ring.rotation.x=-Math.PI/2;ring.position.y=.012;scene.add(ring);
+// Markierung des eigenen Spielers: gelber Ring mit dunklem Rand (auch auf hellem Parkett gut sichtbar),
+// im Entscheidungsmoment zusätzlich eine Welle nach außen. Dazu das Schild „DU“ über dem Kopf (#meTag, posMe).
+const ring=new T3.Group();ring.position.y=.012;scene.add(ring);
+const ringM=(r0,r1,col,op,ro)=>{const m=new T3.Mesh(new T3.RingGeometry(r0,r1,56).rotateX(-Math.PI/2),new T3.MeshBasicMaterial({color:col,transparent:true,opacity:op,depthWrite:false}));m.renderOrder=ro;ring.add(m);return m;};
+const ringEdge=ringM(.45,.73,0x000000,.32,2),ringIn=ringM(.5,.68,0xffd23d,1,3),ringWave=ringM(.6,.68,0xffd23d,0,3);ringWave.position.y=.002;
+function updRing(){ring.position.x=Hd.x;ring.position.z=-Hd.z;const dec=G.phase==='decide';
+  ringIn.material.opacity=dec?.8+.2*Math.sin(clock*8):1;
+  const w=dec?(clock*.9)%1:1;ringWave.scale.setScalar(1+w*.9);ringWave.material.opacity=dec?.75*(1-w):0;}
 // ================= Kontaktschatten =================
 // Weiche Flecken unter Körper und Füßen. Billig und auch dort sichtbar, wo die Sonne keine Schatten wirft
 // (?lite, schwache Geräte über perfCheck). Fuß angehoben oder Sprung → Fleck kleiner und heller.
@@ -2479,13 +2492,22 @@ function makeBubbles(){clearBubbles();
     b.addEventListener('pointerdown',e=>{e.preventDefault();if(G.phase==='decide'&&!G.replay)resolve(b.dataset.c);});tagsEl.appendChild(b);bubbles.push({el:b,p,w:0});});posBubbles(true);}
 const pv=new T3.Vector3();
 // Pass-Schilder über den Mitspielern: Spitze zeigt auf den Kopf, Schilder weichen sich gegenseitig aus
-function layBubbles(mini){const th=30,gap=5,bt=H-($('bottom').offsetHeight||150)-4,placed=[];let bad=0;
+function layBubbles(mini){const th=30,gap=5,bt=H-($('bottom').offsetHeight||150)-4,placed=ME.on?[{x:ME.x,y:ME.y,w:ME.w}]:[];let bad=0;
   bubbles.map(b=>{const{p}=b;pv.set(p.x,p.y!==undefined?p.y:2.15,-p.z).project(cam);return{b,ax:(pv.x+1)/2*W,ay:(1-pv.y)/2*H,w:mini?30:b.w};})
   .sort((a,c)=>c.ay-a.ay).forEach(o=>{const w=o.w;let x=clamp(o.ax-w/2,6,W-6-w),y=clamp(o.ay-th-9,62,bt-th),hit;
     for(let k=0;k<6;k++){hit=placed.find(q=>x<q.x+q.w+gap&&q.x<x+w+gap&&y<q.y+th+gap&&q.y<y+th+gap);if(!hit)break;
       const up=hit.y-th-gap;if(up>=62)y=up;else x=o.ax<hit.x+hit.w/2?Math.max(6,hit.x-w-gap):Math.min(W-6-w,hit.x+hit.w+gap);}
     if(hit||Math.abs(x+w/2-o.ax)>w/2+20)bad++;o.x=x;o.y=y;placed.push(o);});
-  return{placed,bad};}
+  return{placed:placed.filter(o=>o.b),bad};}
+// Schild „DU“ über dem eigenen Spieler (Bildschirmgröße fest, damit es auch auf dem Handy gut lesbar ist).
+// Die Pass-Schilder weichen ihm aus (layBubbles).
+const meEl=$('meTag'),ME={on:false,x:0,y:0,w:0,lx:-1,ly:-1};
+function posMe(){const ph=G.phase,on=!!Hd&&!camMode&&(ph==='approach'||ph==='decide'||ph==='outcome')&&Hd.rig.root.visible;
+  if(on){pv.set(Hd.x,1.8+(Hd.jy||0),-Hd.z).project(cam);if(pv.z>1)on=false;}
+  if(on!==ME.on){ME.on=on;meEl.classList.toggle('hidden',!on);if(on){ME.w=meEl.offsetWidth||40;ME.lx=-1;}}
+  meEl.classList.toggle('dec',ph==='decide');if(!on)return;
+  const x=Math.round(clamp((pv.x+1)/2*W-ME.w/2,6,W-6-ME.w)),y=Math.round(clamp((1-pv.y)/2*H-37,62,H-40));ME.x=x;ME.y=y;
+  if(x!==ME.lx||y!==ME.ly){ME.lx=x;ME.ly=y;meEl.style.transform=`translate(${x}px,${y}px)`;}}
 // Pass-Schilder über den Mitspielern: Spitze zeigt auf den Kopf, Schilder weichen sich aus.
 // Wird es zu eng (z. B. Handy quer), zeigen alle Schilder nur die Nummer.
 function posBubbles(re){if(re||G.tagMini===undefined){bubbles.forEach(b=>{b.el.classList.remove('mini');b.w=b.el.offsetWidth||110;b.lx=undefined;});G.tagMini=layBubbles(false).bad>0;bubbles.forEach(b=>b.el.classList.toggle('mini',G.tagMini));}
@@ -2578,7 +2600,7 @@ function update(rdt){
   if(ball.owner)ball.owner.drib+=dt*(G.phase==='decide'?2.4:G.phase==='feedback'||G.phase==='summary'?0:7.5);
   updBall(G.phase==='feedback'||G.phase==='summary'?0:dt);
   players.forEach(p=>poseP(p,dt));
-  ring.position.x=Hd.x;ring.position.z=-Hd.z;ring.material.opacity=G.phase==='decide'?.6+.35*Math.sin(clock*8):.85;
+  updRing();posMe();
   updNet(dt,gclock);updFans(gclock,G.excite,dt);updTrail(dt);updHall(dt,rdt);updCam(rdt,false);
   if(bubbles.length)posBubbles();
 }
