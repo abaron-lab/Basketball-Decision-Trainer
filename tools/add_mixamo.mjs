@@ -154,7 +154,7 @@ for (const cfg of list) {
     console.log(name.padEnd(12), (times[times.length - 1]).toFixed(2) + ' s', times.length, 'Bilder');
   }
 }
-await doc.transform(resample({ tolerance: 1e-4 }), prune());
+await doc.transform(resample({ tolerance: 1e-4 }), prune({ keepLeaves: true }));
 // Drehungen als normierte 16-Bit-Werte speichern (glTF erlaubt das für rotation), halbiert die Größe
 const names = new Set(list.flatMap(c => (c.mirror ? [c.name, c.name + 'M'] : [c.name])));
 for (const an of root.listAnimations()) {
