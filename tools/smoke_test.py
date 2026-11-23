@@ -8,6 +8,7 @@ Aufruf:
                               [--size 390x844] [--mode 4|5] [--level 1|2|3]
                               [--rounds 4] [--plays wcatch,wcut] [--out shots]
                               [--bag backdoor:gap,wcut:dribble]   (feste Spielzüge/Varianten)
+                              [--rig alt]   (alte Figuren statt player.glb)
 
 three.js 0.149.0 vorher lokal holen, z. B.:
   npm pack three@0.149.0 && tar xzf three-0.149.0.tgz package/build/three.min.js
@@ -15,14 +16,22 @@ three.js 0.149.0 vorher lokal holen, z. B.:
 Hinweis: Ohne GPU rendert Chromium per SwiftShader sehr langsam. Deshalb läuft der Test
 im Lernmodus (ohne Zeitlimit) und mit ?lite (ohne Schatten). Für die Screenshots, die
 Menschen ansehen sollen, kann --full die volle Grafik einschalten.
+Die Seite wird über einen kleinen lokalen HTTP-Server geladen (Module und player.glb
+lassen sich über file:// nicht laden). GLTFLoader/SkeletonUtils kommen von jsDelivr.
 """
-import argparse, asyncio, os, random, pathlib
+import argparse, asyncio, os, random, pathlib, threading, functools, http.server
 from playwright.async_api import async_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+class Quiet(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *a): pass
+
 async def run(a):
     three = open(a.three, 'rb').read()
+    srv = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Quiet, directory=str(ROOT)))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    url = f'http://127.0.0.1:{srv.server_address[1]}/index.html'
     w, h = map(int, a.size.split('x'))
     os.makedirs(a.out, exist_ok=True)
     async with async_playwright() as p:
@@ -35,8 +44,12 @@ async def run(a):
         errs = []
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: m.type == 'error' and errs.append(m.text))
-        await pg.goto((ROOT / 'index.html').as_uri() + ('' if a.full else '?lite'))
+        q = [x for x in ('' if a.full else 'lite', 'rig=alt' if a.rig == 'alt' else '') if x]
+        await pg.goto(url + ('?' + '&'.join(q) if q else ''))
         await pg.wait_for_selector('#menu:not(.hidden)', timeout=60000)
+        if a.rig != 'alt':
+            await pg.wait_for_function('window.__glb()', timeout=60000)
+            print('Figuren: player.glb')
         await pg.click(f'#pos .lvb[data-v="{a.pos}"]')
         await pg.click(f'#mode .lvb[data-m="{a.mode}"]')
         await pg.click(f'#lvl .lvb[data-l="{a.level}"]')
@@ -97,4 +110,5 @@ if __name__ == '__main__':
     ap.add_argument('--bag', default='')
     ap.add_argument('--full', action='store_true')
     ap.add_argument('--out', default='shots')
+    ap.add_argument('--rig', default='glb')
     asyncio.run(run(ap.parse_args()))
