@@ -961,8 +961,8 @@ const fem=(()=>{
     R('Zurück zum Mann','Zurück zur Gegenspielerin'),R('roten Verteidiger','roten Verteidigerinnen'),R('Freunde','Freundinnen'),
     R('Spielerkarte','Spielerinnenkarte'),R('Spielerkarten','Spielerinnenkarten'),R('der (hintere|andere) (hat|ist)','die $1 $2'),
     R('ein anderer aushilft','eine andere aushilft'),R('spiel den anderen','spiel die andere'),R('nicht deiner','nicht deine')];
-  // Pronomen, die nicht für Personen stehen (Link, Ball): nicht umstellen
-  const KEEP=[rx('(?:Schick|kopiere|Wer|kannst) ihn'),rx('Kommt er näher'),rx('lauf ihm entgegen')];
+  // Links (z. B. Spieler-Link auf „Sichern“) und Pronomen, die nicht für Personen stehen (Link, Ball): nicht umstellen
+  const KEEP=[/()\S+:\/\/\S+/g,rx('(?:Schick|kopiere|Wer|kannst) ihn'),rx('Kommt er näher'),rx('lauf ihm entgegen')];
   const PRO=[R('Er','Sie'),R('er','sie'),R('ihn','sie'),R('Ihm','Ihr'),R('ihm','ihr'),
     R('([Ss])ein(e|en|em|er|es)?',(m,s,e)=>(s==='S'?'I':'i')+'hr'+(e||'')),
     [new RegExp(`(^|[^${L}])([Kk]e|[Ee])iner(?!\\s+(?:[a-zäöüß]+en\\s+)?[A-ZÄÖÜ])(?![${L}])`,'g'),(m,k)=>k+'ine']];
