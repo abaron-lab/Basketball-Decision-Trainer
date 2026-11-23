@@ -460,8 +460,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .wl-form input{width:100%;border-radius:14px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 17px Nunito,system-ui,sans-serif;padding:11px 12px;user-select:text;-webkit-user-select:text}
 .wl-form input:focus{outline:none;border-color:var(--gold)}
 .wl-form .numsel{gap:14px}.wl-form .numsel .rbtn{width:48px;height:44px}
+.gseg .lvb{padding:7px 4px}
 @media (max-height:700px){.wl-form label{margin:9px 0 5px}.jersey{flex-basis:96px;height:100px}.jersey b{font-size:42px}.wl-top h2{font-size:30px}}
-@media (max-height:500px) and (orientation:landscape){#welcome.overlay{padding:8px}#welcome .card{width:min(820px,100%);height:100%;max-height:none}.wl-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}#welcome .foot{flex-direction:row;align-items:center}#welcome .btn.big{padding:8px 16px 6px}}
+@media (max-height:500px) and (orientation:landscape){#welcome.overlay{padding:8px}#welcome .card{width:min(820px,100%);height:100%;max-height:none}.wl-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}.wl-row{display:grid;grid-template-columns:1fr auto;gap:0 12px;align-items:end}.wl-row .numsel{gap:8px}.wl-row .numsel .rbtn{width:40px}#welcome .foot{flex-direction:row;align-items:center}#welcome .btn.big{padding:8px 16px 6px}}
 /* Abzeichen: Fortschritt */
 .bcell .bp{display:block;width:70%;height:5px;border-radius:9px;background:rgba(0,0,0,.35);overflow:hidden}
 .bcell .bp em{display:block;height:100%;border-radius:9px;background:#8fb4ff}
@@ -751,6 +752,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
           <div class="pv" id="pvHost"></div>
           <div class="ectl">
             <label>Name</label><input id="pName" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done">
+            <label>Ich spiele bei den</label><div class="seg gseg" id="pG"><button class="lvb" data-v="w"><b>Mädchen</b></button><button class="lvb" data-v="m"><b>Jungen</b></button></div>
             <label>Trikotnummer</label><div class="numsel"><button class="rbtn" id="numM" aria-label="kleiner">−</button><b id="numV">7</b><button class="rbtn" id="numP" aria-label="größer">+</button></div>
             <label>Hautfarbe</label><div class="sw" id="swSkin"></div>
             <label>Frisur</label><div class="chips" id="hairSel"></div>
@@ -789,8 +791,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <input id="wName" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done">
       </div>
       </div><div class="wl-form">
+        <div class="wl-row"><div><label>Du spielst bei den</label>
+        <div class="seg gseg" id="wG"><button class="lvb" data-v="w"><b>Mädchen</b></button><button class="lvb" data-v="m"><b>Jungen</b></button></div></div><div>
         <label>Deine Trikotnummer</label>
-        <div class="numsel"><button class="rbtn" id="wNumM" aria-label="kleiner">−</button><b id="wNum">7</b><button class="rbtn" id="wNumP" aria-label="größer">+</button></div>
+        <div class="numsel"><button class="rbtn" id="wNumM" aria-label="kleiner">−</button><b id="wNum">7</b><button class="rbtn" id="wNumP" aria-label="größer">+</button></div></div></div>
         <label>Wo spielst du am liebsten?</label>
         <div class="lv four" id="wPos">
           <button class="lvb sel" data-v="pg"><i class="pico" data-pos="pg"></i><b>Aufbau</b></button>
@@ -861,6 +865,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <label>Schwierigkeit und Runden</label>
         <div class="seg" id="hwLvl"><button class="lvb sel" data-l="1"><b>Anfänger</b></button><button class="lvb" data-l="2"><b>Mittel</b></button><button class="lvb" data-l="3"><b>Profi</b></button></div>
         <div class="seg" id="hwRounds" style="margin-top:6px"><button class="lvb" data-r="5"><b>5 Runden</b></button><button class="lvb sel" data-r="10"><b>10 Runden</b></button></div>
+        <label>Team (Voreinstellung für neue Kinder)</label>
+        <div class="seg" id="hwG"><button class="lvb sel" data-g=""><b>Offen</b></button><button class="lvb" data-g="w"><b>Mädchen</b></button><button class="lvb" data-g="m"><b>Jungen</b></button></div>
         <label for="hwLink">Link</label><input id="hwLink" readonly>
         <div class="row"><button class="btn sec" id="hwCopy"><svg class="i"><use href="#i-link"/></svg>Kopieren</button><button class="btn" id="hwShare">Teilen</button></div>
         <div class="cnote" id="hwNote"></div>
@@ -913,6 +919,80 @@ const nsk=k=>CUR&&PER.test(k)?k+'@'+CUR:k;
 const store={get(k){try{return localStorage.getItem(nsk(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(nsk(k),v)}catch(e){}},
   del(k){try{localStorage.removeItem(nsk(k))}catch(e){}},keys(){try{return Object.keys(localStorage)}catch(e){return[]}}};
 const sess={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+
+// ================= Mädchen-Version: Texte in weiblicher Form =================
+// fem(): Personen-Nomen (Verteidiger → Verteidigerin) samt Artikel und Adjektiven davor, danach Pronomen
+// (er → sie, ihm → ihr, sein → ihr, keiner → keine). Feste Wendungen vorab, Pronomen für Link/Ball bleiben.
+// Die Texte im Code bleiben männlich; umgestellt wird beim Anzeigen (gApply, MutationObserver auf <body>),
+// das Original merkt sich GTX, damit der Wechsel zurück zu „Jungen“ ohne Neuladen geht.
+const fem=(()=>{
+  const L='A-Za-zÄÖÜäöüß',
+    N='Mitspieler|Gegenspieler|Aufbauspieler|Flügelspieler|Spielmacher|Spieler|Verteidiger|Ballführer|Angreifer|Läufer|Werfer|Helfer|Cutter|Center|Starter|Passmeister|Allrounder|Rekordjäger|Meister',
+    POSN=/^(Center|Cutter)$/, // auch Positionsnamen: nur mit Artikel umstellen
+    D={der:'die n',den:'die a',dem:'der d',des:'der g',ein:'eine n',einen:'eine a',einem:'einer d',eines:'einer g',
+      dein:'deine n',deinen:'deine a',deinem:'deiner d',deines:'deiner g',mein:'meine n',meinen:'meine a',meinem:'meiner d',
+      sein:'ihre n',seinen:'ihre a',seinem:'ihrer d',seines:'ihrer g',kein:'keine n',keinen:'keine a',keinem:'keiner d',
+      jeder:'jede n',jeden:'jede a',jedem:'jeder d',dieser:'diese n',diesen:'diese a',diesem:'dieser d',
+      zum:'zur d',vom:'von der d',beim:'bei der d'},
+    PL=/^(die|deine|meine|keine|alle|allen|beide|beiden|zwei|drei|vier|manche|mehrere|ihre|seine|diese|deiner|unsere|eure)$/i,
+    AF=/^[a-zäöüß]+(e|er|en|em|es)$/,NOADJ=/^(oder|aber|über|unter|hinter|wieder|immer|zwischen|neben|gegen|wenn|denn|dann|schon|oben|unten|hinten|vorne|eben|außer|mehr|weiter|sicher|später|einer|keiner|jemanden|niemanden)$/,
+    ADJ=/^(frei|zweit|ander|eigen|rot|neu|erst|geschlagen|gedeckt|link|recht|vorder|stark|gut|echt|offen|nächst|best|ganz)(e|er|en|em)$/i,
+    cap=(s,ref)=>ref[0]!==ref[0].toLowerCase()?s[0].toUpperCase()+s.slice(1):s,
+    reN=new RegExp(`(^|[^${L}])(${N})(n|s)?(?![-${L}])`,'g'),reW=new RegExp(`((?:[${L}]+ ){0,3})$`);
+  function nps(s){
+    let out='',last=0,m;reN.lastIndex=0;
+    while((m=reN.exec(s))){
+      const ns=m.index+m[1].length,noun=m[2],suf=m[3]||'',ne=ns+noun.length+suf.length;
+      const w=reW.exec(s.slice(last,ns))[1].split(' ').filter(Boolean);
+      // rückwärts: Adjektive sammeln, bis ein Artikel kommt
+      let det=null,j=w.length-1;
+      for(;j>=0&&j>=w.length-3;j--){const t=w[j];
+        if(D[t.toLowerCase()]||PL.test(t)){det=t;break;}
+        if(!AF.test(t.toLowerCase())||NOADJ.test(t.toLowerCase())||(t[0]!==t[0].toLowerCase()&&!ADJ.test(t)))break;}
+      let adj;if(det)adj=w.slice(j+1);else{adj=[];for(let k=w.length-1;k>=0&&ADJ.test(w[k])&&adj.length<2;k--)adj.unshift(w[k]);}
+      if(POSN.test(noun)&&!det){continue;}
+      const len=(det?det.length+1:0)+adj.reduce((a,x)=>a+x.length+1,0),st=ns-len;
+      let r;
+      if(suf==='n'||(det&&PL.test(det)))r=(det?det+' ':'')+adj.map(x=>x+' ').join('')+noun+'innen';
+      else{let c='x',d='';if(det){const a=D[det.toLowerCase()].split(' ');c=a.pop();d=cap(a.join(' '),det);}
+        if(suf==='s')c='g';
+        const a2=adj.map(x=>c==='n'?x.replace(/er$/,'e'):c==='a'?x.replace(/en$/,'e'):c==='x'?x.replace(/er$/,'e').replace(/en$/,'e').replace(/em$/,'er'):x);
+        r=(det?d+' ':'')+a2.map(x=>x+' ').join('')+noun+'in';}
+      out+=s.slice(last,st)+r;last=ne;}
+    return out+s.slice(last);}
+  const rx=w=>new RegExp(`(^|[^${L}])(?:${w})(?![${L}])`,'g');
+  const R=(w,t)=>[rx(w),t];
+  // feste Wendungen (vor den allgemeinen Regeln)
+  const PH=[R('zu dem, den er','zu der, die sie'),R('zu dem, der','zu der, die'),R('seiner und deiner','ihre und deine'),
+    R('deiner ist','deine ist'),R('ein anderer frei','eine andere frei'),R('als Erster','als Erste'),R('der Einzige','die Einzige'),
+    R('Zurück zum Mann','Zurück zur Gegenspielerin'),R('roten Verteidiger','roten Verteidigerinnen'),R('Freunde','Freundinnen'),
+    R('Spielerkarte','Spielerinnenkarte'),R('Spielerkarten','Spielerinnenkarten'),R('der (hintere|andere) (hat|ist)','die $1 $2'),
+    R('ein anderer aushilft','eine andere aushilft'),R('spiel den anderen','spiel die andere'),R('nicht deiner','nicht deine')];
+  // Links (z. B. Spieler-Link auf „Sichern“) und Pronomen, die nicht für Personen stehen (Link, Ball): nicht umstellen
+  const KEEP=[/()\S+:\/\/\S+/g,rx('(?:Schick|kopiere|Wer|kannst) ihn'),rx('Kommt er näher'),rx('lauf ihm entgegen')];
+  const PRO=[R('Er','Sie'),R('er','sie'),R('ihn','sie'),R('Ihm','Ihr'),R('ihm','ihr'),
+    R('([Ss])ein(e|en|em|er|es)?',(m,s,e)=>(s==='S'?'I':'i')+'hr'+(e||'')),
+    [new RegExp(`(^|[^${L}])([Kk]e|[Ee])iner(?!\\s+(?:[a-zäöüß]+en\\s+)?[A-ZÄÖÜ])(?![${L}])`,'g'),(m,k)=>k+'ine']];
+  const run=(s,[r,t])=>s.replace(r,(m,p,...g)=>p+(typeof t==='function'?t(m.slice(p.length),...g):t.replace(/\$(\d)/g,(x,i)=>g[i-1])));
+  return s=>{if(!s||!/[a-z]/.test(s))return s;
+    const keep=[];for(const r of KEEP)s=s.replace(r,(m,p)=>{keep.push(m.slice(p.length));return p+'\uE000'+(keep.length-1)+'\uE001';});
+    for(const x of PH)s=run(s,x);
+    s=nps(s);
+    for(const x of PRO)s=run(s,x);
+    return s.replace(/\uE000(\d+)\uE001/g,(m,i)=>keep[+i]);};
+})();
+let GIRL=false,gObs=null;
+const GTX=new WeakMap(),GATTR=['placeholder','title','aria-label'];
+function gText(n){const v=n.nodeValue,s=GTX.get(n);if(!s&&!GIRL)return;const o=s&&v===s[1]?s[0]:v,t=GIRL?fem(o):o;if(t!==v)n.nodeValue=t;GTX.set(n,[o,t]);}
+function gAttr(el,a){const v=el.getAttribute(a);if(v==null)return;const m=el.__ga||(el.__ga={}),s=m[a];if(!s&&!GIRL)return;const o=s&&v===s[1]?s[0]:v,t=GIRL?fem(o):o;if(t!==v)el.setAttribute(a,t);m[a]=[o,t];}
+function gApply(root){if(root.nodeType===3){gText(root);return;}if(root.nodeType!==1||/^(SCRIPT|STYLE)$/.test(root.tagName))return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>/^(SCRIPT|STYLE)$/.test(n.parentNode.tagName)?2:1});let n;while((n=w.nextNode()))gText(n);
+  const els=[root,...root.querySelectorAll('[placeholder],[title],[aria-label]')];els.forEach(el=>GATTR.forEach(a=>el.hasAttribute(a)&&gAttr(el,a)));}
+function setGirl(on){GIRL=!!on;document.documentElement.classList.toggle('girl',GIRL);
+  if(!gObs&&!GIRL)return;
+  if(!gObs){gObs=new MutationObserver(rs=>rs.forEach(r=>{if(r.type==='characterData')gText(r.target);else if(r.type==='attributes')gAttr(r.target,r.attributeName);else r.addedNodes.forEach(gApply);}));
+    gObs.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:GATTR});}
+  gApply(document.body);}
 // Weltkoordinaten: x nach rechts, z Richtung Korb (Korb bei 0/0). three.js: (x, y, -z)
 const V=(x,y,z)=>new T3.Vector3(x,y,-z);
 
@@ -1119,6 +1199,7 @@ let rimG=null;
 const GEO={thigh:new T3.CapsuleGeometry(.068,.3,4,10),shin:new T3.CapsuleGeometry(.056,.28,4,10),uarm:new T3.CapsuleGeometry(.05,.2,4,8),farm:new T3.CapsuleGeometry(.043,.19,4,8),hand:new T3.SphereGeometry(.053,10,8),
   chest:new T3.CylinderGeometry(.24,.2,.58,18),shorts:new T3.CylinderGeometry(.21,.25,.38,18),neck:new T3.CylinderGeometry(.055,.062,.12,10),head:new T3.SphereGeometry(.118,20,16),
   hair:new T3.SphereGeometry(.124,20,10,0,Math.PI*2,0,Math.PI*.5),afro:new T3.SphereGeometry(.158,16,12),pony:new T3.CapsuleGeometry(.038,.13,4,8),bun:new T3.SphereGeometry(.062,12,10),
+  long:new T3.SphereGeometry(.125,20,12,Math.PI,Math.PI,0,Math.PI*.78),plait:new T3.CapsuleGeometry(.03,.12,4,8),
   shoe:new T3.CapsuleGeometry(.062,.17,4,10),sole:new T3.BoxGeometry(.13,.035,.3),sock:new T3.CylinderGeometry(.06,.06,.13,10),num:new T3.PlaneGeometry(.26,.26),
   eye:new T3.SphereGeometry(.014,6,6),ear:new T3.SphereGeometry(.028,8,6),nose:new T3.SphereGeometry(.019,8,6),brow:new T3.BoxGeometry(.046,.011,.012),
   collar:new T3.TorusGeometry(.09,.018,6,18),band:new T3.CylinderGeometry(.22,.22,.05,18,1,true),hband:new T3.CylinderGeometry(.126,.126,.036,20,1,true),wband:new T3.CylinderGeometry(.05,.05,.07,10,1,true),
@@ -1126,11 +1207,24 @@ const GEO={thigh:new T3.CapsuleGeometry(.068,.3,4,10),shin:new T3.CapsuleGeometr
 const MAT={},matC=(k,o)=>MAT[k]||(MAT[k]=new T3.MeshStandardMaterial(Object.assign({envMapIntensity:.55},o)));
 const TEAM={off:{jersey:0x1f5fe0,trim:0xffffff,shorts:0x1a4fc0,shoe:0xffffff,sole:0x1a4fc0},def:{jersey:0xd8322b,trim:0xffffff,shorts:0xb8261f,shoe:0x262626,sole:0xffffff}};
 const HAIRC=[0x161616,0x3a2414,0x6b4423,0xc9a15b,0xa8481c,0x0d0d0d];
-const HAIRS=['Kurz','Locken','Zopf','Dutt','Stirnband'];
+const HAIRS=['Kurz','Locken','Zopf','Dutt','Stirnband','Zöpfe','Lang','Flechtzopf'];
+// Mitspieler und Gegner: in der Mädchen-Version eher lange Haare (Zopf, Flechtzopf, Zöpfe, offen, Dutt), sonst wie bisher
+const HAIR_W=[[2,3],[7,2],[5,1.5],[6,1.5],[3,1.5],[1,1]];
+function randHair(r){if(!GIRL)return r()<.5?0:(r()*5)|0;let x=r()*HAIR_W.reduce((a,w)=>a+w[1],0);for(const[h,w]of HAIR_W){if((x-=w)<0)return h;}return 2;}
+// Haare am Kopf-Anker (alte Figur und player.glb): Kopfmitte = 0, Gesicht nach +z
+function addHair(M,head,hs,hm,tm,cs){
+  if(hs===1){const a=M(GEO.afro,hm,head,0,.045,-.02);a.scale.set(1,.92,1);return;}
+  const hr=M(GEO.hair,hm,head,0,.015,-.004);hr.rotation.x=-.25;if(cs)hr.scale.setScalar(cs);
+  if(hs===2){const p=M(GEO.pony,hm,head,0,-.02,-.135);p.rotation.x=.5;M(GEO.bun,hm,head,0,.05,-.115).scale.setScalar(.6);}
+  if(hs===3)M(GEO.bun,hm,head,0,.14,-.06);
+  if(hs===4){const b=M(GEO.hband,tm,head,0,.05,-.005);b.rotation.x=-.12;}
+  if(hs===5)for(const s of[-1,1]){M(GEO.bun,hm,head,s*.1,.02,-.06).scale.setScalar(.48);const p=M(GEO.plait,hm,head,s*.118,-.07,-.065);p.rotation.z=s*.28;p.rotation.x=.25;}
+  if(hs===6){const l=M(GEO.long,hm,head,0,-.03,-.012);l.scale.set(1.06,1.55,1.02);}
+  if(hs===7){M(GEO.bun,hm,head,0,.0,-.118).scale.setScalar(.62);for(let i=0;i<3;i++){const b=M(GEO.bun,hm,head,0,-.07-i*.065,-.14-i*.012);b.scale.set(.52-i*.06,.62-i*.05,.52-i*.06);}}}
 const numMats={};
 function numMat(team,n){const k=team+n;if(numMats[k])return numMats[k];const t=canvasTex(128,128,(g,w)=>{g.fillStyle='#fff';g.font=`900 ${String(n).length>1?78:96}px Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=8;g.strokeStyle=team==='off'?'#0b2a72':'#5c0d09';g.strokeText(n,w/2,w/2+6);g.fillText(n,w/2,w/2+6);});
   return numMats[k]=new T3.MeshStandardMaterial({map:t,transparent:true,roughness:.6});}
-function randLook(){const r=Math.random,si=(r()*SKINC.length)|0;return{skin:si,hair:r()<.5?0:(r()*HAIRS.length)|0,hairC:(si<1||si===4)?(r()<.7?0:1):(r()*HAIRC.length)|0,wrist:r()<.35};}
+function randLook(){const r=Math.random,si=(r()*SKINC.length)|0;return{skin:si,hair:randHair(r),hairC:(si<1||si===4)?(r()<.7?0:1):(r()*HAIRC.length)|0,wrist:r()<.35};}
 function makeRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
   const jm=matC('j'+team,{color:C.jersey,roughness:.55}),sm=matC('s'+team,{color:C.shorts,roughness:.6}),tm=matC('t',{color:0xffffff,roughness:.5}),
@@ -1152,12 +1246,7 @@ function makeRig(team,num,look){
   M(GEO.nose,km,head,0,-.012,.118);
   M(GEO.eye,em,head,-.04,.015,.108);M(GEO.eye,em,head,.04,.015,.108);
   M(GEO.brow,bm,head,-.042,.045,.108).rotation.z=.12;M(GEO.brow,bm,head,.042,.045,.108).rotation.z=-.12;
-  const hs=L.hair;
-  if(hs===1){const a=M(GEO.afro,hm,head,0,.045,-.02);a.scale.set(1,.92,1);}
-  else{const hr=M(GEO.hair,hm,head,0,.015,-.004);hr.rotation.x=-.25;
-    if(hs===2){const p=M(GEO.pony,hm,head,0,-.02,-.135);p.rotation.x=.5;M(GEO.bun,hm,head,0,.05,-.115).scale.setScalar(.6);}
-    if(hs===3)M(GEO.bun,hm,head,0,.125,-.06);
-    if(hs===4){const b=M(GEO.hband,tm,head,0,.05,-.005);b.rotation.x=-.12;}}
+  addHair(M,head,L.hair,hm,tm);
   const nf=new T3.Mesh(GEO.num,numMat(team,num));nf.position.set(0,.32,.158);torso.add(nf);nf.scale.setScalar(.75);
   const nb=new T3.Mesh(GEO.num,numMat(team,num));nb.position.set(0,.3,-.158);nb.rotation.y=Math.PI;torso.add(nb);
   const shL=[],elL=[],hipL=[],knL=[];
@@ -1216,12 +1305,7 @@ function makeGLBRig(team,num,look){
   M(GEO.eye,em,head,-.04,.015,.112);M(GEO.eye,em,head,.04,.015,.112);
   M(GEO.brow,bm,head,-.042,.045,.11).rotation.z=.12;M(GEO.brow,bm,head,.042,.045,.11).rotation.z=-.12;
   M(GEO.nose,MT.skin,head,0,-.012,.118);
-  const hs=L.hair;
-  if(hs===1){const a=M(GEO.afro,hm,head,0,.045,-.02);a.scale.set(1,.92,1);}
-  else{const hr=M(GEO.hair,hm,head,0,.015,-.004);hr.rotation.x=-.25;
-    if(hs===2){const p=M(GEO.pony,hm,head,0,-.02,-.135);p.rotation.x=.5;M(GEO.bun,hm,head,0,.05,-.115).scale.setScalar(.6);}
-    if(hs===3)M(GEO.bun,hm,head,0,.125,-.06);
-    if(hs===4){const b=M(GEO.hband,tm,head,0,.05,-.005);b.rotation.x=-.12;}}
+  addHair(M,head,L.hair,hm,tm,1.08); // Kappe etwas größer, sonst schaut der Mannequin-Kopf oben durch
   const chest=anchor(B.spine003,0,1.30,0);
   const nf=new T3.Mesh(GEO.num,numMat(team,num));nf.position.set(0,0,.14);nf.scale.setScalar(.72);chest.add(nf);
   const nb=new T3.Mesh(GEO.num,numMat(team,num));nb.position.set(0,.02,-.175);nb.rotation.y=Math.PI;nb.scale.setScalar(.8);chest.add(nb);
@@ -1423,6 +1507,9 @@ const PROFILE=Object.assign({num:7,skin:2,hair:0,hairC:1,games:0,rounds:0,correc
 PROFILE.cat.def=PROFILE.cat.def||[0,0];PROFILE.lz=PROFILE.lz||{};
 if(!PROFILE.uid){PROFILE.uid=Math.random().toString(36).slice(2,10);store.set(PK,JSON.stringify(PROFILE));}
 function saveProf(){store.set(PK,JSON.stringify(PROFILE));regSync();}
+// Mädchen oder Jungen (PROFILE.g = 'w' | 'm'; fehlt bei alten Profilen = Jungen). ?g=w im Link wählt für neue Spieler vor.
+const GURL=(/[?&]g=([wm])(?![a-z])/.exec(location.search)||[])[1]||'';
+setGirl(PROFILE.g==='w');
 function myLook(){return{skin:PROFILE.skin,hair:PROFILE.hair,hairC:PROFILE.hairC,wrist:true};}
 const LEVELS=[[0,'Rookie'],[300,'Talent'],[900,'Starter'],[2000,'Teamstütze'],[4000,'Allstar'],[7000,'Legende']];
 function lvlOf(xp){let i=0;while(i<LEVELS.length-1&&xp>=LEVELS[i+1][0])i++;const a=LEVELS[i][0],b=LEVELS[i+1]?LEVELS[i+1][0]:null;return{i,name:LEVELS[i][1],a,b,f:b?(xp-a)/(b-a):1};}
@@ -2714,8 +2801,8 @@ function showSummary(){
   const n=G.results.length,ok=G.results.filter(r=>r.ok).length;
   const rts=G.results.filter(r=>r.rt!=null).map(r=>r.rt),avg=rts.length?rts.reduce((a,b)=>a+b,0)/rts.length:0;
   $('sCorrect').textContent=`${ok}/${n}`;$('sRt').textContent=avg.toFixed(1).replace('.',',')+'s';$('sScore').textContent=G.score;
-  const q=ok/n,role={pg:'Spielmacher',wing:'Flügelspieler',center:'Center',def:'Verteidiger',mix:'Spieler'}[G.pos];
-  $('sumTitle').textContent=q===1?`${role}-Legende!`:q>=.8?`Starker ${role}!`:q>=.6?'Gut gemacht!':'Übung macht den Meister!';
+  const q=ok/n,role=(GIRL?{pg:'Spielmacherin',wing:'Flügelspielerin',center:'Centerin',def:'Verteidigerin',mix:'Spielerin'}:{pg:'Spielmacher',wing:'Flügelspieler',center:'Center',def:'Verteidiger',mix:'Spieler'})[G.pos];
+  $('sumTitle').textContent=q===1?`${role}-Legende!`:q>=.8?`${GIRL?'Starke':'Starker'} ${role}!`:q>=.6?'Gut gemacht!':'Übung macht den Meister!';
   const st=q>=.9?3:q>=.7?2:q>=.4?1:0;$('sStars').innerHTML=[0,1,2].map(i=>svgI('star','fill'+(i<st?' on':''))).join('');
   $('sumTxt').textContent=q===1?'Alles richtig gelesen. Versuch das nächste Level!':q>=.8?'Du liest die Verteidigung schon richtig gut.':q>=.6?'Schon ordentlich. Achte besonders darauf, wer hilft.':'Schau dir die Tipps nochmal an und probier es gleich wieder.';
   const cat=[['Zum Korb (mit Ball)',r=>r.ans==='drive'&&!r.off],['Pass zum freien Mitspieler',r=>r.ans.startsWith('pass:')],['Selbst werfen',r=>r.ans==='shot'&&!r.off],['Ohne Ball: zum Korb laufen',r=>r.ans==='drive'&&r.off],['Ohne Ball: Ball fordern / Platz lassen',r=>r.ans==='shot'&&r.off]];
@@ -2859,12 +2946,13 @@ function renderThemes(){const el=$('thList');el.innerHTML='';THEMES.forEach(t=>{
   b.innerHTML=`<span class="ic">${svgI(t.i)}</span><div><b></b><small></small></div><span class="go">Spielen</span>`;b.querySelector('b').textContent=t.n;
   b.querySelector('small').textContent=t.d+' · '+t.plays.map(k=>PLAYS[k].name).join(', ');b.onclick=()=>startTheme(t.id);el.appendChild(b);});
   $('hwTheme').innerHTML=THEMES.map(t=>`<option value="${t.id}">${t.n}</option>`).join('');}
-const HWS={l:1,r:10};
-function hwLink(){const t=$('hwTheme').value,txt=cleanName2($('hwTxt').value);const q=new URLSearchParams();if(TEAMID!=='team')q.set('team',TEAMID);q.set('aufgabe',t);if(txt)q.set('txt',txt);q.set('l',HWS.l);q.set('r',HWS.r);
+const HWS={l:1,r:10,g:''};
+function hwLink(){const t=$('hwTheme').value,txt=cleanName2($('hwTxt').value);const q=new URLSearchParams();if(TEAMID!=='team')q.set('team',TEAMID);q.set('aufgabe',t);if(txt)q.set('txt',txt);q.set('l',HWS.l);q.set('r',HWS.r);if(HWS.g)q.set('g',HWS.g);
   const base=/^https?:/.test(location.protocol)?location.origin+location.pathname:'index.html';$('hwLink').value=base+'?'+q.toString();
   $('hwNote').textContent=TEAMID==='team'?'Tipp: Öffnet das Spiel vorher mit eurem Team-Link (…?team=name), dann landen die Ergebnisse in eurer Team-Rangliste.':`Ergebnisse landen in der Rangliste von Team „${TEAMID}“.`;}
 function selRow(id,attr,cb){document.querySelectorAll(`#${id} .lvb`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} .lvb`).forEach(x=>x.classList.toggle('sel',x===b));cb(+b.dataset[attr]);hwLink();});}
 selRow('hwLvl','l',v=>HWS.l=v);selRow('hwRounds','r',v=>HWS.r=v);
+document.querySelectorAll('#hwG .lvb').forEach(b=>b.onclick=()=>{HWS.g=b.dataset.g;markSel('hwG','g',HWS.g);hwLink();});
 $('hwTheme').onchange=hwLink;$('hwTxt').addEventListener('input',hwLink);$('hwTxt').addEventListener('keydown',e=>e.stopPropagation());
 $('hwCopy').onclick=async()=>{const i=$('hwLink');let ok=false;try{await navigator.clipboard.writeText(i.value);ok=true;}catch(e){try{i.select();ok=document.execCommand('copy');}catch(e2){}}
   $('hwCopy').innerHTML=svgI(ok?'check':'link')+(ok?'Kopiert':'Bitte markieren');};
@@ -2921,7 +3009,7 @@ function renderCard(){const P=PROFILE,R=ratings(),L=lvlOf(P.xp),tier=TIERS[L.i];
   $('cardNum').textContent=P.num;$('numV').textContent=P.num;$('pName').value=store.get('pgt_name')||'';
   const sw=(id,cols,key)=>{const el=$(id);el.innerHTML='';cols.forEach((c,i)=>{const b=document.createElement('button');b.style.background='#'+c.toString(16).padStart(6,'0');b.className=P[key]===i?'sel':'';b.setAttribute('aria-label',key+' '+(i+1));
     b.onclick=()=>{P[key]=i;saveProf();renderCard();cardRig();};el.appendChild(b);});};
-  sw('swSkin',SKINC,'skin');sw('swHair',HAIRC,'hairC');
+  sw('swSkin',SKINC,'skin');sw('swHair',HAIRC,'hairC');markSel('pG','v',PROFILE.g||'m');
   const hs=$('hairSel');hs.innerHTML='';HAIRS.forEach((n,i)=>{const b=document.createElement('button');b.className='chip'+(P.hair===i?' sel':'');b.textContent=n;b.onclick=()=>{P.hair=i;saveProf();renderCard();cardRig();};hs.appendChild(b);});}
 function pcTab(t){document.querySelectorAll('#pcTabs .lvb').forEach(x=>x.classList.toggle('sel',x.dataset.t===t));document.querySelectorAll('.pcp').forEach(p=>p.classList.toggle('on',p.dataset.t===t));
   if(t==='card')cardMount($('tcAv'));else if(t==='edit')cardMount($('pvHost'));}
@@ -2938,6 +3026,7 @@ function renderStrip(){regSync();const P=PROFILE,L=lvlOf(P.xp),nm=store.get('pgt
 $('cardBtn').onclick=()=>openCard();$('pcClose').onclick=$('pcX').onclick=closeCard;
 document.querySelectorAll('#pcTabs .lvb').forEach(b=>b.onclick=()=>pcTab(b.dataset.t));
 $('numM').onclick=()=>{PROFILE.num=(PROFILE.num+99)%100;saveProf();renderCard();cardRig();};
+document.querySelectorAll('#pG .lvb').forEach(b=>b.onclick=()=>{PROFILE.g=b.dataset.v;saveProf();setGirl(PROFILE.g==='w');renderCard();cardRig();if(G.phase==='menu')demo();});
 $('numP').onclick=()=>{PROFILE.num=(PROFILE.num+1)%100;saveProf();renderCard();cardRig();};
 $('pName').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('pName').blur();});
 $('pName').addEventListener('change',()=>{const n=cleanName($('pName').value);if(n)store.set('pgt_name',n);renderCard();});
@@ -2962,7 +3051,7 @@ function makeBubbles(){clearBubbles();
   if(G.sc.spots){showSpots(true);G.sc.spots.forEach((sp,i)=>{const b=document.createElement('button');b.className='tag spot'+(G.replay?' off':'');b.dataset.c='spot:'+sp.id;b.setAttribute('aria-label','Position '+sp.id);
     b.innerHTML=`<span class="in"><span class="no">${sp.id}</span><span class="tx"><span class="cap">Position</span><span class="nm">Hierhin</span></span></span>`;
     b.addEventListener('pointerdown',e=>{e.preventDefault();if(G.phase==='decide'&&!G.replay)resolve(b.dataset.c);});tagsEl.appendChild(b);bubbles.push({el:b,p:{x:sp.x,z:sp.z,y:.55,key:i+1},w:0});});
-    const Mp=role('M');if(Mp){const w=document.createElement('div');w.className='tag who';w.innerHTML='<span class="in"><span class="tx"><span class="cap">Dein</span><span class="nm">Gegenspieler</span></span></span>';tagsEl.appendChild(w);bubbles.push({el:w,p:Mp,w:0});}
+    const Mp=role('M');if(Mp){const w=document.createElement('div');w.className='tag who';w.innerHTML='<span class="in"><span class="tx"><span class="cap">'+(GIRL?'Deine':'Dein')+'</span><span class="nm">Gegenspieler</span></span></span>';tagsEl.appendChild(w);bubbles.push({el:w,p:Mp,w:0});}
     posBubbles(true);return;}
   passers().forEach(p=>{const b=document.createElement('button');b.className='tag'+(G.replay?' off':'');b.dataset.r=p.role;b.dataset.c='pass:'+p.role;b.setAttribute('aria-label','Pass zu '+(p.name||'Mitspieler'));
     b.innerHTML=`<span class="in"><span class="no">${p.key}</span><span class="tx"><span class="cap">Pass</span><span class="nm"></span></span></span>`;const nm=p.name||'Mitspieler';b.querySelector('.nm').textContent=nm;if(nm.length>10&&nm.includes(' '))b.classList.add('two');
@@ -3052,9 +3141,15 @@ addEventListener('keydown',e=>{
 addEventListener('resize',()=>{computeFit();if(camMode)camMode.snap=true;if(CARD.on)cardSize();if(bubbles.length)posBubbles(true);});
 
 // ================= Willkommen (erster Start) =================
-const WEL={pos:'pg'};
+const WEL={pos:'pg',g:'',autoHair:false};
 function maybeWelcome(){if(store.get('pgt_welcome')||PROFILE.games)return;
-  $('wName').value=store.get('pgt_name')||'';WEL.pos=G.pos==='mix'?'pg':G.pos;markSel('wPos','v',WEL.pos);welJersey();$('welcome').classList.remove('hidden');}
+  $('wName').value=store.get('pgt_name')||'';WEL.pos=G.pos==='mix'?'pg':G.pos;markSel('wPos','v',WEL.pos);welJersey();
+  const g=PROFILE.g||GURL;markSel('wG','v',g);if(g&&g!==PROFILE.g)welG(g);$('welcome').classList.remove('hidden');}
+// Mädchen/Jungen: sofort umstellen (Texte, Figuren im Hintergrund); Mädchen bekommen als Start-Frisur einen Zopf
+function welG(g){WEL.g=g;markSel('wG','v',g);
+  if(g==='w'&&PROFILE.hair===0){PROFILE.hair=2;WEL.autoHair=true;}else if(g==='m'&&WEL.autoHair&&PROFILE.hair===2){PROFILE.hair=0;WEL.autoHair=false;}
+  PROFILE.g=g;setGirl(g==='w');if(G.phase==='menu')demo();}
+document.querySelectorAll('#wG .lvb').forEach(b=>b.onclick=()=>welG(b.dataset.v));
 function welJersey(){$('wjName').textContent=cleanName($('wName').value).toUpperCase();$('wjNum').textContent=PROFILE.num;$('wNum').textContent=PROFILE.num;}
 $('wName').addEventListener('input',welJersey);
 $('wName').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('wName').blur();});
@@ -3099,7 +3194,7 @@ function packLink(){const P=PROFILE;
   const o={v:1,u:P.uid,n:store.get('pgt_name')||'',p:store.get('pgt_pos')||'pg',m:+(store.get('pgt_mode')||4),
     d:[P.num,P.skin,P.hair,P.hairC,P.games,P.rounds,P.correct,Math.round(P.rtS*10),P.rtN,P.best,P.xp,P.saved||0],
     c:CATK.map(k=>P.cat[k]||[0,0]),o:POSK.filter(k=>P.pos[k]).map(k=>POSK.indexOf(k)).join(''),
-    b:BADGES.reduce((a,b,i)=>P.badges[b.id]?a+2**i:a,0),z:P.lz};
+    b:BADGES.reduce((a,b,i)=>P.badges[b.id]?a+2**i:a,0),z:P.lz,g:P.g||''};
   let base=location.origin+location.pathname;if(TEAMID!=='team')base+='?team='+encodeURIComponent(TEAMID);
   return base+'#s='+b64e(JSON.stringify(o));}
 function unpackLink(t){try{const m=/[#&]s=([A-Za-z0-9_-]+)/.exec(String(t||''));if(!m)return null;const o=JSON.parse(b64d(m[1]));
@@ -3110,15 +3205,16 @@ function unpackLink(t){try{const m=/[#&]s=([A-Za-z0-9_-]+)/.exec(String(t||''));
   CATK.forEach((k,i)=>P.cat[k]=pr(o.c&&o.c[i]));String(o.o||'').split('').forEach(i=>{if(POSK[+i])P.pos[POSK[+i]]=1;});
   const bm=+o.b||0;BADGES.forEach((b,i)=>{if(Math.floor(bm/2**i)%2)P.badges[b.id]=Date.now()-i;});
   if(o.z&&typeof o.z==='object')Object.keys(LZ).forEach(k=>{if(o.z[k])P.lz[k]=pr(o.z[k]);});
+  if(o.g==='w'||o.g==='m')P.g=o.g;
   return{P,name:cleanName(o.n),pos:POS[o.p]&&o.p!=='mix'?o.p:'pg',mode:o.m===5?5:4};}catch(e){return null;}}
 // Link öffnen: Spieler übernehmen
 let RST=null;
-function openRestore(d){RST=d;$('rsJ').innerHTML=jerseyHTML(d.P.num);$('rsName').textContent=d.name||'Ohne Namen';
+function openRestore(d){RST=d;setGirl(d.P.g==='w');$('rsJ').innerHTML=jerseyHTML(d.P.num);$('rsName').textContent=d.name||'Ohne Namen';
   const got=BADGES.filter(b=>d.P.badges[b.id]).length;$('rsInfo').textContent=`${lvlName(d.P.xp)} · ${d.P.games} Spiele · ${got} Abzeichen`;
   const ex=regList().find(x=>x.uid===d.P.uid);
   $('rsNote').textContent=ex?(ex.g>d.P.games?'Diesen Spieler gibt es hier schon mit mehr Spielen. Du wechselst zu ihm, sein Stand bleibt.':'Diesen Spieler gibt es hier schon. Er bekommt den Stand aus dem Link.'):'Der Spieler wird auf diesem Gerät gespeichert.';
   $('restore').classList.remove('hidden');}
-$('rsNo').onclick=()=>{$('restore').classList.add('hidden');try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}RST=null;closeWho();};
+$('rsNo').onclick=()=>{$('restore').classList.add('hidden');setGirl(PROFILE.g==='w');try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}RST=null;closeWho();};
 $('rsYes').onclick=()=>{const d=RST;if(!d)return;const ex=regList().find(x=>x.uid===d.P.uid);
   let id=ex?ex.id:isEmptyMe()?CUR:newSlotId();if(ex&&ex.g>d.P.games){reloadAs(id);return;}
   useSlot(id);store.set(PK,JSON.stringify(d.P));if(d.name)store.set('pgt_name',d.name);store.set('pgt_welcome','1');store.set('pgt_pos',d.pos);store.set('pgt_mode',String(d.mode));

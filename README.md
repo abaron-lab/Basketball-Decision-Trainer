@@ -36,6 +36,8 @@ Alles bewusst **ohne Blöcke/Screens** und ohne Doppeln (DBB-Miniregeln). Jeder 
 
 **Spielerkarte:** Über die Leiste mit Trikot, Name und Level oben im Menü. Dort stellt man Namen, Trikotnummer, Hautfarbe und Frisur ein (so sieht dann auch der eigene Spieler im Spiel aus). Die Karte zeigt Werte wie Lesen, Tempo und Pass, das Level (Rookie bis Legende, mit XP aus jedem Spiel) und 12 Abzeichen zum Freischalten, z. B. „Heiße Hand“ (5 richtige in Folge) oder „Allrounder“ (alle Positionen gespielt). Alles wird nur auf dem Gerät gespeichert.
 
+**Mädchen-Version:** Beim ersten Start (und später in der Spielerkarte unter „Anpassen“) wählt man „Mädchen“ oder „Jungen“. In der Mädchen-Version sind alle Figuren Mädchen (Mitspielerinnen und Gegnerinnen, mit Zopf, Flechtzopf, Zöpfen, offenen Haaren oder Dutt), und alle Texte sprechen von Mitspielerin, Verteidigerin, Gegenspielerin usw. Spielzüge, Regeln und Altersstufen sind gleich, denn die DBB-Miniregeln gelten für Mädchen und Jungen. Die eigene Frisur ist frei wählbar. Trainer können im Aufgaben-Link „Mädchen“ vorwählen (`&g=w`), dann ist das bei neuen Spielerinnen schon eingestellt.
+
 **Bedienung:** Für einen Pass tippt man direkt auf das lila Schild über dem Mitspieler (am Computer auch Tasten 1–5). Unten sind nur noch zwei Tasten: blau „Zum Korb“ bzw. „Backdoor-Cut“, orange „Werfen“ bzw. „Ball fordern“.
 Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` weiter.
 
