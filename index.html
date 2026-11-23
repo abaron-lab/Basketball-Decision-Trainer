@@ -1538,7 +1538,7 @@ function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleR
   for(let i=0;i<n;i++){const t=i/n,e=t<att?t/att:Math.pow(1-(t-att)/(1-att),1.6);ch[i]=(Math.random()*2-1)*e*(.75+.25*Math.sin(i/a.sampleRate*40));}
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(a.destination);s.start();}catch(e){}}
 const sfx={crowd:()=>crowdN(2.2,.5,1100,.12),ooh:()=>crowdN(1.1,.35,520,.3),dribble:p=>smp('dribble',.5*nearV(p))||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.45*nearV(p)),
-  squeak:p=>{if(clock-sqkT<.15)return;sqkT=clock;smp('squeak',.32*nearV(p),.1);},step:(p,v)=>smp('step',v*nearV(p),.1),
+  squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;smp('squeak',(p===ROLE.H?.13:.08)*nearV(p),.1);},step:(p,v)=>smp('step',v*nearV(p),.1),
   whistle:()=>{tone(2300,.18,'square',.035);tone(2500,.18,'square',.02)},swish:()=>smp('swish',.6)||noise(.35,.25,2500),good:()=>{tone(660,.12,'triangle',.15);tone(990,.22,'triangle',.15,null,.11);noise(.9,.05,600)},bad:()=>tone(180,.4,'sawtooth',.09,90),buzz:()=>tone(110,.6,'square',.07),rim:()=>smp('rim',.5)||tone(330,.2,'triangle',.12,200),pass:()=>noise(.08,.08,1200)};
 
 // ================= Spielzustand =================
@@ -1629,14 +1629,15 @@ function updP(p,dt){
   else if(dt>0){p.vx*=.8;p.vz*=.8;p.spd=Math.hypot(p.vx,p.vz);}
   p.ph+=dt*(1.2+p.spd*1.9);p.armsUp=Math.max(0,p.armsUp-dt*.55);
 }
-// Schuhquietschen an Wegpunkten mit scharfem Richtungswechsel oder harter Bremsung (aus der Wegpunktliste,
+// Schuhquietschen (selten und leise: höchstens alle 0,9 s, nicht jedes Mal) an Wegpunkten mit sehr scharfem
+// Richtungswechsel oder harter Bremsung bei hohem Tempo (aus der Wegpunktliste,
 // nicht aus der geglätteten Geschwindigkeit). Schritte nur für den eigenen Spieler und den Ballführer, leise.
 function footSfx(p,dt){const P=p.path,t0=p.pt,t1=p.pt+dt;
   for(let i=1;i<P.length;i++){const b=P[i];if(b[0]<=t0)continue;if(b[0]>t1)break;
     const a=P[i-1],c=P[i+1],da=b[0]-a[0];if(da<=.05)continue;
     const v1x=(b[1]-a[1])/da,v1z=(b[2]-a[2])/da,s1=Math.hypot(v1x,v1z);
     let s2=0,cs=1;if(c&&c[0]-b[0]>.05){const db=c[0]-b[0],v2x=(c[1]-b[1])/db,v2z=(c[2]-b[2])/db;s2=Math.hypot(v2x,v2z);if(s1>.3&&s2>.3)cs=(v1x*v2x+v1z*v2z)/(s1*s2);}
-    if((Math.max(s1,s2)>2.4&&cs<.35)||(s1>3.6&&s2<.4))sfx.squeak(p);}
+    if((Math.max(s1,s2)>3.2&&cs<.1)||(s1>4.5&&s2<.3))sfx.squeak(p);}
   if((p===ROLE.H||p===ball.owner)&&p.spd>1.3&&!(p.jy>.05)){p.stepD=(p.stepD||0)+p.spd*dt;
     if(p.stepD>.55+.13*p.spd){p.stepD=0;sfx.step(p,clamp(.08+.035*p.spd,.1,.28));}}}
 function angTo(dx,dz){return Math.atan2(dx,-dz);}
