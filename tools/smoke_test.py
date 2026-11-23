@@ -44,13 +44,16 @@ async def run(a):
         errs = []
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: m.type == 'error' and errs.append(m.text))
-        q = [x for x in ('' if a.full else 'lite', 'rig=alt' if a.rig == 'alt' else '') if x]
+        q = [x for x in ('' if a.full else 'lite', 'rig=alt' if a.rig == 'alt' else '', 'g=w' if a.girl else '') if x]
         await pg.goto(url + ('?' + '&'.join(q) if q else ''))
         await pg.wait_for_selector('#menu:not(.hidden)', timeout=60000)
         if a.rig != 'alt':
             await pg.wait_for_function('window.__glb()', timeout=60000)
             print('Figuren: player.glb')
         if await pg.is_visible('#welcome'):  # erster Start: Willkommens-Karte überspringen
+            if a.girl:
+                await pg.click('#wG .lvb[data-v="w"]')
+                await pg.wait_for_timeout(500)
             await pg.screenshot(path=f'{a.out}/welcome.png')
             await pg.click('#wSkip')
         await pg.click(f'#pos .lvb[data-v="{a.pos}"]')
@@ -115,4 +118,5 @@ if __name__ == '__main__':
     ap.add_argument('--full', action='store_true')
     ap.add_argument('--out', default='shots')
     ap.add_argument('--rig', default='glb')
+    ap.add_argument('--girl', action='store_true', help='Mädchen-Version (Texte und Figuren)')
     asyncio.run(run(ap.parse_args()))

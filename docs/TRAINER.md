@@ -78,12 +78,21 @@ Hier bist du der rote Verteidiger. Im Entscheidungsmoment tippst du eine von dre
 | Mitgehen beim Pass | Geht der Ball weg von deinem Gegenspieler: ab in die Zone. Kommt er näher: zurück in den Passweg |
 | Zurück in die Abwehr | Nach Ballverlust: erst den Korb sichern, dann den Ball stoppen, dann den Gegenspieler finden |
 
+## Mädchen-Version
+
+Mädchen spielen in den gleichen Altersklassen nach den gleichen Regeln: Die DBB-Miniregeln (4 gegen 4, Mann-Mann-Pflicht, kein Doppeln, keine Blöcke) gelten für Mädchen, Jungen und gemischte Mini-Teams gleichermaßen. Je nach Landesverband gibt es ab der U12 oder U14 eigene weibliche Wettbewerbe (z. B. „U14 weiblich“), auch dort mit den gleichen Spielideen. Im Spiel ändern sich deshalb keine Spielzüge, sondern nur, mit wem man sich identifiziert:
+
+- **Auswahl:** beim ersten Start („Du spielst bei den Mädchen / Jungen“) und jederzeit in der Spielerkarte unter **Anpassen**. Die Einstellung gehört zum Spieler: Auf einem Gerät können Geschwister unterschiedlich spielen, und der Spieler-Link nimmt sie mit.
+- **Figuren:** In der Mädchen-Version sind Mitspielerinnen und Gegnerinnen Mädchen, meist mit langen Haaren (Zopf, Flechtzopf, Zöpfe, offen, Dutt). Die eigene Frisur ist frei wählbar, es gibt keine Vorgaben nach Geschlecht.
+- **Texte:** Alle Erklärungen, Fragen und Tipps in weiblicher Form („Deine Verteidigerin ist zur Seite gerutscht, dadurch stand deine Mitspielerin frei“), ebenso Abzeichen („Passmeisterin“, „Allrounderin“) und Auswertung („Starke Spielmacherin!“). Fachbegriffe wie „Mann-Mann-Verteidigung“ bleiben, wie der DBB sie verwendet.
+- **Für das Team:** Im Aufgaben-Link lässt sich unter „Team“ **Mädchen** vorwählen. Neue Spielerinnen, die den Link öffnen, haben dann schon „Mädchen“ eingestellt (im Link `&g=w`, geht auch zusammen mit `?team=`).
+
 ## Werkzeuge für Trainer
 
 Im Menü über das Klemmbrett-Symbol:
 
 - **Themen:** Trainingsthemen mit passenden Spielzügen aus allen Positionen, z. B. „Wer hilft, lässt jemanden frei“, „Ohne Ball“, „Ball bewegen“, „Schnellangriff“, „Umschalten“, „Guter Wurf“, „Backdoor“, „Mann-Mann-Verteidigung“.
-- **Aufgabe:** Erzeugt einen Link mit Thema, Text, Schwierigkeit und Rundenzahl, z. B. als Hausaufgabe für die Team-Gruppe. Wer den Link öffnet, sieht oben im Menü „Aufgabe vom Trainer“ und kann direkt starten.
+- **Aufgabe:** Erzeugt einen Link mit Thema, Text, Schwierigkeit, Rundenzahl und optional Mädchen- oder Jungenteam, z. B. als Hausaufgabe für die Team-Gruppe. Wer den Link öffnet, sieht oben im Menü „Aufgabe vom Trainer“ und kann direkt starten.
   Beispiel: `…/?team=u12-tigers&aufgabe=backdoor&txt=Diese+Woche:+Backdoor&l=1&r=10`
 - **Team:** Zeigt pro Kind, wie gut es welches Lernziel liest. Grundlage sind die Spiele, die mit Namen in die Rangliste eingetragen wurden: online in der Team-Rangliste (`?team=name`) oder ohne Online-Rangliste nur auf diesem Gerät.
 
