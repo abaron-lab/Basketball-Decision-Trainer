@@ -17,16 +17,16 @@ Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden S
 
 | Position | Spielzüge | Was man lernt |
 |---|---|---|
-| ① Aufbau (Point Guard) | Aufbau über die Mitte · Schnellangriff 3 gegen 2 · Angriff über den Flügel · Pass und geh · Backdoor-Cut | Hilfe erkennen und den freien Mitspieler finden, Korbleger bei freier Bahn, Wurf bei viel Platz, nach dem Pass schneiden oder Platz machen |
-| ③ Flügel | Pass auf den Flügel · Ohne Ball: Backdoor? · Schnellangriff als Läufer · Extra-Pass · Einer gegen zwei | Nach dem Fangen werfen, ziehen oder weiterpassen; ohne Ball backdoor schneiden oder den Ball fordern; Überzahl nutzen |
-| ⑤ Center | Ball am Brett · Ball an der Freiwurflinie · Aufbau zieht zum Korb · Rim Run | Zur Mitte drehen und die Hilfe lesen; Backdoor-Pass von der Freiwurflinie; ohne Ball zum Korb laufen oder Platz lassen; im Schnellangriff zum Korb sprinten |
-| Ⓥ Abwehr | Gegenspieler mit Ball · Ein Pass entfernt · Zwei Pässe entfernt · Aushelfen · Zurück zum Gegenspieler | Mann-Mann-Verteidigung: die richtige Position antippen |
+| ① Aufbau (Point Guard) | Aufbau über die Mitte · Schnellangriff 3 gegen 2 · Angriff über den Flügel · Pass und geh · Backdoor-Cut · Durchbruch & Kick-out · Ballgewinn: langer Pass? · Ball umkehren | Hilfe erkennen und den freien Mitspieler finden, Korbleger bei freier Bahn, Wurf bei viel Platz, nach dem Pass schneiden oder Platz machen, den Ball auf die freie Seite oder in die Lücke spielen |
+| ③ Flügel | Pass auf den Flügel · Ohne Ball: Backdoor? · Schnellangriff als Läufer · Extra-Pass · Einer gegen zwei · Durchbruch vom Flügel | Nach dem Fangen werfen, ziehen oder weiterpassen; ohne Ball backdoor schneiden oder den Ball fordern; Überzahl nutzen |
+| ⑤ Center | Ball am Brett · Ball an der Freiwurflinie · Aufbau zieht zum Korb · Rim Run · Rebound & langer Pass · Flash-Cut | Zur Mitte drehen und die Hilfe lesen; Backdoor-Pass von der Freiwurflinie; ohne Ball zum Korb laufen oder Platz lassen; im Schnellangriff zum Korb sprinten; zum Ball laufen, wenn dort Platz ist |
+| Ⓥ Abwehr | Gegenspieler mit Ball · Ein Pass entfernt · Zwei Pässe entfernt · Aushelfen · Zurück zum Gegenspieler · Mitgehen beim Pass · Zurück in die Abwehr | Mann-Mann-Verteidigung: die richtige Position antippen, bei jedem Pass mitgehen, nach Ballverlust erst den Korb sichern |
 
 Alles bewusst **ohne Blöcke/Screens** und ohne Doppeln (DBB-Miniregeln). Jeder Spielzug hat mehrere Varianten (wer hilft, wo steht der Verteidiger), Seite und Positionen sind zufällig.
 
 **Spielform:** 4 gegen 4 (Miniregeln U10/U12) oder 5 gegen 5 (leistungsorientierte U12 und U14, zusätzlich ein Spieler in der Ecke).
 
-**Lernziele:** Jede Situation gehört zu einem Lernziel aus dem DBB-Leitfaden Minibasketball (Lücke erkennen, Gegenspieler umspielen, Überzahl nutzen, In den Lauf passen, Zusammenspiel, Anbieten und Orientieren) oder zu „Guter Wurf“ bzw. „Mann-Mann-Verteidigung“. Die Spielerkarte zeigt den Stand je Lernziel.
+**Lernziele:** Jede Situation gehört zu einer der sieben taktischen Grundfertigkeiten aus dem DBB-Leitfaden Minibasketball (Lücke erkennen, Gegenspieler umspielen, Überzahl nutzen, In den Lauf passen, Zusammenspiel, Anbieten und Orientieren, Ins Ziel treffen, im Spiel als Wurfauswahl „Guter Wurf“) oder zur „Mann-Mann-Verteidigung“. Die Spielerkarte zeigt den Stand je Lernziel. Inhalte aus dem FIBA Coaching Manual Mini-Basketball: Flash-Cut, Ball umkehren, beim Pass mitgehen, im Umschalten erst Korb, dann Ball.
 
 **Erst fragen, dann erklären:** Nach einer falschen Entscheidung stellt das Spiel eine Frage („Wer hat ausgeholfen?“, „Wo stand dein Verteidiger?“). Das Kind tippt auf der Skizze auf den Spieler, danach kommt die Erklärung.
 

@@ -8,20 +8,20 @@ Im Spiel findet sich eine Kurzfassung dieser Seite unter **Trainer → Info** (K
 
 ## Was trainiert wird: die Lernziele
 
-Jede Situation im Spiel gehört zu einem Lernziel. Die ersten sechs sind die taktischen Grundfertigkeiten aus dem *DBB-Leitfaden Minibasketball* (Kap. 7.2), dazu kommen zwei weitere:
+Jede Situation im Spiel gehört zu einem Lernziel. Der *DBB-Leitfaden Minibasketball* (Kap. 7.2) nennt sieben taktische Grundfertigkeiten: „Lücke erkennen“, „Gegenspieler umspielen“, „Überzahl nutzen“, „In den Lauf passen“, „Zusammenspiel“, „Ins Ziel treffen“ und „Anbieten und Orientieren“. Sechs davon übt das Spiel direkt. „Ins Ziel treffen“ ist eine Technik, die man in der Halle übt. Im Spiel steckt davon die Entscheidung, *wann* ein Wurf gut ist. Das Lernziel heißt deshalb „Guter Wurf“. Dazu kommt die Mann-Mann-Verteidigung:
 
-| Lernziel | Woher | Beispiele im Spiel |
-|---|---|---|
-| Lücke erkennen | Leitfaden Minibasketball | Freie Bahn zum Korb, Verteidiger rutscht beim Backdoor-Cut zur Seite |
-| Gegenspieler umspielen | Leitfaden Minibasketball | Ball am Brett (1 gegen 1), Verteidiger kommt beim Extra-Pass angerannt |
-| Überzahl nutzen | Leitfaden Minibasketball | Schnellangriff 3 gegen 2, Einer gegen zwei, Rim Run |
-| In den Lauf passen | Leitfaden Minibasketball | Pass zum Backdoor-Cutter |
-| Zusammenspiel | Leitfaden Minibasketball | Wer hilft, lässt jemanden frei; Extra-Pass; Pass und geh |
-| Anbieten und Orientieren | Leitfaden Minibasketball | Ohne Ball: Backdoor oder Ball fordern, Platz lassen, hinten bleiben |
-| Guter Wurf | DBB-Spielkonzeption („Wofür spielen wir?“) | Freier Wurf bei viel Platz, lieber Korbleger als weiter Wurf |
-| Mann-Mann-Verteidigung | Miniregeln (MMV-Pflicht), MMV-Kriterien | Position Abwehr |
+| Lernziel | Woher | Was gelesen wird | Beispiele im Spiel |
+|---|---|---|---|
+| Lücke erkennen | Leitfaden Minibasketball | Raum und Helfer: Kommt keine Hilfe, ist der Weg frei. Steht ein Mitspieler in der Lücke zwischen zwei Verteidigern, ist das die Lücke für einen Pass (Leitfaden Kap. 3.1). | Freie Bahn zum Korb, Durchbruch ohne Helfer, Verteidiger rutscht beim Backdoor-Cut zur Seite, Pass zum Center in die Lücke an der Freiwurflinie (Ball umkehren) |
+| Gegenspieler umspielen | Leitfaden Minibasketball | Den eigenen Verteidiger: Steht er neben dir statt vor dir, oder kommt er mit Schwung angerannt? | Fangen & lesen, Freiwurflinie, Extra-Pass („Verteidiger fliegt vorbei“), Ball umkehren (Verteidiger springt in den Passweg) |
+| Überzahl nutzen | Leitfaden Minibasketball | Wen nimmt der einzelne Verteidiger? | Schnellangriff 3 gegen 2, Einer gegen zwei, Rim Run |
+| In den Lauf passen | Leitfaden Minibasketball | Wer läuft frei zum Korb? | Pass zum Backdoor-Cutter, langer Pass nach Ballgewinn oder Rebound |
+| Zusammenspiel | Leitfaden Minibasketball | Wer hilft, lässt jemanden frei. | Kick-out nach Hilfe, Extra-Pass, Pass und geh, Ball umkehren |
+| Anbieten und Orientieren | Leitfaden Minibasketball | Ohne Ball: Wo steht mein Verteidiger, wo ist Platz? | Backdoor oder Ball fordern, Flash-Cut oder unten bleiben, Platz lassen, hinten bleiben |
+| Guter Wurf (statt „Ins Ziel treffen“) | Leitfaden, DBB-Spielkonzeption („Wofür spielen wir?“) | Wurfauswahl: Ist ein freier Wurf die beste Lösung? | Freier Wurf bei viel Platz. Wer wirft, obwohl ein Korbleger oder Pass besser war, bekommt hier zusätzlich einen Fehlversuch („lieber Korbleger als weiter Wurf“). |
+| Mann-Mann-Verteidigung | Miniregeln (MMV-Pflicht), MMV-Kriterien, FIBA | Ball, du, Gegenspieler | Position Abwehr |
 
-Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welches Lernziel richtig gelesen hat. Die Auswertung nach jedem Spiel zeigt es unter „Details“.
+Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welches Lernziel richtig gelesen hat. Die Auswertung nach jedem Spiel zeigt es unter „Details“. Ein falscher Wurf zählt dabei zweimal: beim Lernziel der Situation und bei „Guter Wurf“.
 
 ## Was aus den Unterlagen übernommen wurde
 
@@ -41,6 +41,7 @@ Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welche
 - **„1 can't guard 2“:** Spielzug „Einer gegen zwei“ (Flügel).
 - **Attackieren und Platz machen:** Spielzug „Pass und geh“ (Aufbau). Nach dem Pass schneiden oder raus und Platz machen.
 - **Rim Run im Schnellangriff:** Spielzug „Rim Run“ (Center).
+- **Transition-Verteidigung:** „Erste:r zurück sichert den Korb“, alle sprinten hinter den Ball. Spielzug „Zurück in die Abwehr“ (Abwehr): erst den Korb sichern, dann den Ball stoppen, dann den eigenen Gegenspieler finden. Feste Zuordnungen wie in der Zonenverteidigung gibt es für Minis nicht (MMV-Pflicht), deshalb endet der Spielzug beim eigenen Gegenspieler.
 - **Wofür spielen wir?** Korbnahe Abschlüsse, freie Würfe von außen, Freiwürfe: Lernziel „Guter Wurf“.
 - Blöcke, Pick & Roll und Handoffs aus der Spielkonzeption wurden bewusst **nicht** übernommen (Miniregeln).
 
@@ -49,12 +50,19 @@ Für Minis gelten die Miniregeln. Die Kriterien dienen als Orientierung für die
 - Am Ball: unmittelbar zwischen Gegenspieler und Korb, höchstens 1,5 m Abstand („eine Armlänge“).
 - Einen Passweg vom Ball entfernt: höchstens 1,5 m absinken, zum Ball hin („Ball, du, Gegenspieler“).
 - Zwei oder mehr Passwege entfernt: weiter absinken, als Helfer in die Zone.
+- Erhält der Gegenspieler den Ball, sofort den Abstand verkürzen (Spielzug „Zurück zum Gegenspieler“).
 - Helfen nach einem Durchbruch ist erlaubt, danach sofort zurück zum eigenen Gegenspieler.
 
 Aushelfen nach einem Durchbruch ist auch im Minibasketball erlaubt und gilt nicht als Doppeln. Verboten ist, den Ballführer aktiv zu zweit zu verteidigen. So setzt es das Spiel um: Aushelfen ist richtig, zum Ballführer laufen ist falsch.
 
 **FIBA/WABC Coaching Manual Mini-Basketball**
-- Spaß und spielnahes Lernen statt isolierter Übungen. Das Spiel zeigt immer echte Spielsituationen mit Verteidigung.
+- **Spielnah lernen** („game-based teaching“, Kap. 2) statt isolierter Übungen: Das Spiel zeigt immer echte Spielsituationen mit Verteidigung.
+- **Fragen stellen** statt vorsagen (Kap. 2.2/2.3): Nach einer falschen Wahl fragt das Spiel zuerst, wie oben beim Leitfaden beschrieben.
+- **Üben nach Können** (Kap. 1.4): drei Schwierigkeitsstufen mit weniger Zeit und Verteidigern, die nur so tun, als würden sie helfen.
+- **Space and Movement, Motion-Offense-Prinzipien** (Kap. 5.3/5.4): Backdoor-Cut („Backdoor-Cut“, „Ohne Ball: Backdoor?“), Pass und geh bzw. Pass-Cut-Replace („Pass und geh“), Flash-Cut („Flash-Cut“, Center), Ball umkehren („Ball umkehren“, Aufbau), Drive and Dish („Durchbruch & Kick-out“), nicht zum Ball laufen, sondern Platz lassen („Ohne Ball“ und „Flash-Cut“ beim Center).
+- **Transition** (Kap. 5.3): Pass nach vorne statt Dribbling über das ganze Feld („Langer Pass“, „Rebound“), breite Laufwege („Läufer“), 2 gegen 1 und 3 gegen 2. In der Verteidigung „erst Korb, dann Ball“ („Zurück in die Abwehr“).
+- **Mann-Mann-Positionen** (Kap. 5.3): ein Pass weg, zwei Pässe weg und „jump to the ball“, also bei jeder Ballbewegung die Position anpassen („Mitgehen beim Pass“).
+- **Keine Zonenverteidigung, kein Doppeln** (Kap. 5.2) wie in den Miniregeln.
 
 ## Die Position Abwehr
 
@@ -67,12 +75,14 @@ Hier bist du der rote Verteidiger. Im Entscheidungsmoment tippst du eine von dre
 | Zwei Pässe entfernt | Als Helfer in der Zone |
 | Aushelfen | Dem Ballführer in den Weg, wenn er an seinem Verteidiger vorbei ist |
 | Zurück zum Gegenspieler | Zurücklaufen und eine Armlänge vor ihm abstoppen |
+| Mitgehen beim Pass | Geht der Ball weg von deinem Gegenspieler: ab in die Zone. Kommt er näher: zurück in den Passweg |
+| Zurück in die Abwehr | Nach Ballverlust: erst den Korb sichern, dann den Ball stoppen, dann den Gegenspieler finden |
 
 ## Werkzeuge für Trainer
 
 Im Menü über das Klemmbrett-Symbol:
 
-- **Themen:** Trainingsthemen mit passenden Spielzügen aus allen Positionen, z. B. „Wer hilft, lässt jemanden frei“, „Ohne Ball“, „Schnellangriff“, „Guter Wurf“, „Backdoor“, „Mann-Mann-Verteidigung“.
+- **Themen:** Trainingsthemen mit passenden Spielzügen aus allen Positionen, z. B. „Wer hilft, lässt jemanden frei“, „Ohne Ball“, „Ball bewegen“, „Schnellangriff“, „Umschalten“, „Guter Wurf“, „Backdoor“, „Mann-Mann-Verteidigung“.
 - **Aufgabe:** Erzeugt einen Link mit Thema, Text, Schwierigkeit und Rundenzahl, z. B. als Hausaufgabe für die Team-Gruppe. Wer den Link öffnet, sieht oben im Menü „Aufgabe vom Trainer“ und kann direkt starten.
   Beispiel: `…/?team=u12-tigers&aufgabe=backdoor&txt=Diese+Woche:+Backdoor&l=1&r=10`
 - **Team:** Zeigt pro Kind, wie gut es welches Lernziel liest. Grundlage sind die Spiele, die mit Namen in die Rangliste eingetragen wurden: online in der Team-Rangliste (`?team=name`) oder ohne Online-Rangliste nur auf diesem Gerät.
