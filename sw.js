@@ -1,5 +1,5 @@
 // Service Worker: Spiel offline verfügbar machen. Seite und config.js: erst Netz, dann Cache.
-const C='iq-trainer-v3';
+const C='iq-trainer-v4';
 const CORE=['./','index.html','config.js','manifest.webmanifest','icon.svg','icon-192.png','player.glb','three-shim.js','https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(CORE)).catch(()=>{}));self.skipWaiting();});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
