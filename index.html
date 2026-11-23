@@ -109,7 +109,7 @@ h1 span{color:#ff8a3d;display:block}
 h2{font-family:'Bebas Neue',Impact,sans-serif;font-size:34px;letter-spacing:1.5px;margin:0;line-height:1}
 p{margin:6px 0;line-height:1.4;color:#d7deef}
 .sub{color:#9fb0d4;font-weight:700;margin:4px 0 0;font-size:14px}
-.sec-t{font-size:11.5px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:#7f91bb;margin:11px 0 6px}
+.sec-t{font-size:13px;font-weight:900;letter-spacing:.2px;color:#8fa0c6;margin:11px 0 6px}
 .sec-t:first-child{margin-top:4px}
 .mhead{display:flex;align-items:center;gap:12px}
 @media (max-width:420px){#pos .lvb>span{display:none}#pos .lvb{padding:7px 2px 7px}.chips .chip{padding:4px 8px;font-size:12px}#plays{gap:5px}#taskBar{padding:5px 9px;margin-top:8px}#taskBar small{display:inline;margin-right:6px}#taskBar b{display:inline}#taskBar em{padding:4px 10px}#taskBar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#taskBar .vt{display:none}#plays .chip .ck{display:none}#pcTabs .lvb b{font-size:13px}}
@@ -121,7 +121,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .thm{cursor:pointer;text-align:left;border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.08);color:#fff;font-family:Nunito,system-ui,sans-serif;display:flex;gap:10px;align-items:center}
 .thm .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(111,165,255,.14);color:#8fb4ff;flex:0 0 auto}.thm .ic .i{width:20px;height:20px}
 .thm b{display:block;font-size:15px}.thm small{display:block;font-size:12px;color:#9fb0d4;font-weight:700}.thm div{flex:1;min-width:0}.thm .go{color:#ffd45e;font-weight:900;font-size:13px}
-.cform label{display:block;font-size:11.5px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:#7f91bb;margin:8px 0 5px}
+.cform label{display:block;font-size:13px;font-weight:900;letter-spacing:.2px;color:#8fa0c6;margin:8px 0 5px}
 .cform input,.cform select{width:100%;border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 15px Nunito,system-ui,sans-serif;padding:9px 11px;user-select:text;-webkit-user-select:text}
 .cform .row{display:flex;gap:8px;margin-top:10px}.cform .row .btn{flex:1;padding:11px 12px;font-size:15px}
 .cnote{font-size:12px;color:#8fa0c6;line-height:1.4;font-weight:700}
@@ -326,8 +326,6 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 @media (max-height:600px){#pos .lvb span,.seg .lvb span{display:none}}
 .seg .chip.sel .posb{background:#1d1500;color:var(--gold)}
 /* Spielerkarte */
-.pcb{position:relative;color:#6fa5ff}.pcb .i{width:30px;height:30px;stroke-width:1.8}
-.pcb b{position:absolute;left:0;right:0;top:15px;text-align:center;font:900 11px/1 Nunito,system-ui,sans-serif;color:#fff}
 .card.pc{height:min(760px,100%)}
 .card.pc>.body{overflow:hidden}
 .pcp{flex:1 1 auto;min-height:0;margin-top:10px}
@@ -365,6 +363,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .medal{--mc:#ffc83d;display:inline-grid;place-items:center;width:50px;height:50px;border-radius:50%;flex:0 0 auto;color:#66718f;background:radial-gradient(circle at 50% 35%,#3a4462,#232a40);box-shadow:inset 0 0 0 3px #3a4466,0 3px 8px rgba(0,0,0,.35)}
 .medal .i{width:50%;height:50%}
 .medal.on{color:#fff;background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--mc) 70%,#fff),var(--mc) 55%,color-mix(in srgb,var(--mc) 55%,#000));box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),inset 0 -4px 0 rgba(0,0,0,.18),0 4px 12px color-mix(in srgb,var(--mc) 45%,transparent)}
+.medal:not(.on) .i{opacity:.7}
 .medal.on .i{filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
 .medal.big{width:84px;height:84px}.medal.big .i{stroke-width:2.4}
 .bgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;flex:1 1 auto;align-content:space-evenly}
@@ -378,7 +377,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .pv{border-radius:18px;background:radial-gradient(80% 60% at 50% 40%,#2b3d75,#141c33);border:1px solid rgba(255,255,255,.08);min-height:0;overflow:hidden}
 .pv canvas{width:100%;height:100%;display:block}
 .ectl{display:flex;flex-direction:column;min-width:0}
-.ectl label{font-size:11px;font-weight:900;letter-spacing:1.2px;text-transform:uppercase;color:#7f91bb;margin:8px 0 5px}
+.ectl label{font-size:13px;font-weight:900;letter-spacing:.2px;color:#8fa0c6;margin:8px 0 5px}
 .ectl label:first-child{margin-top:0}
 .ectl input{border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 15px Nunito,system-ui,sans-serif;padding:8px 10px;user-select:text;-webkit-user-select:text;min-width:0}
 .ectl input:focus{outline:none;border-color:var(--gold)}
@@ -403,6 +402,78 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .ul-xp{position:relative;font-weight:900;color:#cfd8ee;font-size:14px;margin-top:6px}
 .ul-xp b{color:var(--gold)}
 @media (max-width:560px){#unlock{padding:16px}#unlock .card{height:auto;border-radius:26px;border:1px solid rgba(255,255,255,.1)}}
+/* Tastatur-Fokus sichtbar */
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+/* Menü: beschriftete Kopf-Tasten */
+.mhead .rbtn.lbl{width:auto;min-width:50px;height:50px;padding:5px 4px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font:900 10.5px/1 Nunito,system-ui,sans-serif;color:#cfd8ee}
+.rbtn.lbl small{font:inherit;white-space:nowrap}
+.rbtn.lbl.gold .i{color:var(--gold)}
+@media (max-width:420px){.mhead .rbtn.lbl{min-width:46px;height:46px;font-size:10px}.mhead .rbtn.lbl .i{width:20px;height:20px}}
+/* Menü: Spielerkarten-Leiste (Farbe nach Stufe wie die Karte) */
+.pstrip{--a:#e9a76a;--b:#8a4b1f;--c:#4a2410;cursor:pointer;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;width:100%;margin:12px 0 2px;padding:7px 12px 7px 7px;border:0;border-radius:16px;text-align:left;color:#fff;font-family:Nunito,system-ui,sans-serif;
+  background:linear-gradient(110deg,var(--a),var(--b) 48%,var(--c));box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 8px 20px rgba(0,0,0,.35);transition:transform .1s}
+.pstrip:active{transform:scale(.98)}
+.pstrip:before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.07) 0 2px,transparent 2px 14px);pointer-events:none}
+.pstrip.silver{--a:#f4f7fb;--b:#9aa6b8;--c:#4b5566}.pstrip.gold{--a:#ffe68a;--b:#e2a412;--c:#7a4a00}.pstrip.diamond{--a:#a8f0ff;--b:#5b7cff;--c:#5a1f9a}
+.ps-num{position:relative;flex:0 0 46px;height:50px;display:grid;place-items:center;padding-top:9px}
+.ps-num svg{position:absolute;inset:0;width:46px;height:50px;fill:#1f5fe0;stroke:#fff;stroke-width:1.3;stroke-linejoin:round;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+.ps-num b{position:relative;font:400 24px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.5px}
+.ps-mid{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.ps-mid>b{font:400 23px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps-mid>b.empty{opacity:.85}
+.ps-mid i{display:block;height:7px;border-radius:9px;background:rgba(0,0,0,.32);overflow:hidden}
+.ps-mid em{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#fff,#ffe07a);transition:width .9s cubic-bezier(.2,.8,.3,1)}
+.ps-mid small{font-size:11.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ps-bd{position:relative;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:1px;font:900 11px/1 Nunito,system-ui,sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.ps-bd .medal{width:34px;height:34px}
+/* Menü: Spielzüge einklappbar */
+.pltog{cursor:pointer;display:flex;align-items:center;gap:8px;width:100%;margin:11px 0 0;padding:8px 10px 8px 12px;border-radius:14px;border:0;background:rgba(255,255,255,.04);color:#d7deef;font:800 14px Nunito,system-ui,sans-serif;text-align:left}
+.pltog>span{flex:1;min-width:0}.pltog small{color:#8496bd;font-size:12px;font-weight:700}
+.pltog .i{width:18px;height:18px;color:#8fa0c6;transition:transform .2s}
+.pltog[aria-expanded=true] .i{transform:rotate(180deg)}
+#plays{margin-top:8px}
+/* Menü quer (Handy): zwei Spalten, damit nichts gescrollt werden muss */
+@media (max-height:500px) and (orientation:landscape){
+  #menu.overlay{padding:8px max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left))}
+  #menu .card{width:min(860px,100%);height:100%;max-height:none;border-radius:20px}
+  #menu .card>.body{padding:12px 16px 2px}
+  #menu .mcols{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}
+  #menu .pstrip{margin-top:8px;padding-top:4px;padding-bottom:4px}
+  #menu .mhead h1{font-size:28px}#menu .mhead .logo{width:34px;height:34px;flex-basis:34px}
+  #menu .sec-t{margin:8px 0 5px}
+  #menu .pico svg{width:38px;height:30px}
+  #menu .card>.foot{padding:6px 16px 10px;flex-direction:row;align-items:center}
+  #menu .card>.foot .btn.big{padding:8px 16px 6px;font-size:26px}
+  #menu .best{display:none}
+}
+/* Willkommen (erster Start) */
+.card.wel>.body{justify-content:safe center}
+.wl-top{display:flex;align-items:center;gap:14px}
+.wl-top h2{font-size:34px;line-height:.95}
+.wl-top .sub{margin-top:4px}
+.jersey{position:relative;flex:0 0 112px;height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:16px}
+.jersey svg{position:absolute;inset:0;width:100%;height:100%;fill:#1f5fe0;stroke:#fff;stroke-width:.9;stroke-linejoin:round;filter:drop-shadow(0 8px 16px rgba(31,95,224,.35))}
+.jersey span{position:relative;max-width:78px;font:400 15px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;min-height:15px}
+.jersey b{position:relative;font:400 50px/.9 'Bebas Neue',Impact,sans-serif;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.wl-form label{display:block;font-size:13px;font-weight:900;color:#8fa0c6;margin:12px 0 6px}
+.wl-form input{width:100%;border-radius:14px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 17px Nunito,system-ui,sans-serif;padding:11px 12px;user-select:text;-webkit-user-select:text}
+.wl-form input:focus{outline:none;border-color:var(--gold)}
+.wl-form .numsel{gap:14px}.wl-form .numsel .rbtn{width:48px;height:44px}
+.wskip{align-self:center}
+@media (max-height:700px){.wl-form label{margin:9px 0 5px}.jersey{flex-basis:96px;height:100px}.jersey b{font-size:42px}.wl-top h2{font-size:30px}}
+@media (max-height:500px) and (orientation:landscape){#welcome.overlay{padding:8px}#welcome .card{width:min(820px,100%);height:100%;max-height:none}.wl-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 18px}#welcome .foot{flex-direction:row;align-items:center}#welcome .btn.big{padding:8px 16px 6px}}
+/* Abzeichen: Fortschritt */
+.bcell .bp{display:block;width:70%;height:5px;border-radius:9px;background:rgba(0,0,0,.35);overflow:hidden}
+.bcell .bp em{display:block;height:100%;border-radius:9px;background:#8fb4ff}
+.bdesc .bp{display:block;margin-top:5px;height:6px;border-radius:9px;background:rgba(0,0,0,.35);overflow:hidden;max-width:220px}
+.bdesc .bp em{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#4a86ff,#7ff0ad)}
+/* Ergebnis: nächstes Ziel */
+.goal{display:flex;align-items:center;gap:10px;margin:10px 0 2px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.05);font-weight:800;font-size:13.5px;flex:0 0 auto}
+.goal .medal{width:36px;height:36px;color:var(--mc)}.goal .medal .i{opacity:1}
+.goal>div{flex:1;min-width:0}.goal small{display:block;color:#8fa0c6;font-size:12px}
+.goal .bp{display:block;margin-top:5px;height:6px;border-radius:9px;background:rgba(0,0,0,.35);overflow:hidden}
+.goal .bp em{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#4a86ff,#7ff0ad)}
+@media (prefers-reduced-motion:reduce){.tcard:after,.ul-rays,.tag .in,#meTag span{animation:none!important}.overlay:not(.hidden)>.card{animation:none}}
 </style>
 </head>
 <body>
@@ -444,6 +515,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></symbol>
 <symbol id="i-coach" viewBox="0 0 24 24"><rect x="5" y="4.5" width="14" height="16.5" rx="2.2"/><path d="M9 3h6v3.2H9zM8.5 11h7M8.5 14.5h7M8.5 18h4"/></symbol>
 <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
 <symbol id="i-dive" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M6 20h12"/></symbol>
 </defs></svg>
 <div id="loading"><svg class="logo"><use href="#i-logo"/></svg><h1>BASKETBALL <span>IQ TRAINER</span></h1><div class="lt">Halle wird aufgebaut …</div></div>
@@ -479,12 +551,17 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
         <svg class="logo"><use href="#i-logo"/></svg>
         <h1>BASKETBALL <span>IQ TRAINER</span></h1>
         <div class="sp"></div>
-        <button class="rbtn pcb" id="cardBtn" title="Spielerkarte" aria-label="Spielerkarte"><svg class="i"><use href="#i-shirt"/></svg><b id="cardNum">7</b></button>
-        <button class="rbtn gold" id="boardBtn" title="Rangliste" aria-label="Rangliste"><svg class="i"><use href="#i-trophy"/></svg></button>
-        <button class="rbtn" id="tipsBtn" title="So geht's" aria-label="So geht's"><svg class="i"><use href="#i-help"/></svg></button>
-        <button class="rbtn" id="coachBtn" title="Für Trainer &amp; Eltern" aria-label="Für Trainer und Eltern"><svg class="i"><use href="#i-coach"/></svg></button>
+        <button class="rbtn lbl gold" id="boardBtn" title="Rangliste"><svg class="i"><use href="#i-trophy"/></svg><small>Rangliste</small></button>
+        <button class="rbtn lbl" id="tipsBtn" title="So geht's"><svg class="i"><use href="#i-help"/></svg><small>Hilfe</small></button>
+        <button class="rbtn lbl" id="coachBtn" title="Für Trainer &amp; Eltern"><svg class="i"><use href="#i-coach"/></svg><small>Trainer</small></button>
       </div>
       <button class="taskbar hidden" id="taskBar"><svg class="i"><use href="#i-coach"/></svg><span><small>Aufgabe<i class="vt"> vom Trainer</i></small><b id="taskTxt"></b></span><em>Los</em></button>
+      <div class="mcols"><div class="mcol">
+      <button class="pstrip bronze" id="cardBtn" aria-label="Deine Spielerkarte öffnen">
+        <span class="ps-num"><svg viewBox="0 0 24 24"><path d="M8.5 3c.4 1.9 1.7 3 3.5 3s3.1-1.1 3.5-3H18c0 3 .8 5 2 6v12H4V9c1.2-1 2-3 2-6z"/></svg><b id="cardNum">7</b></span>
+        <span class="ps-mid"><b id="psName">Dein Name</b><i><em id="psBar"></em></i><small id="psLv">Rookie</small></span>
+        <span class="ps-bd" id="psBd"></span>
+      </button>
       <div class="sec-t">Deine Position</div>
       <div class="lv four" id="pos">
         <button class="lvb sel" data-v="pg"><i class="pico" data-pos="pg"></i><b>Aufbau</b><span>Ball bringen</span></button>
@@ -497,15 +574,17 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
         <button class="lvb sel" data-m="4"><b>4 gegen 4</b><span>Miniregeln U10/U12</span></button>
         <button class="lvb" data-m="5"><b>5 gegen 5</b><span>U12 Leistung · U14</span></button>
       </div>
+      </div><div class="mcol">
       <div class="sec-t">Schwierigkeit</div>
       <div class="seg" id="lvl">
         <button class="lvb sel" data-l="1"><b><i class="dot l1"></i>Anfänger</b><span>4 Sekunden</span></button>
         <button class="lvb" data-l="2"><b><i class="dot l2"></i>Mittel</b><span>2,5 s · Tricks</span></button>
         <button class="lvb" data-l="3"><b><i class="dot l3"></i>Profi</b><span>1,8 s · Tricks</span></button>
       </div>
-      <div class="sec-t">Spielzüge</div>
-      <div class="chips" id="plays"></div>
+      <button class="pltog" id="playsTog" aria-expanded="false" aria-controls="plays"><span>Spielzüge <small id="playsSum">· alle</small></span><svg class="i"><use href="#i-down"/></svg></button>
+      <div class="chips hidden" id="plays"></div>
       <label class="tog"><span>Lernmodus <small>· ohne Zeitlimit</small></span><input type="checkbox" id="noLimit"></label>
+      </div></div>
     </div>
     <div class="foot mfoot">
       <button class="btn big" id="startBtn"><svg class="i fill"><use href="#i-play"/></svg>SPIELEN</button>
@@ -597,13 +676,14 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
       </div>
       <div class="best" id="sBest"></div>
       <div class="xprow" id="sXp"><span class="lvn" id="sXpLv">Rookie</span><i><em id="sXpBar"></em></i><b id="sXpN">+0 XP</b></div>
+      <div class="goal hidden" id="sGoal"></div>
       <div class="sec-t">Rangliste</div>
       <div id="nameRow" class="namerow"><input id="nameIn" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done"><button class="btn" id="saveBtn">Eintragen</button></div>
       <div id="sBoard" class="lbwrap"></div>
       <details class="more"><summary>Details: Lernziele und Spielzüge ▾</summary><div id="sBreak"></div></details>
     </div>
     <div class="foot">
-      <button class="btn sec" id="menuBtn"><svg class="i"><use href="#i-home"/></svg>Hauptmenü</button>
+      <button class="btn sec" id="menuBtn" aria-label="Hauptmenü"><svg class="i"><use href="#i-home"/></svg>Hauptmenü</button>
       <button class="btn" id="againBtn"><svg class="i"><use href="#i-replay"/></svg>Nochmal</button>
     </div>
   </div>
@@ -613,7 +693,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
   <div class="card pc">
     <div class="body">
       <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-shirt"/></svg><h2>Spielerkarte</h2><button class="rbtn" id="pcX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
-      <div class="seg" id="pcTabs"><button class="lvb sel" data-t="card"><b>Karte</b></button><button class="lvb" data-t="badges"><b>Abzeichen <small id="bCount"></small></b></button><button class="lvb" data-t="lz"><b>Ziele</b></button><button class="lvb" data-t="edit"><b>Anpassen</b></button></div>
+      <div class="seg" id="pcTabs"><button class="lvb sel" data-t="card"><b>Karte</b></button><button class="lvb" data-t="badges"><b>Abzeichen</b></button><button class="lvb" data-t="lz"><b>Ziele</b></button><button class="lvb" data-t="edit"><b>Anpassen</b></button></div>
       <div class="tpane pcp on" data-t="card">
         <div class="tcard bronze" id="tcard">
           <div class="tc-bg"></div>
@@ -654,6 +734,38 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
       <div class="ul-xp" id="ulXp"></div>
     </div>
     <div class="foot"><button class="btn sec" id="ulCard">Zur Karte</button><button class="btn" id="ulOk">Super!</button></div>
+  </div>
+</div>
+
+<div id="welcome" class="overlay hidden">
+  <div class="card wel">
+    <div class="body">
+      <div class="wl-cols"><div>
+      <div class="wl-top">
+        <div class="jersey" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8.5 3c.4 1.9 1.7 3 3.5 3s3.1-1.1 3.5-3H18c0 3 .8 5 2 6v12H4V9c1.2-1 2-3 2-6z"/></svg><span id="wjName"></span><b id="wjNum">7</b></div>
+        <div><h2>Willkommen im Team!</h2><p class="sub">Du lernst, im Spiel schnell das Richtige zu tun: passen, zum Korb ziehen oder werfen.</p></div>
+      </div>
+      <div class="wl-form">
+        <label for="wName">Wie heißt du?</label>
+        <input id="wName" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done">
+        <label>Deine Trikotnummer</label>
+        <div class="numsel"><button class="rbtn" id="wNumM" aria-label="kleiner">−</button><b id="wNum">7</b><button class="rbtn" id="wNumP" aria-label="größer">+</button></div>
+      </div>
+      </div><div class="wl-form">
+        <label>Wo spielst du am liebsten?</label>
+        <div class="lv four" id="wPos">
+          <button class="lvb sel" data-v="pg"><i class="pico" data-pos="pg"></i><b>Aufbau</b></button>
+          <button class="lvb" data-v="wing"><i class="pico" data-pos="wing"></i><b>Flügel</b></button>
+          <button class="lvb" data-v="center"><i class="pico" data-pos="center"></i><b>Center</b></button>
+          <button class="lvb" data-v="def"><i class="pico" data-pos="def"></i><b>Abwehr</b></button>
+        </div>
+        <p class="note">Das erste Training hat 5 Spielzüge und kein Zeitlimit. Du kannst alles später ändern.</p>
+      </div></div>
+    </div>
+    <div class="foot mfoot">
+      <button class="btn big" id="wGo"><svg class="i fill"><use href="#i-play"/></svg>ERSTES TRAINING</button>
+      <button class="lnk wskip" id="wSkip">Erst umschauen</button>
+    </div>
   </div>
 </div>
 
@@ -1201,19 +1313,24 @@ function ratings(){const P=PROFILE,acc=a=>(a[0]+1.5)/(a[1]+3),r=a=>Math.round(cl
 const BADGES=[
  {id:'first',n:'Erstes Spiel',d:'Spiele dein erstes Spiel.',i:'play',c:'#4a86ff',t:P=>P.games>=1},
  {id:'perfect',n:'Perfekt',d:'Alle Spielzüge eines Spiels richtig.',i:'star',c:'#f5b800',t:(P,g)=>g&&g.n>=5&&g.ok===g.n},
- {id:'streak5',n:'Heiße Hand',d:'5 richtige Entscheidungen hintereinander.',i:'flame',c:'#ff8a3d',t:P=>P.best>=5},
- {id:'streak10',n:'Unaufhaltsam',d:'10 richtige Entscheidungen hintereinander.',i:'flame',c:'#ff4d4d',t:P=>P.best>=10},
+ {id:'streak5',n:'Heiße Hand',d:'5 richtige Entscheidungen hintereinander.',i:'flame',c:'#ff8a3d',t:P=>P.best>=5,p:P=>[P.best,5]},
+ {id:'streak10',n:'Unaufhaltsam',d:'10 richtige Entscheidungen hintereinander.',i:'flame',c:'#ff4d4d',t:P=>P.best>=10,p:P=>[P.best,10]},
  {id:'fast',n:'Blitzschnell',d:'Richtig entschieden in unter 1 Sekunde.',i:'bolt',c:'#e8c400',t:(P,g)=>g&&g.fast},
- {id:'passer',n:'Passmeister',d:'25 richtige Pässe insgesamt.',i:'pass',c:'#a66bff',t:P=>P.cat.pass[0]>=25},
- {id:'offball',n:'Ohne Ball stark',d:'10 richtige Entscheidungen ohne Ball.',i:'cut',c:'#1fb5a3',t:P=>P.cat.off[0]>=10},
- {id:'allpos',n:'Allrounder',d:'Spiele auf allen drei Positionen.',i:'tri',c:'#2ecc71',t:P=>['pg','wing','center'].every(k=>P.pos[k])},
+ {id:'passer',n:'Passmeister',d:'25 richtige Pässe insgesamt.',i:'pass',c:'#a66bff',t:P=>P.cat.pass[0]>=25,p:P=>[P.cat.pass[0],25]},
+ {id:'offball',n:'Ohne Ball stark',d:'10 richtige Entscheidungen ohne Ball.',i:'cut',c:'#1fb5a3',t:P=>P.cat.off[0]>=10,p:P=>[P.cat.off[0],10]},
+ {id:'allpos',n:'Allrounder',d:'Spiele auf allen vier Positionen.',i:'tri',c:'#2ecc71',t:P=>['pg','wing','center','def'].every(k=>P.pos[k]),p:P=>[['pg','wing','center','def'].filter(k=>P.pos[k]).length,4]},
  {id:'pro',n:'Profi',d:'3 Sterne auf dem Level Profi.',i:'trophy',c:'#ffa000',t:(P,g)=>g&&g.level===3&&g.stars===3},
  {id:'u12',n:'Großes Feld',d:'3 Sterne im 5 gegen 5.',i:'shield',c:'#3f8cff',t:(P,g)=>g&&g.mode===5&&g.stars===3},
- {id:'games10',n:'Trainingsfleiß',d:'10 Spiele gespielt.',i:'medal',c:'#9aa6bd',t:P=>P.games>=10},
+ {id:'games10',n:'Trainingsfleiß',d:'10 Spiele gespielt.',i:'medal',c:'#9aa6bd',t:P=>P.games>=10,p:P=>[P.games,10]},
  {id:'record',n:'Rekordjäger',d:'Deinen eigenen Rekord verbessert.',i:'target',c:'#ff5a8a',t:(P,g)=>g&&g.record}];
 function lzRows(z){return Object.keys(LZ).map(k=>{const a=z[k]||[0,0],q=a[1]?a[0]/a[1]:0;
   return`<div class="lzr"><span class="ic">${svgI(LZ[k].i)}</span><span>${LZ[k].n}</span><small>${a[1]?Math.round(q*100)+' % · '+a[0]+'/'+a[1]:'noch nicht geübt'}</small><i><em style="width:${Math.round(q*100)}%"></em></i></div>`;}).join('');}
-function medal(b,on,big){return`<span class="medal${on?' on':''}${big?' big':''}" style="--mc:${b.c}">${svgI(on?b.i:'lock')}</span>`;}
+function bProg(b){if(!b.p)return null;const[c,g]=b.p(PROFILE);return{c:Math.min(c,g),g,f:clamp(c/g,0,1)};}
+const bpBar=pr=>pr&&pr.c>0?`<i class="bp"><em style="width:${Math.round(pr.f*100)}%"></em></i>`:'';
+// Nächstes Ziel: das offene Abzeichen mit Fortschritt, das am nächsten dran ist
+function nextGoal(){let best=null;BADGES.forEach(b=>{if(PROFILE.badges[b.id])return;const pr=bProg(b);if(pr&&pr.c>0&&(!best||pr.f>best.pr.f))best={b,pr};});
+  if(!best){const b=BADGES.find(x=>!PROFILE.badges[x.id]&&x.p);if(b)best={b,pr:bProg(b)};}return best;}
+function medal(b,on,big){return`<span class="medal${on?' on':''}${big?' big':''}" style="--mc:${b.c}">${svgI(b.i)}</span>`;}
 function recordGame(g){ // nach jedem Spiel: Werte, XP und neue Abzeichen
   const P=PROFILE,before=lvlOf(P.xp).i;P.games++;P.pos[G.pos]=1;
   G.results.forEach(r=>{P.rounds++;if(r.ok)P.correct++;const k=r.def?'def':r.off?'off':r.ans.startsWith('pass:')?'pass':r.ans==='drive'?'drive':'shot';P.cat[k][1]++;if(r.ok)P.cat[k][0]++;if(r.ok&&r.rt!=null){P.rtS+=r.rt;P.rtN++;}
@@ -2334,6 +2451,12 @@ function showSummary(){
   $('sXpLv').textContent=L.name;$('sXpN').textContent='+'+res.xp+' XP';$('sXpBar').style.width='0';setTimeout(()=>$('sXpBar').style.width=(L.f*100)+'%',300);
   $('cardNum').textContent=PROFILE.num;
   if(res.neu.length||res.up)setTimeout(()=>showUnlock(res),900);
+  const ng=nextGoal();$('sGoal').classList.toggle('hidden',!ng);
+  if(ng)$('sGoal').innerHTML=`<span class="medal" style="--mc:${ng.b.c}">${svgI(ng.b.i)}</span><div><small>Nächstes Abzeichen</small><b>${ng.b.n}</b> · ${ng.pr.c} von ${ng.pr.g}${bpBar(ng.pr)}</div>`;
+  G.nextLv=st===3&&G.level<3&&!G.theme?G.level+1:0;
+  $('againBtn').innerHTML=G.nextLv?svgI('up')+'Weiter: '+LVN[G.nextLv-1]:svgI('replay')+'Nochmal';
+  $('menuBtn').classList.toggle('ico',!!G.nextLv);$('menuBtn').innerHTML=svgI('home')+(G.nextLv?'':'Hauptmenü');
+  if(G.first){G.first=false;G.rounds=10;}
   G.saved=false;$('nameIn').value=store.get('pgt_name')||'';$('saveBtn').disabled=false;$('saveBtn').innerHTML='Eintragen';$('nameRow').classList.remove('hidden');
   showBoardIn($('sBoard'),{pos:G.pos,mode:G.mode,level:G.level},null);
   $('summary').classList.remove('hidden');
@@ -2501,12 +2624,12 @@ function renderCard(){const P=PROFILE,R=ratings(),L=lvlOf(P.xp),tier=TIERS[L.i];
   $('tcStats').innerHTML=R.it.map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');
   $('tcLv').textContent=L.name;$('tcXp').style.width=(L.f*100)+'%';$('tcXpT').textContent=L.b?`${P.xp} / ${L.b} XP`:`${P.xp} XP`;
   const got=BADGES.filter(b=>P.badges[b.id]).sort((a,b)=>P.badges[b.id]-P.badges[a.id]);$('tcBadges').innerHTML=got.slice(0,4).map(b=>medal(b,true)).join('');
-  $('bCount').textContent=`${got.length}/${BADGES.length}`;
+
   $('lzList').innerHTML=lzRows(P.lz);
-  $('bGrid').innerHTML=BADGES.map((b,i)=>`<button class="bcell${P.badges[b.id]?' on':''}" data-i="${i}">${medal(b,!!P.badges[b.id])}<span>${b.n}</span></button>`).join('');
+  $('bGrid').innerHTML=BADGES.map((b,i)=>{const on=!!P.badges[b.id];return`<button class="bcell${on?' on':''}" data-i="${i}">${medal(b,on)}<span>${b.n}</span>${on?'':bpBar(bProg(b))}</button>`;}).join('');
   $('bGrid').querySelectorAll('.bcell').forEach(c=>c.onclick=()=>{const b=BADGES[+c.dataset.i],on=!!P.badges[b.id];$('bGrid').querySelectorAll('.bcell').forEach(x=>x.classList.toggle('sel',x===c));
-    $('bDesc').innerHTML=medal(b,on)+`<div><b>${b.n}</b><br>${b.d}${on?'':' <span style="color:#8fa0c6">(noch offen)</span>'}</div>`;});
-  $('bDesc').textContent='Tippe auf ein Abzeichen.';
+    const pr=on?null:bProg(b);$('bDesc').innerHTML=medal(b,on)+`<div><b>${b.n}</b><br>${b.d}${on?' <span style="color:#7ff0ad">Geschafft!</span>':pr?` <span style="color:#8fa0c6">${pr.c} von ${pr.g}</span>${bpBar(pr)}`:' <span style="color:#8fa0c6">(noch offen)</span>'}</div>`;});
+  $('bDesc').innerHTML=`<div><b>${got.length} von ${BADGES.length}</b> gesammelt. Tippe auf ein Abzeichen, um zu sehen, wie du es bekommst.</div>`;
   $('cardNum').textContent=P.num;$('numV').textContent=P.num;$('pName').value=store.get('pgt_name')||'';
   const sw=(id,cols,key)=>{const el=$(id);el.innerHTML='';cols.forEach((c,i)=>{const b=document.createElement('button');b.style.background='#'+c.toString(16).padStart(6,'0');b.className=P[key]===i?'sel':'';b.setAttribute('aria-label',key+' '+(i+1));
     b.onclick=()=>{P[key]=i;saveProf();renderCard();cardRig();};el.appendChild(b);});};
@@ -2515,7 +2638,15 @@ function renderCard(){const P=PROFILE,R=ratings(),L=lvlOf(P.xp),tier=TIERS[L.i];
 function pcTab(t){document.querySelectorAll('#pcTabs .lvb').forEach(x=>x.classList.toggle('sel',x.dataset.t===t));document.querySelectorAll('.pcp').forEach(p=>p.classList.toggle('on',p.dataset.t===t));
   if(t==='card')cardMount($('tcAv'));else if(t==='edit')cardMount($('pvHost'));}
 function openCard(t){renderCard();cardRig();$('pcard').classList.remove('hidden');CARD.on=true;pcTab(t||'card');requestAnimationFrame(cardSize);}
-function closeCard(){$('pcard').classList.add('hidden');CARD.on=false;}
+function closeCard(){$('pcard').classList.add('hidden');CARD.on=false;renderStrip();}
+// Menü: Spielerkarten-Leiste mit Level, XP und Abzeichen
+function renderStrip(){const P=PROFILE,L=lvlOf(P.xp),nm=store.get('pgt_name'),got=BADGES.filter(b=>P.badges[b.id]).length;
+  $('cardBtn').className='pstrip '+TIERS[L.i];$('cardNum').textContent=P.num;
+  const n=$('psName');n.textContent=nm||'Dein Name';n.classList.toggle('empty',!nm);
+  $('psLv').textContent=L.b?`${L.name} · noch ${L.b-P.xp} XP bis ${LEVELS[L.i+1][1]}`:`${L.name} · ${P.xp} XP`;
+  requestAnimationFrame(()=>$('psBar').style.width=(L.f*100)+'%');
+  const top=BADGES.filter(b=>P.badges[b.id]).sort((a,b)=>P.badges[b.id]-P.badges[a.id])[0];
+  $('psBd').innerHTML=(top?medal(top,true):medal(BADGES[0],false))+`<span>${got}/${BADGES.length}</span>`;}
 $('cardBtn').onclick=()=>openCard();$('pcClose').onclick=$('pcX').onclick=closeCard;
 document.querySelectorAll('#pcTabs .lvb').forEach(b=>b.onclick=()=>pcTab(b.dataset.t));
 $('numM').onclick=()=>{PROFILE.num=(PROFILE.num+99)%100;saveProf();renderCard();cardRig();};
@@ -2596,7 +2727,9 @@ function selGroup(id,attr,cb){document.querySelectorAll(`#${id} .lvb`).forEach(b
 function markSel(id,attr,v){document.querySelectorAll(`#${id} .lvb`).forEach(x=>x.classList.toggle('sel',x.dataset[attr]===String(v)));}
 function renderPlayChips(){const el=$('plays');el.innerHTML='';G.plays=playsOf(G.pos);
   G.plays.forEach(k=>{const b=document.createElement('button');b.className='chip sel';b.dataset.p=k;b.innerHTML='<span class="ck"></span>';b.append(SHORT[k]||PLAYS[k].name);b.title=PLAYS[k].name;
-    b.onclick=()=>{const on=b.classList.contains('sel');if(on&&el.querySelectorAll('.chip.sel').length===1)return;b.classList.toggle('sel');G.plays=[...el.querySelectorAll('.chip.sel')].map(x=>x.dataset.p);refreshBest();};el.appendChild(b);});}
+    b.onclick=()=>{const on=b.classList.contains('sel');if(on&&el.querySelectorAll('.chip.sel').length===1)return;b.classList.toggle('sel');G.plays=[...el.querySelectorAll('.chip.sel')].map(x=>x.dataset.p);refreshBest();playsSum();};el.appendChild(b);});playsSum();}
+function playsSum(){const all=playsOf(G.pos).length,n=G.plays.length;$('playsSum').textContent=n>=all?`· alle ${all}`:`· ${n} von ${all}`;}
+$('playsTog').onclick=()=>{const t=$('playsTog'),open=t.getAttribute('aria-expanded')!=='true';t.setAttribute('aria-expanded',open);$('plays').classList.toggle('hidden',!open);};
 document.querySelectorAll('.pico').forEach(e=>e.innerHTML=posIcon(e.dataset.pos));
 selGroup('lvl','l',v=>G.level=+v);
 selGroup('mode','m',v=>{G.mode=+v;store.set('pgt_mode',v);demo();});
@@ -2614,9 +2747,10 @@ function vib(p){try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
-$('startBtn').onclick=newGame;$('againBtn').onclick=newGame;$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;
+$('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;
 function toMenu(){if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
-  G.phase='menu';G.timers=[];endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
+  if(G.first){G.first=false;G.rounds=10;}
+  G.phase='menu';G.timers=[];renderStrip();endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
 $('nextBtn').onclick=()=>{$('feedback').classList.add('hidden');if(G.round>=G.rounds)showSummary();else startRound();};
 $('replayBtn').onclick=()=>{$('feedback').classList.add('hidden');const sc=G.sc;G.sc=buildScenario(sc.seed,sc.play,sc.variant);G.replay=true;beginApproach();showBanner('Wiederholung','Achte auf die Verteidiger');};
 const mb=$('muteBtn'),mbI=()=>mb.innerHTML=svgI(muted?'mute':'sound');mbI();mb.onclick=()=>{muted=!muted;store.set('pgt_mute',muted?'1':'0');mbI();ac();};
@@ -2627,6 +2761,22 @@ addEventListener('keydown',e=>{
     if(c){e.preventDefault();resolve(c);}}
   else if(G.phase==='feedback'&&(e.key==='Enter'||e.key===' ')){e.preventDefault();$('nextBtn').click();}});
 addEventListener('resize',()=>{computeFit();if(camMode)camMode.snap=true;if(CARD.on)cardSize();if(bubbles.length)posBubbles(true);});
+
+// ================= Willkommen (erster Start) =================
+const WEL={pos:'pg'};
+function maybeWelcome(){if(store.get('pgt_welcome')||PROFILE.games)return;
+  $('wName').value=store.get('pgt_name')||'';WEL.pos=G.pos==='mix'?'pg':G.pos;markSel('wPos','v',WEL.pos);welJersey();$('welcome').classList.remove('hidden');}
+function welJersey(){$('wjName').textContent=cleanName($('wName').value).toUpperCase();$('wjNum').textContent=PROFILE.num;$('wNum').textContent=PROFILE.num;}
+$('wName').addEventListener('input',welJersey);
+$('wName').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('wName').blur();});
+$('wNumM').onclick=()=>{PROFILE.num=(PROFILE.num+99)%100;welJersey();};
+$('wNumP').onclick=()=>{PROFILE.num=(PROFILE.num+1)%100;welJersey();};
+document.querySelectorAll('#wPos .lvb').forEach(b=>b.onclick=()=>{WEL.pos=b.dataset.v;markSel('wPos','v',WEL.pos);});
+function welDone(){const n=cleanName($('wName').value);if(n)store.set('pgt_name',n);saveProf();store.set('pgt_welcome','1');$('welcome').classList.add('hidden');
+  G.pos=WEL.pos;store.set('pgt_pos',G.pos);markSel('pos','v',G.pos);renderPlayChips();renderStrip();refreshBest();}
+$('wSkip').onclick=()=>{welDone();demo();};
+$('wGo').onclick=()=>{welDone();if(TASK){$('taskBar').click();return;}
+  G.level=1;markSel('lvl','l',1);G.noLimit=true;$('noLimit').checked=true;G.rounds=5;G.first=true;newGame();};
 
 // ================= Demo im Menü =================
 function demo(){let ps=playsOf(G.pos);if(!ps.length)ps=playsOf('pg');const p=pick(ps);const v=pick(PLAYS[p].vars(G.mode,1));G.sc=buildScenario((Math.random()*1e9)|0,p,v);G.t=0;computeFit();camDir=startDir();updCam(0,true);}
@@ -2670,7 +2820,7 @@ if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2
   scene.environment=pm.fromScene(scene,.03,.1,120).texture;scene.position.set(0,0,0);scene.updateMatrixWorld(true);pm.dispose();
   }catch(e){scene.position.set(0,0,0);}}
 demo();drawBoard();refreshBest();computeFit();
-$('loading').classList.add('hidden');$('menu').classList.remove('hidden');
+$('loading').classList.add('hidden');$('menu').classList.remove('hidden');renderStrip();maybeWelcome();
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
