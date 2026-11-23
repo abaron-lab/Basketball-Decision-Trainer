@@ -9,7 +9,7 @@ Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden S
 
 ## Spielen
 
-`index.html` im Browser öffnen. Es gibt keinen Build-Schritt. Die Datei lädt nur three.js und Google Fonts aus dem Netz.
+`index.html` über einen Webserver öffnen (z. B. GitHub Pages). Es gibt keinen Build-Schritt. Aus dem Netz kommt nur three.js (jsDelivr), die Schriften liegen in `fonts/`.
 
 ## Inhalte
 
@@ -45,6 +45,15 @@ Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` w
 2. Auf GitHub im Repository: **Settings → Pages → Build and deployment → Source: „Deploy from a branch“**, Branch `main`, Ordner `/ (root)`, **Save**.
 3. Nach ein bis zwei Minuten läuft das Spiel unter `https://<dein-github-name>.github.io/Basketball-Decision-Trainer/`.
 
+
+### Impressum und Datenschutz
+Bevor die Seite öffentlich genutzt wird, in `impressum.html` und `datenschutz.html` die rot markierten Platzhalter ausfüllen:
+- Name, ladungsfähige Anschrift und E-Mail (bei einem Verein: Vereinsname, Vorstand, Registergericht und -nummer),
+- Speicherort der Firestore-Datenbank (Firebase-Konsole → Firestore → Standort),
+- die zuständige Landesdatenschutzbehörde,
+- optional eine feste Löschfrist für Ranglisten-Einträge (z. B. Saisonende).
+
+In der Firebase-Konsole (Projekteinstellungen) prüfen, ob den „Firebase Data Processing and Security Terms“ zugestimmt ist; darauf verweist die Datenschutzerklärung. Die Seiten sind sorgfältig erstellt, ersetzen aber keine Rechtsberatung.
 
 ### Als App auf dem Handy
 Das Spiel lässt sich wie eine App auf den Startbildschirm legen und startet dann im Vollbild, ohne Browserleisten:
