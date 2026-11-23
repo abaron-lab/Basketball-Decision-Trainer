@@ -122,7 +122,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .thm .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(111,165,255,.14);color:#8fb4ff;flex:0 0 auto}.thm .ic .i{width:20px;height:20px}
 .thm b{display:block;font-size:15px}.thm small{display:block;font-size:12px;color:#9fb0d4;font-weight:700}.thm div{flex:1;min-width:0}.thm .go{color:#ffd45e;font-weight:900;font-size:13px}
 .cform label{display:block;font-size:13px;font-weight:900;letter-spacing:.2px;color:#8fa0c6;margin:8px 0 5px}
-.cform input,.cform select{width:100%;border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 15px Nunito,system-ui,sans-serif;padding:9px 11px;user-select:text;-webkit-user-select:text}
+.cform input,.cform select{width:100%;border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 16px Nunito,system-ui,sans-serif;padding:9px 11px;user-select:text;-webkit-user-select:text}
 .cform .row{display:flex;gap:8px;margin-top:10px}.cform .row .btn{flex:1;padding:11px 12px;font-size:15px}
 .cnote{font-size:12px;color:#8fa0c6;line-height:1.4;font-weight:700}
 .kid{display:grid;grid-template-columns:1fr auto;gap:3px 10px;align-items:center;padding:7px 4px;border-bottom:1px solid var(--line);font-weight:800}
@@ -379,7 +379,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .ectl{display:flex;flex-direction:column;min-width:0}
 .ectl label{font-size:13px;font-weight:900;letter-spacing:.2px;color:#8fa0c6;margin:8px 0 5px}
 .ectl label:first-child{margin-top:0}
-.ectl input{border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 15px Nunito,system-ui,sans-serif;padding:8px 10px;user-select:text;-webkit-user-select:text;min-width:0}
+.ectl input{border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 16px Nunito,system-ui,sans-serif;padding:8px 10px;user-select:text;-webkit-user-select:text;min-width:0}
 .ectl input:focus{outline:none;border-color:var(--gold)}
 .numsel{display:flex;align-items:center;gap:10px}.numsel .rbtn{width:40px;height:38px;font:900 22px/1 Nunito,system-ui,sans-serif}
 .numsel b{font-family:'Bebas Neue',Impact,sans-serif;font-size:34px;min-width:44px;text-align:center;line-height:1;color:var(--gold)}
@@ -486,7 +486,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .wlinks{display:flex;justify-content:center;gap:4px 18px;flex-wrap:wrap}
 .qrbox{display:flex;flex-direction:column;align-items:center;gap:6px;margin:8px 0 10px}
 #svQR{width:min(210px,55vw);height:auto;aspect-ratio:1;border-radius:14px;background:#fff}
-.svlink{width:100%;border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#cfd8ee;font:700 12px Nunito,system-ui,sans-serif;padding:8px 10px;user-select:text;-webkit-user-select:text;text-overflow:ellipsis}
+.svlink{display:block;width:100%;border-radius:12px;border:2px solid #34416a;background:#0c1222;color:#cfd8ee;font:700 12px Nunito,system-ui,sans-serif;padding:8px 10px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
 .row2{display:flex;gap:8px;margin-top:8px}.row2 .btn{padding:11px 12px;font-size:15px}
 .rs-p{position:relative;display:flex;align-items:center;gap:14px;margin:16px 0 6px;padding:10px 18px 10px 10px;border-radius:16px;background:rgba(255,255,255,.06);text-align:left}
 .rs-p .nm{display:block;font:400 30px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1px}
@@ -826,7 +826,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-link"/></svg><h2>Spieler sichern</h2><button class="rbtn" id="svX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
       <p>Mit diesem Link holst du deinen Spieler auf jedes Gerät zurück. Schick ihn dir oder deinen Eltern, oder scanne den Code mit einem anderen Gerät.</p>
       <div class="qrbox"><canvas id="svQR" width="264" height="264" class="hidden"></canvas><div class="cnote" id="svQRmsg"></div></div>
-      <input id="svLink" class="svlink" readonly aria-label="Dein Spieler-Link">
+      <button id="svLink" class="svlink" type="button" aria-label="Dein Spieler-Link, tippen zum Kopieren"></button>
       <div class="row2"><button class="btn sec" id="svCopy"><svg class="i"><use href="#i-link"/></svg>Kopieren</button><button class="btn sec" id="svShare"><svg class="i"><use href="#i-share"/></svg>Teilen</button></div>
       <div class="cnote" id="svNote"></div>
       <p class="note">Der Link speichert deinen Stand von heute. Nach weiteren Spielen einfach neu sichern.</p>
@@ -916,8 +916,10 @@ const V=(x,y,z)=>new T3.Vector3(x,y,-z);
 // ================= Renderer, Szene =================
 const cv=$('c');
 const LITE=/[?&]lite\b/.test(location.search);
+// Handy/Tablet: weniger Pixel (DPR höchstens 1,5), kleinere Schattenkarte, keine Tiefenunschärfe (rendert die Szene ein zweites Mal)
+const MOBILE=(()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(e){return false;}})();
 const renderer=new T3.WebGLRenderer({canvas:cv,antialias:!LITE,powerPreference:'high-performance'});
-renderer.setPixelRatio(LITE?1:Math.min(2,window.devicePixelRatio||1));
+renderer.setPixelRatio(LITE?1:Math.min(MOBILE?1.5:2,window.devicePixelRatio||1));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=T3.PCFSoftShadowMap;
 renderer.outputEncoding=T3.sRGBEncoding;renderer.toneMapping=T3.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
 const scene=new T3.Scene();
@@ -929,7 +931,7 @@ let W=innerWidth,H=innerHeight;
 scene.add(new T3.HemisphereLight(0xcfdcff,0x3b2a1a,.62));
 const sun=new T3.DirectionalLight(0xfff4e0,1.25);
 sun.position.copy(V(5,24,-4));sun.target.position.copy(V(0,0,-9));scene.add(sun,sun.target);
-sun.castShadow=!LITE;sun.shadow.mapSize.set(2048,2048);
+sun.castShadow=!LITE;sun.shadow.mapSize.set(MOBILE?1024:2048,MOBILE?1024:2048);
 Object.assign(sun.shadow.camera,{left:-15,right:15,top:22,bottom:-22,near:2,far:70});sun.shadow.bias=-.0004;sun.shadow.normalBias=.025;
 const spots=[];[[-6,-3],[6,-3],[0,-16]].forEach(([x,z])=>{const s=new T3.SpotLight(0xffe7c4,.55,40,.7,.6,1.2);s.position.copy(V(x,16,z));s.target.position.copy(V(x*.5,0,z+2));scene.add(s,s.target);spots.push(s);});
 {const rim=new T3.DirectionalLight(0xbfd4ff,.45);rim.position.copy(V(0,7,9));rim.target.position.copy(V(0,1,-6));scene.add(rim,rim.target);}
@@ -3123,11 +3125,14 @@ function drawQR(url){const cv=$('svQR'),g=cv.getContext('2d');cv.classList.add('
     g.fillStyle='#fff';g.fillRect(0,0,sz,sz);g.fillStyle='#0c1222';for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))g.fillRect(Math.floor((k+m)*c),Math.floor((r+m)*c),Math.ceil(c),Math.ceil(c));
     cv.classList.remove('hidden');$('svQRmsg').textContent='Mit der Kamera eines anderen Geräts scannen.';})
   .catch(()=>{$('svQRmsg').textContent='Den Code gibt es nur mit Internet. Der Link funktioniert trotzdem.';});}
-function openSave(){const url=packLink();$('svLink').value=url;$('svNote').textContent='';PROFILE.saved=PROFILE.games;saveProf();
+function openSave(){const url=packLink();$('svLink').textContent=url;$('svNote').textContent='';PROFILE.saved=PROFILE.games;saveProf();
   $('svShare').classList.toggle('hidden',!navigator.share);drawQR(url);$('save').classList.remove('hidden');$('sSave').classList.add('hidden');}
-$('svCopy').onclick=()=>{const t=$('svLink').value,ok=()=>$('svNote').textContent='Kopiert. Füge den Link z. B. in einen Chat mit dir oder deinen Eltern ein.';
-  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(ok).catch(()=>{const i=$('svLink');i.select();try{document.execCommand('copy');ok();}catch(e){$('svNote').textContent='Halte den Link gedrückt und kopiere ihn.';}});};
-$('svShare').onclick=()=>{navigator.share({title:'Mein Spieler im Basketball IQ Trainer',text:'Mein Spieler-Link (öffnen, um weiterzuspielen):',url:$('svLink').value}).catch(()=>{});};
+// Kopieren ohne sichtbares Eingabefeld: Ersatzweg über ein verstecktes Textfeld mit 16 px (sonst zoomt iOS)
+$('svCopy').onclick=$('svLink').onclick=()=>{const t=$('svLink').textContent,ok=()=>$('svNote').textContent='Kopiert. Füge den Link z. B. in einen Chat mit dir oder deinen Eltern ein.';
+  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(ok).catch(()=>{const a=document.createElement('textarea');a.value=t;a.readOnly=true;
+    a.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;font-size:16px';document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);
+    let r=false;try{r=document.execCommand('copy');}catch(e){}a.remove();window.scrollTo(0,0);if(r)ok();else $('svNote').textContent='Kopieren ging nicht. Nimm „Teilen“ oder scanne den Code.';});};
+$('svShare').onclick=()=>{navigator.share({title:'Mein Spieler im Basketball IQ Trainer',text:'Mein Spieler-Link (öffnen, um weiterzuspielen):',url:$('svLink').textContent}).catch(()=>{});};
 $('svClose').onclick=$('svX').onclick=()=>$('save').classList.add('hidden');
 $('pcSave').onclick=()=>openSave();$('pcWho').onclick=()=>{closeCard();openWho(false);};$('sSave').onclick=openSave;$('wHave').onclick=()=>{$('welcome').classList.add('hidden');openWho(false);};
 // Spieler entfernen (zweimal tippen)
@@ -3193,7 +3198,7 @@ window.initFX=function(M){
     const bok=new M.BokehPass(scene,cam,{focus:6,aperture:0,maxblur:.008});bok.enabled=false;bok.needsSwap=true;C.addPass(bok); // in r149 sonst nur als letzter Pass
     const bl=new M.UnrealBloomPass(new T3.Vector2(W,H),.5,.45,.9);C.addPass(bl);
     C.addPass(new M.ShaderPass(M.GammaCorrectionShader));
-    Object.assign(FX,{C,bok,bl,on:true});fxSize();
+    Object.assign(FX,{C,bok,bl,on:true,bokeh:!MOBILE||FX.force});fxSize();
     // Prüfen, ob das Gerät in die Zwischenbilder rendern kann, sonst ohne Effekte weiter
     const gl=renderer.getContext();renderer.setRenderTarget(rt);const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;renderer.setRenderTarget(null);
     if(!ok)throw new Error('Framebuffer');
@@ -3204,7 +3209,7 @@ function draw(rdt){
   if(!FX.on){renderer.render(scene,cam);return;}
   // Tiefenunschärfe: nur in der Wurfkamera einblenden; Fokus auf dem Werfer, solange der Ball in der Hand ist, dann auf dem Ball
   const cine=!!camMode&&(G.phase==='outcome'||G.phase==='feedback');FX.dof=lerp(FX.dof,cine?1:0,1-Math.exp(-(rdt||.016)*(cine?5:12)));
-  const bk=FX.bok;bk.enabled=FX.dof>.02;
+  const bk=FX.bok;bk.enabled=FX.bokeh&&FX.dof>.02;
   if(bk.enabled){const S=shooter&&ball.owner===shooter?shooter:null;if(S)_fp.set(S.x,1.5+(S.jy||0),-S.z);else _fp.set(ball.x,ball.y,-ball.z);
     const d=cam.position.distanceTo(_fp);bk.uniforms.focus.value=lerp(bk.uniforms.focus.value,d,bk.uniforms.aperture.value>0?.25:1);
     bk.uniforms.aperture.value=FX.ap*FX.dof;bk.uniforms.maxblur.value=FX.mb*FX.dof;}
@@ -3216,7 +3221,18 @@ let perfN=0,perfSum=0,perfDone=LITE;
 function perfCheck(dt){if(perfDone)return;perfN++;if(perfN<30)return;perfSum+=dt;if(perfN>=120){perfDone=true;const a=perfSum/90;
   if(a>.03&&FX.on&&!FX.force){FX.on=false;if(a>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}
   else if(a>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}}
-function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;perfCheck(raw);try{update(dt);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
+// Laufend nachregeln: Ist das Spiel (nicht das Menü) über ~30 Bilder zu langsam, eine Stufe herunter, dann wieder messen.
+// Reihenfolge: Tiefenunschärfe → Auflösung (bis 1,25) → Bildeffekte → Schatten und Auflösung 1. Nie wieder hoch (kein Flackern).
+let adN=0,adS=0;
+function perfAdapt(raw){if(LITE||FX.force||!/approach|decide|outcome|feedback/.test(G.phase)||raw>.25||document.hidden)return;
+  adN++;adS+=raw;if(adN<30)return;const a=adS/adN;adN=0;adS=0;const pr=renderer.getPixelRatio();
+  if(a<.022)return;
+  if(FX.on&&FX.bokeh&&camMode){FX.bokeh=false;return;}
+  if(pr>1.25&&a>.024){renderer.setPixelRatio(Math.max(1.25,pr-.25));computeFit();return;}
+  if(FX.on&&a>.028){FX.on=false;return;}
+  if(a>.04&&(sun.castShadow||pr>1)){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}
+window.__perf=()=>({pr:renderer.getPixelRatio(),fx:FX.on,bokeh:!!FX.bokeh,shadow:sun.castShadow});
+function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;perfCheck(raw);perfAdapt(raw);try{update(dt);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
 if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2,-7);scene.updateMatrixWorld(true);
   scene.environment=pm.fromScene(scene,.03,.1,120).texture;scene.position.set(0,0,0);scene.updateMatrixWorld(true);pm.dispose();
   }catch(e){scene.position.set(0,0,0);}}
