@@ -50,12 +50,16 @@ async def run(a):
         if a.rig != 'alt':
             await pg.wait_for_function('window.__glb()', timeout=60000)
             print('Figuren: player.glb')
+        if await pg.is_visible('#welcome'):  # erster Start: Willkommens-Karte überspringen
+            await pg.screenshot(path=f'{a.out}/welcome.png')
+            await pg.click('#wSkip')
         await pg.click(f'#pos .lvb[data-v="{a.pos}"]')
         await pg.click(f'#mode .lvb[data-m="{a.mode}"]')
         await pg.click(f'#lvl .lvb[data-l="{a.level}"]')
         await pg.click('#noLimit')
         if a.plays:
             want = a.plays.split(',')
+            await pg.click('#playsTog')
             for c in await pg.eval_on_selector_all('#plays .chip', 'els=>els.map(e=>e.dataset.p)'):
                 if c not in want:
                     await pg.click(f'.chip[data-p="{c}"]')

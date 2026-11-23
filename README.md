@@ -34,7 +34,7 @@ Alles bewusst **ohne Blöcke/Screens** und ohne Doppeln (DBB-Miniregeln). Jeder 
 
 **Schwierigkeit:** Anfänger (4 s), Mittel (2,5 s, angetäuschte Hilfe), Profi (1,8 s, viele Täuschungen). Dazu gibt es einen Lernmodus ohne Zeitlimit.
 
-**Spielerkarte:** Über das Trikot-Symbol im Menü. Dort stellt man Namen, Trikotnummer, Hautfarbe und Frisur ein (so sieht dann auch der eigene Spieler im Spiel aus). Die Karte zeigt Werte wie Lesen, Tempo und Pass, das Level (Rookie bis Legende, mit XP aus jedem Spiel) und 12 Abzeichen zum Freischalten, z. B. „Heiße Hand“ (5 richtige in Folge) oder „Allrounder“ (alle Positionen gespielt). Alles wird nur auf dem Gerät gespeichert.
+**Spielerkarte:** Über die Leiste mit Trikot, Name und Level oben im Menü. Dort stellt man Namen, Trikotnummer, Hautfarbe und Frisur ein (so sieht dann auch der eigene Spieler im Spiel aus). Die Karte zeigt Werte wie Lesen, Tempo und Pass, das Level (Rookie bis Legende, mit XP aus jedem Spiel) und 12 Abzeichen zum Freischalten, z. B. „Heiße Hand“ (5 richtige in Folge) oder „Allrounder“ (alle Positionen gespielt). Alles wird nur auf dem Gerät gespeichert.
 
 **Bedienung:** Für einen Pass tippt man direkt auf das lila Schild über dem Mitspieler (am Computer auch Tasten 1–5). Unten sind nur noch zwei Tasten: blau „Zum Korb“ bzw. „Backdoor-Cut“, orange „Werfen“ bzw. „Ball fordern“.
 Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` weiter.
@@ -52,6 +52,14 @@ Das Spiel lässt sich wie eine App auf den Startbildschirm legen und startet dan
 - **Android (Chrome):** Menü ⋮ → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.
 
 Nach dem ersten Öffnen funktioniert es auch ohne Internet (die Online-Rangliste natürlich nicht).
+
+Tipp für Eltern: Als App auf dem Startbildschirm bleibt der Spieler auch nach längeren Pausen gespeichert. Safari löscht sonst die Daten von Webseiten, die etwa eine Woche nicht geöffnet wurden.
+
+### Spieler behalten und mitnehmen
+Der Spieler (Name, Trikot, Aussehen, Level, Abzeichen, Statistik) wird nur auf dem Gerät gespeichert, ohne Anmeldung und ohne Server.
+- **Mehrere Kinder auf einem Gerät:** Spielerkarte → **Spieler** → „Neuer Spieler“. Gibt es mehrere Spieler, fragt das Spiel beim Start „Wer spielt?“.
+- **Auf ein anderes Gerät mitnehmen oder sichern:** Spielerkarte → **Sichern**. Das zeigt einen Spieler-Link und einen QR-Code. Den Link z. B. per Messenger an sich selbst oder die Eltern schicken oder den Code mit dem anderen Gerät scannen. Beim Öffnen fragt das Spiel „Dein Spieler ist da!“ und übernimmt ihn. Der Link enthält den Stand von dem Moment, in dem er erstellt wurde; nach einigen Spielen erinnert die Auswertung ans Neu-Sichern. Rekorde je Einstellung bleiben auf dem alten Gerät.
+- Auf der Willkommens-Karte gibt es „Ich habe schon einen Spieler“, dort kann man einen Link einfügen.
 
 ## Rangliste
 

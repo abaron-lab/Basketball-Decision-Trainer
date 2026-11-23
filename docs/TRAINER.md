@@ -91,7 +91,8 @@ Für die Team-Ansicht online müssen die Firestore-Regeln aktuell sein (Datei `f
 
 ## Datenschutz
 
-- Spielerkarte, Statistik und Abzeichen werden nur auf dem Gerät gespeichert (`localStorage`).
+- Spielerkarte, Statistik und Abzeichen werden nur auf dem Gerät gespeichert (`localStorage`), auf Wunsch für mehrere Spieler pro Gerät.
+- Der Spieler-Link (Spielerkarte → Sichern) enthält Spitzname, Trikotnummer, Aussehen und Spielwerte direkt im Link. Er wird nirgends hochgeladen; wer den Link hat, kann den Spieler auf sein Gerät holen. Der QR-Code wird im Browser erzeugt (Programm `qrcode-generator` von jsDelivr, nur beim Öffnen von „Sichern“ geladen).
 - In die Rangliste kommt nur, wer nach dem Spiel einen Vornamen oder Spitznamen einträgt. Gespeichert werden Name, Punkte, richtige Antworten, Position, Spielform, Schwierigkeit, Lernziel-Ergebnisse und Zeitpunkt.
 
 ## Quellen
