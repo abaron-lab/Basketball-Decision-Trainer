@@ -101,6 +101,8 @@ Hinweis: Die Punkte werden im Browser berechnet. Wer sich mit Programmieren ausk
 - `firestore.rules`: Sicherheitsregeln für die Online-Rangliste
 - `docs/TRAINER.md`: Hinweise für Trainer und Eltern, Lernziele und Quellen
 - `legacy/2d-version.html`: frühere 2D-Version (Canvas), nur Aufbau über die Mitte
+- `sfx/`: Geräusche (Dribbeln, Fangen, Schuhquietschen, Schritte, Netz, Ring), erstellt mit der Sound-Effects-KI von [ElevenLabs](https://elevenlabs.io/) und gekürzt. Im Free Plan von ElevenLabs ist die Namensnennung Pflicht (steht in `lizenzen.html` und auf der Info-Seite im Spiel) und die kommerzielle Nutzung eingeschränkt; vor einer kommerziellen Nutzung die Sounds mit einem bezahlten Plan neu erzeugen oder ersetzen. Fehlen die Dateien, spielt das Spiel eigene synthetische Töne.
+- `tools/make_sfx.mjs`, `tools/trim_sfx.sh`: Geräusche neu erzeugen (ElevenLabs-API-Key nötig, nicht ins Repository) und mit ffmpeg kürzen
 - `tools/smoke_test.py`: automatischer Test mit Playwright, der Spielzüge durchspielt, Screenshots macht und sich in die Rangliste einträgt
 
 Schwache Geräte: Läuft das Spiel ruckelig, schaltet es nach ein paar Sekunden automatisch Schatten und Auflösung herunter. Mit `?lite` am Link startet es gleich in der leichten Grafik.
