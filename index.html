@@ -18,6 +18,7 @@
 </style>
 <style>
 :root{--blue:#2f6fe4;--red:#e2453b;--gold:#ffc83d;--green:#2ecc71;--card:#141b2d;--line:rgba(255,255,255,.12)}
+:root{--club-white:#f5f3ee;--club-orange:#c84c0c;--club-navy:#19274a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;background:#05070d;font-family:Nunito,system-ui,sans-serif;color:#fff;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height:100lvh} /* lvh: auch hinter der Safari-Leiste, sonst bleibt unten ein dunkler Streifen */
@@ -421,8 +422,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .pstrip:before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.07) 0 2px,transparent 2px 14px);pointer-events:none}
 .pstrip.silver{--a:#f4f7fb;--b:#9aa6b8;--c:#4b5566}.pstrip.gold{--a:#ffe68a;--b:#e2a412;--c:#7a4a00}.pstrip.diamond{--a:#a8f0ff;--b:#5b7cff;--c:#5a1f9a}
 .ps-num{position:relative;flex:0 0 46px;width:46px;height:50px;display:grid;place-items:center;padding-top:9px}
-.ps-num svg{position:absolute;inset:0;width:46px;height:50px;fill:#1f5fe0;stroke:#fff;stroke-width:1.3;stroke-linejoin:round;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
-.ps-num b{position:relative;font:400 24px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.5px}
+.ps-num svg{position:absolute;inset:0;width:46px;height:50px;fill:var(--club-white);stroke:var(--club-navy);stroke-width:1.3;stroke-linejoin:round;filter:drop-shadow(0 3px 5px rgba(0,0,0,.35))}
+.ps-num b{position:relative;font:400 24px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:.5px;color:var(--club-orange)}
 .ps-mid{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-shadow:0 1px 3px rgba(0,0,0,.45)}
 .ps-mid>b{font:400 23px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ps-mid>b.empty{opacity:.85}
@@ -458,9 +459,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .wl-top h2{font-size:34px;line-height:.95}
 .wl-top .sub{margin-top:4px}
 .jersey{position:relative;flex:0 0 112px;height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:16px}
-.jersey svg{position:absolute;inset:0;width:100%;height:100%;fill:#1f5fe0;stroke:#fff;stroke-width:.9;stroke-linejoin:round;filter:drop-shadow(0 8px 16px rgba(31,95,224,.35))}
-.jersey span{position:relative;max-width:78px;font:400 15px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;min-height:15px}
-.jersey b{position:relative;font:400 50px/.9 'Bebas Neue',Impact,sans-serif;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.18)}
+.jersey svg{position:absolute;inset:0;width:100%;height:100%;fill:var(--club-white);stroke:var(--club-navy);stroke-width:.9;stroke-linejoin:round;filter:drop-shadow(0 8px 16px rgba(0,0,0,.25))}
+.jersey span{position:relative;max-width:78px;font:400 15px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--club-navy);min-height:15px}
+.jersey b{position:relative;font:400 50px/.9 'Bebas Neue',Impact,sans-serif;color:var(--club-orange)}
 .wl-form label{display:block;font-size:13px;font-weight:900;color:#8fa0c6;margin:12px 0 6px}
 .wl-form input{width:100%;border-radius:14px;border:2px solid #34416a;background:#0c1222;color:#fff;font:800 17px Nunito,system-ui,sans-serif;padding:11px 12px;user-select:text;-webkit-user-select:text}
 .wl-form input:focus{outline:none;border-color:var(--gold)}
@@ -649,7 +650,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <button class="lvb" data-t="4"><b>Abwehr</b></button>
       </div>
       <div class="tpane on" data-t="0">
-        <div class="tip"><div class="ic"><svg class="i"><use href="#i-eye"/></svg></div><div><b>Schau genau hin</b><p>Du stehst hinter deinem Spieler mit dem <b style="color:#ffd23d">gelben Ring</b> und dem Schild <b style="color:#ffd23d">DU</b>. Beobachte die <b style="color:#ff7b72">roten Verteidiger</b>. Dann friert das Bild ein.</p></div></div>
+        <div class="tip"><div class="ic"><svg class="i"><use href="#i-eye"/></svg></div><div><b>Schau genau hin</b><p>Du stehst hinter deinem Spieler mit dem <b style="color:#ffd23d">gelben Ring</b> und dem Schild <b style="color:#ffd23d">DU</b>. Beobachte das Team in den <b>marineblauen Trikots</b>. Dann friert das Bild ein.</p></div></div>
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-bolt"/></svg></div><div><b>Entscheide schnell</b><p>Für einen Pass tippst du direkt auf das <b style="color:#b7a2ff">lila Schild</b> über deinem Mitspieler. Zum Korb oder Werfen geht es mit den Tasten unten.</p></div></div>
         <div class="tip"><div class="ic"><svg class="i"><use href="#i-bulb"/></svg></div><div><b>Die wichtigste Regel</b><p>Wer hilft, lässt jemanden frei. Läuft ein Verteidiger von seinem Spieler weg, ist dieser Spieler frei. Finde ihn!</p></div></div>
       </div>
@@ -973,7 +974,7 @@ const fem=(()=>{
   // feste Wendungen (vor den allgemeinen Regeln)
   const PH=[R('zu dem, den er','zu der, die sie'),R('zu dem, der','zu der, die'),R('seiner und deiner','ihre und deine'),
     R('deiner ist','deine ist'),R('ein anderer frei','eine andere frei'),R('als Erster','als Erste'),R('der Einzige','die Einzige'),
-    R('Zurück zum Mann','Zurück zur Gegenspielerin'),R('roten Verteidiger','roten Verteidigerinnen'),R('Freunde','Freundinnen'),
+    R('Zurück zum Mann','Zurück zur Gegenspielerin'),R('Freunde','Freundinnen'),
     R('Spielerkarte','Spielerinnenkarte'),R('Spielerkarten','Spielerinnenkarten'),R('der (hintere|andere) (hat|ist)','die $1 $2'),
     R('ein anderer aushilft','eine andere aushilft'),R('spiel den anderen','spiel die andere'),R('nicht deiner','nicht deine')];
   // Links (z. B. Spieler-Link auf „Sichern“) und Pronomen, die nicht für Personen stehen (Link, Ball): nicht umstellen
@@ -1032,13 +1033,14 @@ const spots=[];[[-6,-3],[6,-3],[0,-16]].forEach(([x,z])=>{const s=new T3.SpotLig
 {const rim=new T3.DirectionalLight(0xbfd4ff,.45);rim.position.copy(V(0,7,9));rim.target.position.copy(V(0,1,-6));scene.add(rim,rim.target);}
 
 // ================= Spielfeld =================
+const CLUB_WHITE='#f5f3ee',CLUB_ORANGE='#ff6600',CLUB_NAVY='#19274a',COURT_ZONE='#77818a';
 const BASE=1.575,HW=7.5,R3=6.75,TC=6.6,TA=Math.asin(TC/R3);
 const XMIN=-9.5,XMAX=9.5,ZMIN=-27.8,ZMAX=3.4,PPM=56;
 function courtTexture(){
   const w=Math.round((XMAX-XMIN)*PPM),h=Math.round((ZMAX-ZMIN)*PPM);
   const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');
   const X=x=>(x-XMIN)*PPM,Y=z=>(ZMAX-z)*PPM,r=mulberry(11);
-  g.fillStyle='#173a7e';g.fillRect(0,0,w,h);
+  g.fillStyle='#8a8a80';g.fillRect(0,0,w,h);
   const x0=X(-HW),x1=X(HW),y0=Y(BASE),y1=Y(-26.425),pw=.19*PPM;
   for(let x=x0;x<x1;x+=pw){let y=y0+r()*-60;while(y<y1){const len=(1.4+r()*2.6)*PPM;const yy=Math.max(y,y0),hh=Math.min(y+len,y1)-yy;
     if(hh>0){g.fillStyle=`hsl(${28+r()*5},${52+r()*10}%,${57+r()*9}%)`;g.fillRect(x,yy,pw-1,hh-1);}y+=len;}}
@@ -1046,7 +1048,7 @@ function courtTexture(){
   const half=(hz,d)=>{const bz=hz+BASE*d;
     g.beginPath();g.moveTo(X(-TC),Y(bz));for(let i=0;i<=48;i++){const a=lerp(-TA,TA,i/48);g.lineTo(X(Math.sin(a)*R3),Y(hz-d*Math.cos(a)*R3));}g.lineTo(X(TC),Y(bz));g.closePath();
     g.fillStyle='rgba(150,80,25,.18)';g.fill();
-    g.fillStyle='#1d4fb4';g.fillRect(X(-2.45),Math.min(Y(bz),Y(bz-5.8*d)),4.9*PPM,5.8*PPM);
+    g.fillStyle=COURT_ZONE;g.fillRect(X(-2.45),Math.min(Y(bz),Y(bz-5.8*d)),4.9*PPM,5.8*PPM);
     g.strokeStyle='#fff';g.lineWidth=.05*PPM;
     g.beginPath();g.moveTo(X(-TC),Y(bz));for(let i=0;i<=48;i++){const a=lerp(-TA,TA,i/48);g.lineTo(X(Math.sin(a)*R3),Y(hz-d*Math.cos(a)*R3));}g.lineTo(X(TC),Y(bz));g.stroke();
     g.strokeRect(X(-2.45),Math.min(Y(bz),Y(bz-5.8*d)),4.9*PPM,5.8*PPM);
@@ -1116,12 +1118,13 @@ function updFans(t,ex,dt){const wv=t-G.wave,wOn=wv>=0&&wv<3.4,w=-3.3+wv*2.2;
   fanBody.instanceMatrix.needsUpdate=true;fanHead.instanceMatrix.needsUpdate=true;fanArms.instanceMatrix.needsUpdate=true;
   signs.forEach(s=>{const up=ex>.25?.35:0;s.m.position.y=s.f.y+1.0+(s.f.b||0)+up+Math.sin(t*(2+ex*6)+s.ph)*(.03+ex*.08);s.m.rotation.z=Math.sin(t*1.7+s.ph)*(.05+ex*.2);});}
 // LED-Banden
-const ledTex=canvasTex(4096,96,(g,w,h)=>{const gr=g.createLinearGradient(0,0,w,0);gr.addColorStop(0,'#0b1f55');gr.addColorStop(.5,'#123a9a');gr.addColorStop(1,'#0b1f55');g.fillStyle=gr;g.fillRect(0,0,w,h);
+const ledTex=canvasTex(4096,96,(g,w,h)=>{g.fillStyle='#a2aaa0';g.fillRect(0,0,w,h);
+  g.fillStyle='#77867b';g.fillRect(0,0,w,4);
   g.font='900 50px Arial,sans-serif';g.textBaseline='middle';const items=['BASKETBALL IQ TRAINER','LIES DIE VERTEIDIGUNG','WER HILFT, LÄSST JEMANDEN FREI'];
   const tw=items.reduce((a,s)=>a+g.measureText(s).width,0),gap=(w-tw)/items.length;let x=gap/2;
-  items.forEach(s=>{g.fillStyle='#fff';g.fillText(s,x,h/2+3);x+=g.measureText(s).width;g.fillStyle='#ff8a3d';g.beginPath();g.arc(x+gap/2,h/2,16,0,7);g.fill();x+=gap;});});
+  items.forEach(s=>{g.fillStyle='#283532';g.fillText(s,x,h/2+3);x+=g.measureText(s).width+gap;});});
 ledTex.wrapS=T3.RepeatWrapping;ledTex.repeat.set(1,1);
-const ledMat=new T3.MeshStandardMaterial({map:ledTex,emissive:0xffffff,emissiveMap:ledTex,emissiveIntensity:.85,roughness:.4,toneMapped:false}); // ohne Tonemapping: Schrift strahlt im Bloom
+const ledMat=new T3.MeshStandardMaterial({map:ledTex,emissive:0xffffff,emissiveMap:ledTex,emissiveIntensity:.12,roughness:1});
 [[V(0,.45,4.2),new T3.BoxGeometry(19,.9,.15)],[V(-9.4,.45,-11),new T3.BoxGeometry(.15,.9,30)],[V(9.4,.45,-11),new T3.BoxGeometry(.15,.9,30)]].forEach(([p,g])=>{const m=new T3.Mesh(g,ledMat);m.position.copy(p);scene.add(m);});
 // Videowand
 const vbTex=canvasTex(1024,440,()=>{});
@@ -1191,7 +1194,7 @@ netTex.wrapS=netTex.wrapT=T3.RepeatWrapping;
 let rimG=null;
 {const g=new T3.Group();
   const dark=new T3.MeshStandardMaterial({color:0x1d2433,roughness:.5,metalness:.4});
-  const pad=new T3.MeshStandardMaterial({color:0x1f4fb0,roughness:.7});
+  const pad=new T3.MeshStandardMaterial({color:'#646e68',roughness:.85});
   const base=new T3.Mesh(new T3.BoxGeometry(1.5,1.1,2.2),pad);base.position.copy(V(0,.55,3.9));base.castShadow=true;g.add(base);
   const post=new T3.Mesh(new T3.BoxGeometry(.28,3.4,.28),dark);post.position.copy(V(0,2.6,3.5));post.castShadow=true;g.add(post);
   const arm=new T3.Mesh(new T3.BoxGeometry(.2,.2,3.1),dark);arm.position.copy(V(0,3.55,1.95));arm.castShadow=true;g.add(arm);
@@ -1217,7 +1220,10 @@ const GEO={thigh:new T3.CapsuleGeometry(.068,.3,4,10),shin:new T3.CapsuleGeometr
   collar:new T3.TorusGeometry(.09,.018,6,18),band:new T3.CylinderGeometry(.22,.22,.05,18,1,true),hband:new T3.CylinderGeometry(.126,.126,.036,20,1,true),wband:new T3.CylinderGeometry(.05,.05,.07,10,1,true),
   delt:new T3.SphereGeometry(.066,10,8),tie:new T3.TorusGeometry(.03,.012,6,14),lash:new T3.BoxGeometry(.022,.006,.006),curtain:new T3.CapsuleGeometry(.05,.12,4,14),stripe:new T3.BoxGeometry(.02,.34,.07),side:new T3.BoxGeometry(.018,.46,.09)};
 const MAT={},matC=(k,o)=>MAT[k]||(MAT[k]=new T3.MeshStandardMaterial(Object.assign({envMapIntensity:.55},o)));
-const TEAM={off:{jersey:0x1f5fe0,trim:0xffffff,shorts:0x1a4fc0,shoe:0xffffff,sole:0x1a4fc0},def:{jersey:0xd8322b,trim:0xffffff,shorts:0xb8261f,shoe:0x262626,sole:0xffffff}};
+const TEAM={
+  home:{jersey:CLUB_WHITE,trim:CLUB_ORANGE,collar:CLUB_NAVY,number:'#c84c0c',shorts:CLUB_NAVY,shoe:0xffffff,sole:CLUB_NAVY},
+  away:{jersey:CLUB_NAVY,trim:CLUB_ORANGE,collar:CLUB_ORANGE,number:CLUB_ORANGE,shorts:CLUB_NAVY,shoe:0x262626,sole:0xffffff}
+};
 const HAIRC=[0x161616,0x3a2414,0x6b4423,0xc9a15b,0xa8481c,0x0d0d0d];
 const HAIRS=['Kurz','Locken','Zopf','Dutt','Stirnband','Zöpfe','Lang','Flechtzopf'];
 // Mitspieler und Gegner: in der Mädchen-Version eher lange Haare (Zopf, Flechtzopf, Zöpfe, offen, Dutt), sonst wie bisher
@@ -1270,24 +1276,24 @@ function swayHair(p,dt){const r=p.rig,H=r.sway;if(!H||!H.length||!r.root.visible
     _se.set(h.th+c.px*(h.side?.7:1),0,h.side*.25+c.pz);_sq.setFromEuler(_se);
     h.pv.quaternion.copy(_q2.invert().multiply(_q1).multiply(_sq));}}
 const numMats={};
-function numMat(team,n){const k=team+n;if(numMats[k])return numMats[k];const t=canvasTex(128,128,(g,w)=>{g.fillStyle='#fff';g.font=`900 ${String(n).length>1?78:96}px Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.lineWidth=8;g.strokeStyle=team==='off'?'#0b2a72':'#5c0d09';g.strokeText(n,w/2,w/2+6);g.fillText(n,w/2,w/2+6);});
+function numMat(team,n){const k=team+n;if(numMats[k])return numMats[k];const t=canvasTex(128,128,(g,w)=>{g.fillStyle=TEAM[team].number;g.font=`900 ${String(n).length>1?78:96}px Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(n,w/2,w/2+6);});
   return numMats[k]=new T3.MeshStandardMaterial({map:t,transparent:true,roughness:.6});}
 function randLook(){const r=Math.random,si=(r()*SKINC.length)|0;return{skin:si,hair:randHair(r),hairC:(si<1||si===4)?(r()<.7?0:1):(r()*HAIRC.length)|0,wrist:r()<.35};}
 function makeRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
-  const jm=matC('j'+team,{color:C.jersey,roughness:.55}),sm=matC('s'+team,{color:C.shorts,roughness:.6}),tm=matC('t',{color:0xffffff,roughness:.5}),
+  const jm=matC('j'+team,{color:C.jersey,roughness:.55}),sm=matC('s'+team,{color:C.shorts,roughness:.6}),tm=matC('t',{color:0xffffff,roughness:.5}),trim=matC('trim'+team,{color:C.trim,roughness:.55}),
     km=matC('k'+si,{color:SKINC[si],roughness:.55}),shm=matC('sh'+team,{color:C.shoe,roughness:.4}),slm=matC('sl'+team,{color:C.sole,roughness:.5}),
     hm=matC('h'+L.hairC,{color:HAIRC[L.hairC],roughness:.9}),em=matC('eye',{color:0x111111}),bm=matC('b'+L.hairC,{color:new T3.Color(HAIRC[L.hairC]).multiplyScalar(.7),roughness:.9});
   const M=(g,m,parent,x=0,y=0,z=0)=>{const o=new T3.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o;};
   const root=new T3.Group(),hips=new T3.Group();hips.position.y=.95;root.add(hips);
   const sh=M(GEO.shorts,sm,hips,0,-.06,0);sh.scale.z=.78;
-  const bd=M(GEO.band,tm,hips,0,.11,0);bd.scale.z=.8;
-  for(const s of[-1,1]){const st=M(GEO.stripe,tm,hips,s*.226,-.07,0);st.rotation.z=s*.1;}
+  const bd=M(GEO.band,trim,hips,0,.11,0);bd.scale.z=.8;
+  for(const s of[-1,1]){const st=M(GEO.stripe,trim,hips,s*.226,-.07,0);st.rotation.z=s*.1;}
   const torso=new T3.Group();torso.position.y=.06;hips.add(torso);
   const gs=GIRL?.86:1; // Mädchen: schmalere Schultern, dünnere Arme
   const ch=M(GEO.chest,jm,torso,0,.29,0);ch.scale.z=.64;ch.scale.x=GIRL?.9:1;
-  for(const s of[-1,1]){const sd=M(GEO.side,tm,torso,s*.217*(GIRL?.9:1),.27,0);sd.rotation.z=s*.07;}
-  const col=M(GEO.collar,tm,torso,0,.57,0);col.rotation.x=Math.PI/2;col.scale.y=.8;
+  for(const s of[-1,1]){const sd=M(GEO.side,trim,torso,s*.217*(GIRL?.9:1),.27,0);sd.rotation.z=s*.07;}
+  const col=M(GEO.collar,matC('collar'+team,{color:C.collar,roughness:.55}),torso,0,.57,0);col.rotation.x=Math.PI/2;col.scale.y=.8;
   M(GEO.neck,km,torso,0,.62,0);
   const head=new T3.Group();head.position.y=.76;torso.add(head);
   const hd=M(GEO.head,km,head);hd.scale.set(1,1.1,1);
@@ -1336,9 +1342,32 @@ const ACTC={shoot:'shot',layup:'layup',block:'block',pass:'pass',catch:'catch'},
 const UPPER=/spine|neck|head|shoulder|arm|hand|f_|thumb|BALL/,BL={x:0,y:0,z:0};
 const _v1=new T3.Vector3(),_v2=new T3.Vector3(),_v3=new T3.Vector3(),_v4=new T3.Vector3(),_v5=new T3.Vector3(),
   _q1=new T3.Quaternion(),_q2=new T3.Quaternion(),_q3=new T3.Quaternion(),UPV=new T3.Vector3(0,1,0);
+const glbJerseys=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>{
+  const material=new T3.MeshStandardMaterial({color:kit.jersey,roughness:.55,envMapIntensity:.55});
+  const trim=new T3.Color(kit.trim),collar=new T3.Color(kit.collar);
+  material.onBeforeCompile=shader=>{
+    // Die Position im Ruhemodell hält Seitenstreifen und Kragen bei der Animation auf dem Trikot.
+    shader.uniforms.clubTrim={value:trim};
+    shader.uniforms.clubCollar={value:collar};
+    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 jerseyRest;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\njerseyRest = position;');
+    shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 jerseyRest;\nuniform vec3 clubTrim;\nuniform vec3 clubCollar;')
+      .replace('#include <color_fragment>',`#include <color_fragment>
+        float lateral = abs(jerseyRest.x);
+        float depth = abs(jerseyRest.z + 0.025);
+        float side = depth / max(lateral, 0.001);
+        float stripe = (1.0 - smoothstep(0.19, 0.28, side))
+          * smoothstep(0.13, 0.16, jerseyRest.y) * (1.0 - smoothstep(0.46, 0.49, jerseyRest.y));
+        float neckHeight = 0.51 + 0.5 * lateral;
+        float collarBand = (1.0 - smoothstep(0.012, 0.022, abs(jerseyRest.y - neckHeight)))
+          * smoothstep(0.035, 0.065, depth) * (1.0 - smoothstep(0.13, 0.17, lateral));
+        diffuseColor.rgb = mix(mix(diffuseColor.rgb, clubTrim, stripe), clubCollar, collarBand);`);
+  };
+  return [team,material];
+}));
 function makeGLBRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
-  const MT={jersey:matC('j'+team,{color:C.jersey,roughness:.55}),shorts:matC('s'+team,{color:C.shorts,roughness:.6}),skin:matC('k'+si,{color:SKINC[si],roughness:.55}),
+  const MT={jersey:glbJerseys[team],shorts:matC('s'+team,{color:C.shorts,roughness:.6}),skin:matC('k'+si,{color:SKINC[si],roughness:.55}),
     sock:matC('t',{color:0xffffff,roughness:.5}),shoe:matC('sh'+team,{color:C.shoe,roughness:.4})};
   const hm=matC('h'+L.hairC,{color:HAIRC[L.hairC],roughness:.9}),em=matC('eye',{color:0x111111}),bm=matC('b'+L.hairC,{color:new T3.Color(HAIRC[L.hairC]).multiplyScalar(.7),roughness:.9}),tm=MT.sock;
   const root=new T3.Group(),body=GLB.clone(GLB.src);root.add(body);
@@ -1824,7 +1853,7 @@ function role(r){return ROLE[r];}
 function addP(r,team,num,o={}){
   const p={act:null,jy:0,role:r,team,num,x:0,z:0,path:null,pt:0,lin:false,spd:0,vx:0,vz:0,ph:R()*6,armsUp:0,drib:0,dside:1,ang:Math.PI,sel:o.sel!==undefined?o.sel:(team==='off'&&r!=='H'),name:o.name||'',key:0,finish:o.finish||'shot'};
   if(r==='H'){num=PROFILE.num;p.num=num;HTEAM=team;}else if(team===HTEAM&&num===PROFILE.num){num=PROFILE.num===1?9:1;p.num=num;}
-  p.rig=(GLB.ok?makeGLBRig:makeRig)(team,num,r==='H'?myLook():null);scene.add(p.rig.root);p.blobs=[blob(),blob(),blob()];players.push(p);ROLE[r]=p;return p;}
+  p.rig=(GLB.ok?makeGLBRig:makeRig)(team===HTEAM?'home':'away',num,r==='H'?myLook():null);scene.add(p.rig.root);p.blobs=[blob(),blob(),blob()];players.push(p);ROLE[r]=p;return p;}
 function clearPlayers(){players.forEach(p=>{scene.remove(p.rig.root);p.blobs.forEach(b=>{scene.remove(b);b.material.dispose();});});players=[];ROLE={};GUARD={};HTEAM='off';}
 function setPath(p,pts,lin){p.path=pts;p.pt=0;p.lin=!!lin;}
 function goTo(p,list,lin){setPath(p,[[0,p.x,p.z],...list],lin);}
@@ -2576,7 +2605,7 @@ function buildCFlash(v,T,L,M){
 }
 
 // ================= VERTEIDIGUNG (Mann-Mann, nach DBB-Miniregeln und MMV-Kriterien) =================
-// Du bist der rote Verteidiger H, dein Gegenspieler ist M. Im Entscheidungsmoment tippst du eine von drei Positionen an.
+// Du bist Verteidiger H, dein Gegenspieler ist M. Im Entscheidungsmoment tippst du eine von drei Positionen an.
 const unitV=(x,z)=>{const d=Math.hypot(x,z)||1;return[x/d,z/d];};
 function mkSpots(list){const a=list.slice();for(let i=a.length-1;i>0;i--){const j=(R()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}a.forEach((p,i)=>p.id='ABC'[i]);return a;}
 function others(list,ref){list.forEach(([r,num,dn,x,z])=>{const o=addP(r,'off',num,{sel:false}),d=addP('d'+r,'def',dn),h=homeOf(pt(x,z),1.2,ref);
@@ -3051,10 +3080,10 @@ function drawMini(choice,o){o=o||{};
   c.fillStyle=far?'#10141f':'#d29b5f';c.fillRect(0,0,w,h);
   if(far){c.fillStyle='#d29b5f';c.fillRect(sx(-HW),sz(BASE),2*HW*S,sz(-26.425)-sz(BASE));c.strokeStyle='#fff';c.lineWidth=3;
     c.beginPath();c.moveTo(sx(-HW),sz(-12.425));c.lineTo(sx(HW),sz(-12.425));c.stroke();c.beginPath();c.ellipse(sx(0),sz(-12.425),1.8*S,1.8*zr,0,0,7);c.stroke();
-    c.fillStyle='#1d4fb4';c.fillRect(sx(-2.45),sz(-20.625),4.9*S,sz(-26.425)-sz(-20.625));c.strokeRect(sx(-2.45),sz(-20.625),4.9*S,sz(-26.425)-sz(-20.625));
+    c.fillStyle=COURT_ZONE;c.fillRect(sx(-2.45),sz(-20.625),4.9*S,sz(-26.425)-sz(-20.625));c.strokeRect(sx(-2.45),sz(-20.625),4.9*S,sz(-26.425)-sz(-20.625));
     c.strokeStyle='#ff6a1a';c.lineWidth=3;c.beginPath();c.arc(sx(0),sz(-24.85),6,0,7);c.stroke();}
   c.fillStyle='rgba(150,80,25,.18)';c.beginPath();c.moveTo(sx(-TC),sz(BASE));for(let i=0;i<=40;i++){const a=lerp(-TA,TA,i/40);c.lineTo(sx(Math.sin(a)*R3),sz(-Math.cos(a)*R3));}c.lineTo(sx(TC),sz(BASE));c.fill();
-  c.fillStyle='#1d4fb4';c.fillRect(sx(-2.45),sz(BASE),4.9*S,sz(-4.225)-sz(BASE));
+  c.fillStyle=COURT_ZONE;c.fillRect(sx(-2.45),sz(BASE),4.9*S,sz(-4.225)-sz(BASE));
   c.strokeStyle='#fff';c.lineWidth=3;c.strokeRect(sx(-2.45),sz(BASE),4.9*S,sz(-4.225)-sz(BASE));
   c.beginPath();c.moveTo(sx(-TC),sz(BASE));for(let i=0;i<=40;i++){const a=lerp(-TA,TA,i/40);c.lineTo(sx(Math.sin(a)*R3),sz(-Math.cos(a)*R3));}c.lineTo(sx(TC),sz(BASE));c.stroke();
   c.beginPath();c.ellipse(sx(0),sz(-4.225),1.8*S,1.8*zr,0,0,Math.PI*2);c.stroke();
@@ -3077,11 +3106,11 @@ function drawMini(choice,o){o=o||{};
   c.textAlign='center';c.textBaseline='middle';
   if(G.sc.spots)G.sc.spots.forEach(sp=>{const x=sx(sp.x),y=sz(sp.z);c.fillStyle='rgba(255,140,90,.35)';c.strokeStyle='#ff8a5a';c.lineWidth=3;c.beginPath();c.arc(x,y,15,0,7);c.fill();c.stroke();
     c.fillStyle='#fff';c.font='900 15px Nunito,Arial,sans-serif';c.fillText(sp.id,x,y+1);});
-  snap.forEach(p=>{if(p.z<-10.8&&!far)return;const x=sx(p.x),y=sz(p.z);
-    if(p.team==='def'&&p.role!=='H'){c.fillStyle='#e2453b';c.beginPath();c.arc(x,y,14,0,7);c.fill();c.strokeStyle='#fff';c.lineWidth=2;c.stroke();}
-    else{const me=p.role==='H';c.fillStyle=me?'#ffd23d':G.sc.def?'#2f6fe4':'#2f6fe4';c.beginPath();c.arc(x,y,18,0,7);c.fill();c.strokeStyle='#fff';c.lineWidth=3;c.stroke();
-      c.fillStyle=me?'#201600':'#fff';c.font='900 17px Nunito,Arial,sans-serif';c.fillText(me?'DU':p.num,x,y+1);
-      if(p.ball){c.fillStyle='#ff7a1a';c.strokeStyle='#3a1500';c.lineWidth=2;c.beginPath();c.arc(x+15,y-14,8,0,7);c.fill();c.stroke();}}});
+  snap.forEach(p=>{if(p.z<-10.8&&!far)return;const x=sx(p.x),y=sz(p.z),isMe=p===me,C=TEAM[p.team===me.team?'home':'away'];
+    const numbered=isMe||p.team==='off';
+    c.fillStyle=isMe?'#ffd23d':C.jersey;c.beginPath();c.arc(x,y,numbered?18:14,0,7);c.fill();c.strokeStyle=!isMe&&p.team===me.team?CLUB_NAVY:'#fff';c.lineWidth=numbered?3:2;c.stroke();
+    if(numbered){c.fillStyle=isMe?'#201600':C.number;c.font='900 17px Nunito,Arial,sans-serif';c.fillText(isMe?'DU':p.num,x,y+1);}
+    if(p.ball){c.fillStyle='#ff7a1a';c.strokeStyle='#3a1500';c.lineWidth=2;c.beginPath();c.arc(x+15,y-14,8,0,7);c.fill();c.stroke();}});
 }
 
 // ================= Ergebnis =================
@@ -3271,7 +3300,7 @@ function cardInit(){if(CARD.r)return true;if(CARD.fail)return false;
     const k=new T3.DirectionalLight(0xfff2dd,1.5);k.position.set(1.6,3,3.2);sc.add(k);const rl=new T3.DirectionalLight(0x9cc0ff,1.3);rl.position.set(-2.2,2.2,-2.6);sc.add(rl);
     const cm=new T3.PerspectiveCamera(24,1,.1,30),b=new T3.Mesh(ballMesh.geometry,ballMesh.material);
     Object.assign(CARD,{r,scene:sc,cam:cm,ball:b});return true;}catch(e){CARD.fail=true;return false;}}
-function cardRig(){if(!cardInit())return;if(CARD.rig)CARD.scene.remove(CARD.rig.root);const rg=(GLB.ok?makeGLBRig:makeRig)('off',PROFILE.num,myLook());CARD.rig=rg;CARD.scene.add(rg.root);
+function cardRig(){if(!cardInit())return;if(CARD.rig)CARD.scene.remove(CARD.rig.root);const rg=(GLB.ok?makeGLBRig:makeRig)('home',PROFILE.num,myLook());CARD.rig=rg;CARD.scene.add(rg.root);
   CARD.ball.position.set(0,1.19,.34);rg.root.add(CARD.ball);if(rg.glb){rg.A.idle.setEffectiveWeight(1);return;}
   rg.torso.rotation.x=.03;rg.hips.position.y=.94;
   for(let i=0;i<2;i++){const sg=i?1:-1;rg.sh[i].rotation.x=-.2;rg.sh[i].rotation.z=-sg*.3;rg.el[i].rotation.x=-1.35;rg.hip[i].rotation.z=sg*.07;rg.hip[i].rotation.x=-.05;rg.kn[i].rotation.x=.1;}
@@ -3583,7 +3612,7 @@ function update(rdt){
   if(bubbles.length)posBubbles();
 }
 // ================= Bildeffekte =================
-// Bloom: Hallenlichter, LED-Banden, Anzeigetafel, Fotoblitze und die Leuchtspur des Balls strahlen (Fernseh-Look).
+// Bloom: Hallenlichter, Anzeigetafel, Fotoblitze und die Leuchtspur des Balls strahlen (Fernseh-Look).
 // Tiefenunschärfe (Bokeh) nur in der Wurfkamera (camMode), scharf ist der Werfer bzw. der Ball; im Entscheidungsmoment
 // nie, damit nichts unruhig wird. Über EffectComposer (Module am Ende der Seite). Aus mit ?lite oder ?fx=0, ohne WebGL2
 // und auf langsamen Geräten (perfCheck; ?fx=1 lässt sie dort an). Fehlt etwas, wird wie bisher direkt gerendert.
@@ -3668,7 +3697,7 @@ if(onlineOn())flushPending().catch(()=>{});
 window.__snd={voice:{say,hush,fem,VOICE,VBUF,file:vFile,playing:()=>!!VQ,on:()=>voiceOn,duck:()=>MIX&&MIX.duck?MIX.duck.gain.value:null},SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
 window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
-window.__rig=(t,n,l,g)=>{setGirl(g);return (GLB.ok?makeGLBRig:makeRig)(t,n,l);};window.__setGirl=setGirl;window.__miniMap=miniMap; // nur für Tests (Figuren-Aufstellung, Frage auf der Mini-Karte)
+window.__rig=(t,n,l,g)=>{setGirl(g);return (GLB.ok?makeGLBRig:makeRig)(t==='off'?'home':'away',n,l);};window.__setGirl=setGirl;window.__miniMap=miniMap; // nur für Tests (Figuren-Aufstellung, Frage auf der Mini-Karte)
 })();
 </script>
 <!-- three.js-Erweiterungen als ES-Module (gleiche Version 0.149.0); "three" zeigt per Importmap auf die globale THREE-Variable.

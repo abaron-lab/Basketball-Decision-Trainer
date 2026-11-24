@@ -66,7 +66,7 @@ Aushelfen nach einem Durchbruch ist auch im Minibasketball erlaubt und gilt nich
 
 ## Die Position Abwehr
 
-Hier bist du der rote Verteidiger. Im Entscheidungsmoment tippst du eine von drei Positionen (A, B, C) an. Dein Gegenspieler hat ein blaues Schild.
+Hier bist du der Verteidiger im weißen Trikot. Im Entscheidungsmoment tippst du eine von drei Positionen (A, B, C) an. Dein Gegenspieler hat ein blaues Schild.
 
 | Spielzug | Richtige Position |
 |---|---|
