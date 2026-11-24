@@ -226,6 +226,8 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 #fbWrong{font-size:13.5px;margin:0 0 4px;color:#ffb3ad}
 .fbq{display:flex;gap:10px;align-items:center;background:rgba(111,165,255,.12);border:1px solid rgba(111,165,255,.35);border-radius:13px;padding:9px 11px;margin:2px 0 4px}
 .fbq>.i{width:26px;height:26px;color:#8fb4ff;flex:0 0 auto}.fbq>div{flex:1}.fbq b{display:block;font-size:16px;color:#fff}.fbq span{font-size:12.5px;color:#aab7d6;font-weight:700}
+.fbq .vbtn{flex:0 0 auto;width:34px;height:34px;border-radius:999px;border:1px solid rgba(143,180,255,.4);background:rgba(8,12,24,.35);color:#8fb4ff;display:grid;place-items:center;cursor:pointer;padding:0}
+.fbq .vbtn .i{width:18px;height:18px}.fbq .vbtn.off,#voiceBtn.off{opacity:.55}
 .fbq.ok{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.45)}.fbq.no{background:rgba(255,200,61,.1);border-color:rgba(255,200,61,.35)}
 .lnk{cursor:pointer;background:none;border:0;color:#8fb4ff;font:900 12.5px Nunito,system-ui,sans-serif;text-decoration:underline;padding:4px;flex:0 0 auto}
 .quiz #mini{cursor:pointer}.quiz .choices,.quiz #fbWhy,.quiz #fbWrong,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
@@ -524,6 +526,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.1.9-1.1 1.6v.5M12 17.2v.1"/></symbol>
 <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2.5c.6 3-1.6 4.6-3 6.6C7.6 11 7 12.6 7 14.4A5 5 0 0 0 12 19.5a5 5 0 0 0 5-5.1c0-2.1-1-3.7-2-4.9-.2 1.3-.9 2.3-1.9 2.7.5-3.2-.1-6.6-1.1-9.7z"/></symbol>
 <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+<symbol id="i-voice" viewBox="0 0 24 24"><path d="M4 5.5h16v10h-9l-4.5 3.5v-3.5H4z"/><path d="M8.5 10.5h.01M12 10.5h.01M15.5 10.5h.01"/></symbol>
+<symbol id="i-voiceoff" viewBox="0 0 24 24"><path d="M4 5.5h16v10h-9l-4.5 3.5v-3.5H4z"/><path d="M3.5 3l17 17"/></symbol>
 <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></symbol>
 <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
 <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
@@ -565,6 +569,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
   <div class="pill">Punkte <b id="hScore">0</b></div>
   <div class="pill" id="hStreak"><svg class="i fill"><use href="#i-flame"/></svg> 0</div>
   <div class="sp"></div>
+  <button class="ibtn" id="voiceBtn" title="Sprache an/aus" aria-label="Sprache an/aus"><svg class="i"><use href="#i-voice"/></svg></button>
   <button class="ibtn" id="muteBtn" title="Ton an/aus" aria-label="Ton an/aus"><svg class="i"><use href="#i-sound"/></svg></button>
   <button class="ibtn" id="quitBtn" title="Hauptmenü" aria-label="Hauptmenü"><svg class="i"><use href="#i-home"/></svg></button>
 </div>
@@ -688,7 +693,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <div class="mapbox"><canvas id="mini" width="640" height="480"></canvas></div>
         <div class="legend"><span><i style="background:#ffd23d"></i>Du</span><span><i style="background:#2f6fe4"></i><b id="lgO">Mitspieler</b></span><span><i style="background:#e2453b"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div>
         <div class="fbtext">
-          <div id="fbQ" class="fbq hidden"><svg class="i"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div></div>
+          <div id="fbQ" class="fbq hidden"><svg class="i"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
           <p id="fbWhy"></p>
           <p id="fbWrong"></p>
           <div class="rule"><svg class="i"><use href="#i-bulb"/></svg><span id="fbRule"></span></div>
@@ -1531,7 +1536,7 @@ const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,spin:0};
 // Alles läuft über ein Mischpult (mix): Hallraum einer Sporthalle (Faltungshall mit berechneter Impulsantwort), Panorama nach
 // Bildschirmposition, ferne Geräusche leiser/dumpfer/halliger (spat), am Ende ein Kompressor als Begrenzer gegen Übersteuern.
 let AC=null,muted=store.get('pgt_mute')==='1';
-function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});if(AC){mix();loadSmp();}return AC;}
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});if(AC){mix();loadSmp();vPreload();}return AC;}
 // Echte Geräusche aus sfx/ (ElevenLabs, tools/make_sfx.mjs + tools/trim_sfx.sh): SMP_N = Anzahl Varianten je Geräusch.
 // Geladen beim ersten ac() (Nutzer-Geste); fehlt eine Datei oder das Netz, bleibt der synthetische Ton (smp liefert false).
 // Zufall hier nur über Math.random, nicht R (R ist für „Nochmal ansehen“ geseedet).
@@ -1557,17 +1562,17 @@ function gymIR(a){const sr=a.sampleRate,n=sr*1.7|0,b=a.createBuffer(2,n,sr);
     [[.017,.55],[.026,.4],[.039,.32],[.054,.25],[.071,.2],[.093,.15]].forEach(([t,g],j)=>{const q=(t+(c?.0035*(j%3):.002*(j%2)))*sr|0;d[q]+=g*((j+c)%2?-1:1);});}
   return b;}
 function mix(){const a=AC;if(MIX||!a)return MIX;
-  try{const inp=a.createGain(),comp=a.createDynamicsCompressor();
+  try{const inp=a.createGain(),duck=a.createGain(),vin=a.createGain(),comp=a.createDynamicsCompressor();
     comp.threshold.value=-3;comp.knee.value=2;comp.ratio.value=20;comp.attack.value=.001;comp.release.value=.12;  // nur Begrenzer (tiefe Schwelle hebt in Chrome alles per Make-up-Gain an)
-    inp.connect(comp).connect(a.destination);
+    inp.connect(duck).connect(comp).connect(a.destination);vin.connect(comp);  // duck: senkt Effekte und Publikum während der Sprache (say)
     const hp=a.createBiquadFilter(),cv=a.createConvolver(),wg=a.createGain();hp.type='highpass';hp.frequency.value=200;cv.buffer=gymIR(a);wg.gain.value=.55;
-    hp.connect(cv).connect(wg).connect(inp);MIX={inp,rev:hp};}
-  catch(e){MIX={inp:a.destination,rev:null};}
+    hp.connect(cv).connect(wg).connect(inp);MIX={inp,rev:hp,duck,vin};}
+  catch(e){MIX={inp:a.destination,rev:null,duck:null,vin:a.destination};}
   return MIX;}
-// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall
-function route(n,pan,wet){const a=AC,M=mix();let o=n;
+// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall, bus 'v' = Spracheingang (wird nicht abgesenkt)
+function route(n,pan,wet,bus){const a=AC,M=mix();let o=n;
   if(pan&&a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=clamp(pan,-1,1);o.connect(P);o=P;}
-  o.connect(M.inp);if(M.rev&&wet>0){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
+  o.connect(bus==='v'?M.vin:M.inp);if(M.rev&&wet>0){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
 // Raum: Lautstärke nach Abstand zur Kamera, Panorama nach Bildschirmposition, Hall- und Höhenverlust mit der Entfernung
 const SPV=new T3.Vector3();
 function spat(p){if(!p||!cam)return{v:1,pan:0,wet:.14,d:0};const d=Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z);
@@ -1598,6 +1603,47 @@ function prerender(){const a=AC;if(!a||PRE.on)return;PRE.on=1;
       os.start(st);os.stop(1.55);}
     const pr=o.startRendering(),done=b=>{PRE.ooh=b;};if(pr&&pr.then)pr.then(done).catch(()=>{});else o.oncomplete=e=>done(e.renderedBuffer);}catch(e){}}
 function playBuf(b,v,rate,wet){const a=AC;if(!a||muted||!b)return false;try{const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=rate||1;g.gain.value=v;s.connect(g);route(g,0,wet);s.start();}catch(e){}return true;}
+// ================= Sprachausgabe =================
+// Feste Ansagen im Dialog nach einer falschen Entscheidung (Frage auf der Karte, Hinweise, Auflösung), gesprochen mit
+// ElevenLabs (Stimme „Chris“, tools/make_voice.mjs liest genau diese Liste zwischen VOICE-START und VOICE-END).
+// Schlüssel = Datei voice/<id>.mp3; ändert fem() den Text (Mädchen-Version), gibt es zusätzlich voice/<id>_w.mp3.
+// Abgespielt wird über den Text, den das Spiel ohnehin anzeigt (say(['Wer war frei?', …])); unbekannte Texte und
+// fehlende Dateien bleiben still. Nichts wird zur Laufzeit bei ElevenLabs geholt.
+// VOICE-START
+const VOICE={
+  bad:'Leider falsch',slow:'Zu langsam!',
+  q_free:'Wer war frei?',q_help:'Wer hat ausgeholfen?',q_def:'Wo stand dein Verteidiger?',q_opp:'Wo stand dein Gegenspieler?',
+  q_opp2:'Wo war dein Gegenspieler?',q_ball:'Wo war der Ball?',q_bh:'Wo war der Ballführer?',q_had:'Wer hatte den Ball?',
+  q_thru:'Wer war durch?',q_pass:'Wohin ging der Pass?',q_safe:'Wer sicherte schon euren Korb?',
+  tap:'Tippe auf der Karte auf den richtigen Punkt.',nudge:'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.',
+  nudge2:'Tippe direkt auf einen Spieler.',
+  hit:'Richtig erkannt!',hit2:'Genau darauf kommt es an. Jetzt die ganze Lösung:',
+  miss:'Nicht ganz. Schau auf den Ring.',sol:'Hier ist die Lösung:'
+};
+// VOICE-END
+const VOICE_ID={};for(const k in VOICE)VOICE_ID[VOICE[k]]=k;
+// Eigene Stummtaste für Sprache (getrennt von den Geräuschen), gespeichert unter pgt_voice
+let voiceOn=store.get('pgt_voice')!=='0';
+const VBUF={};let VQ=null,VSEQ=0;
+function vFile(t){const id=VOICE_ID[t];if(!id)return null;return GIRL&&fem(t)!==t?id+'_w':id;}
+function vLoad(id){if(VBUF[id])return VBUF[id];
+  return VBUF[id]=(window.fetch?fetch('voice/'+id+'.mp3'):Promise.reject()).then(r=>r.ok?r.arrayBuffer():Promise.reject())
+    .then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);})).catch(()=>{VBUF[id]=null;return null;});}
+// alle Ansagen vorab laden (klein, nacheinander), sobald es Ton gibt
+let vPre=false;function vPreload(){if(vPre||!AC||!voiceOn)return;vPre=true;const q=Object.keys(VOICE).map(k=>vFile(VOICE[k]));
+  const next=()=>{const id=q.shift();if(id)Promise.resolve(vLoad(id)).then(next);};next();}
+function vDuck(on){const M=MIX;if(!M||!M.duck||!AC)return;const g=M.duck.gain,t=AC.currentTime;
+  g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.setTargetAtTime(on?.4:1,t,on?.06:.3);}
+// Laufende Ansage abbrechen (neue Ansage, Antippen, Taste, neue Runde)
+function hush(){VSEQ++;if(VQ){try{VQ.stop();}catch(e){}VQ=null;vDuck(false);}}
+// Texte nacheinander sprechen (kurze Pause dazwischen); delay = Sekunden bis zum Start
+function say(texts,delay){hush();if(!voiceOn)return;const a=ac();if(!a)return;const my=VSEQ,ids=texts.map(vFile).filter(Boolean);if(!ids.length)return;
+  Promise.all(ids.map(vLoad)).then(bufs=>{if(my!==VSEQ)return;bufs=bufs.filter(Boolean);let t0=a.currentTime+(delay||0);
+    const play=i=>{if(my!==VSEQ)return;if(i>=bufs.length){VQ=null;vDuck(false);return;}
+      try{const s=a.createBufferSource(),g=a.createGain();s.buffer=bufs[i];g.gain.value=.9;s.connect(g);route(g,0,.06,'v');
+        s.onended=()=>{if(my===VSEQ)setTimeout(()=>play(i+1),220);};if(!i)vDuck(true);VQ=s;s.start(i?0:t0);}catch(e){VQ=null;vDuck(false);}};
+    play(0);});}
+addEventListener('pointerdown',()=>{if(VQ)hush();},true);
 // Synthetische Klänge, rund statt piepsig: Pfiff mit Trillerkugel, Glockenton für richtig, weiches Abwärts für falsch, Hallenhupe
 function osc(type,f,t,d){const o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.start(t);o.stop(t+d+.05);return o;}
 function env(t,a1,v,d,rel){const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a1);g.gain.setValueAtTime(v,t+Math.max(a1,d-rel));g.gain.linearRampToValueAtTime(0,t+d);return g;}
@@ -2813,7 +2859,7 @@ function makeBag(){
   for(let i=0;i<G.rounds;i++){const p=plays[i%plays.length];const vs=PLAYS[p].vars(G.mode,G.level);let v;do{v=vs[(Math.random()*vs.length)|0];}while(vs.length>1&&v===last[p]);last[p]=v;bag.push([p,v]);}
   for(let i=bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[bag[i],bag[j]]=[bag[j],bag[i]];}
   return bag;}
-function startRound(){
+function startRound(){hush();
   G.round++;G.replay=false;
   const[p,v]=G.bag[G.round-1];G.sc=buildScenario((Math.random()*1e9)|0,p,v);
   beginApproach();showBanner(PLAYS[p].name,PLAYS[p].desc);
@@ -2945,7 +2991,8 @@ function showFeedback(){
   // Fragen statt fertiger Lösungen (DBB-Leitfaden Minibasketball: Trainer helfen mit Fragen). Erst suchen lassen, dann erklären.
   const q=!ok&&!G.replay?quizOf(sc):null;G.quiz=q;$('fbQ').className='fbq'+(q?'':' hidden');
   $('feedback').querySelector('.card').classList.toggle('quiz',!!q);
-  if(q){$('fbQt').textContent=q.t;$('fbQs').textContent='Tippe auf der Karte auf den richtigen Punkt.';drawMini(ch,{quiz:true});}
+  if(q){$('fbQt').textContent=q.t;$('fbQs').textContent='Tippe auf der Karte auf den richtigen Punkt.';drawMini(ch,{quiz:true});
+    say([ch===null?'Zu langsam!':'Leider falsch',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);}
   else drawMini(ch);
   $('feedback').classList.remove('hidden');
 }
@@ -2959,10 +3006,11 @@ function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
   $('fbQt').textContent=hit===true?'Richtig erkannt!':hit===false?'Nicht ganz. Schau auf den Ring.':q.t;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
-  if(hit===true){sfx.good();confetti(18);}}
+  if(hit===true){sfx.good();confetti(18);}
+  say(hit===true?['Richtig erkannt!','Genau darauf kommt es an. Jetzt die ganze Lösung:']:hit===false?['Nicht ganz. Schau auf den Ring.','Hier ist die Lösung:']:['Hier ist die Lösung:'],hit===true?.25:0);}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
-function quizNudge(t){const f=$('fbQ');$('fbQs').textContent=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';
+function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
   f.classList.remove('nudge');void f.offsetWidth;f.classList.add('nudge');tone(240,.08,'triangle',.06);}
 $('mini').addEventListener('pointerdown',e=>{const q=G.quiz;if(!q||G.phase!=='feedback')return;const m=$('mini'),r=m.getBoundingClientRect(),k=Math.min(r.width/m.width,r.height/m.height);
   const x=(e.clientX-r.left-(r.width-m.width*k)/2)/k,y=(e.clientY-r.top-(r.height-m.height*k)/2)/k,M=miniMap();let best=null,bd=1e9;
@@ -3076,7 +3124,7 @@ const INFO_HTML=`<h3>Was ist das?</h3>
 <li><a href="https://www.basketball-bund.de/wp-content/uploads/sites/2/2021/08/MMV-Kriterien.pdf" target="_blank" rel="noopener">DBB: Kriterien Mann-Mann-Verteidigung U14/U16</a></li>
 <li><a href="https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-manual-mini-basketball-eng.pdf" target="_blank" rel="noopener">FIBA/WABC: Coaching Manual Mini-Basketball</a></li></ul>
 <p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird nur auf dem Gerät gespeichert. In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt.</small></p>
-<p><small>Geräusche (Dribbeln, Fangen, Schuhe, Netz, Ring) erstellt mit <a href="https://elevenlabs.io/" target="_blank" rel="noopener">ElevenLabs</a>.</small></p>
+<p><small>Geräusche (Dribbeln, Fangen, Schuhe, Netz, Ring) und gesprochene Ansagen erstellt mit <a href="https://elevenlabs.io/" target="_blank" rel="noopener">ElevenLabs</a>.</small></p>
 <p class="legal"><a href="impressum.html" target="_blank" rel="noopener">Impressum</a> · <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a> · <a href="lizenzen.html" target="_blank" rel="noopener">Lizenzen</a></p>`;
 function cleanName(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,14);}
 function jget(k){try{return JSON.parse(store.get(k)||'[]')||[]}catch(e){return[]}}
@@ -3340,12 +3388,16 @@ function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
 $('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;
-function toMenu(){if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
+function toMenu(){hush();if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
   if(G.first){G.first=false;G.rounds=10;}
   G.phase='menu';G.timers=[];renderStrip();endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
 $('nextBtn').onclick=()=>{if(G.quiz)return quizNudge();$('feedback').classList.add('hidden');if(G.round>=G.rounds)showSummary();else startRound();};
 $('replayBtn').onclick=()=>{if(G.quiz)return quizNudge();$('feedback').classList.add('hidden');const sc=G.sc;G.sc=buildScenario(sc.seed,sc.play,sc.variant);G.replay=true;beginApproach();showBanner('Wiederholung','Achte auf die Verteidiger');};
 const mb=$('muteBtn'),mbI=()=>mb.innerHTML=svgI(muted?'mute':'sound');mbI();mb.onclick=()=>{muted=!muted;store.set('pgt_mute',muted?'1':'0');mbI();ac();};
+// Sprache an/aus: in der Kopfzeile und im Fragekasten der Auswertung (auf dem Handy verdeckt die Auswertung die Kopfzeile)
+const vbs=[$('voiceBtn'),$('fbVoice')],vbI=()=>vbs.forEach(b=>{b.innerHTML=svgI(voiceOn?'voice':'voiceoff');b.classList.toggle('off',!voiceOn);});vbI();
+vbs.forEach(b=>b.onclick=()=>{voiceOn=!voiceOn;store.set('pgt_voice',voiceOn?'1':'0');vbI();hush();ac();
+  if(voiceOn&&G.phase==='feedback'&&G.quiz)say([G.quiz.t,'Tippe auf der Karte auf den richtigen Punkt.'],.1);});
 document.querySelectorAll('#actRow .cb').forEach(b=>b.addEventListener('pointerdown',pressBtn));
 addEventListener('keydown',e=>{
   if(e.target&&e.target.tagName==='INPUT')return;
@@ -3557,7 +3609,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');render
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
-window.__snd={SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
+window.__snd={voice:{say,hush,fem,VOICE,VBUF,file:vFile,playing:()=>!!VQ,on:()=>voiceOn,duck:()=>MIX&&MIX.duck?MIX.duck.gain.value:null},SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
 window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 window.__rig=(t,n,l,g)=>{setGirl(g);return (GLB.ok?makeGLBRig:makeRig)(t,n,l);};window.__setGirl=setGirl;window.__miniMap=miniMap; // nur für Tests (Figuren-Aufstellung, Frage auf der Mini-Karte)
