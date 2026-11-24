@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#05070d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="IQ Trainer">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
@@ -27,12 +27,28 @@ canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height
 #vig.on{opacity:1}
 #bottom{transition:transform .35s ease,opacity .35s}
 .cinema #bottom{transform:translateY(105%);opacity:0}
-#hud{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 10px max(12px,env(safe-area-inset-left));z-index:5;pointer-events:none}
-.pill{background:rgba(8,12,24,.72);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;white-space:nowrap;backdrop-filter:blur(6px)}
+#gameTop{
+  position:fixed;top:0;left:0;right:0;z-index:6;pointer-events:none;
+  display:grid;grid-template-rows:minmax(max-content,16vh) auto;align-items:start;
+}
+#hud{
+  --hud-gap:8px;--hud-edge:12px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:var(--hud-gap);
+  padding:calc(8px + env(safe-area-inset-top,0px)) max(var(--hud-edge),env(safe-area-inset-right,0px)) 8px max(var(--hud-edge),env(safe-area-inset-left,0px));
+}
+#hudStats,#hudActions{display:flex;align-items:center;gap:var(--hud-gap)}
+#hudStats{flex-wrap:wrap}
+#hudActions{margin-left:auto}
+.pill{background:rgba(8,12,24,.88);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;white-space:nowrap}
 .pill b{color:var(--gold)}
-#hud .sp{flex:1}
-.ibtn{pointer-events:auto;cursor:pointer;background:rgba(8,12,24,.72);border:1px solid var(--line);color:#fff;border-radius:999px;width:38px;height:38px;font-size:17px;display:grid;place-items:center}
-#banner{position:fixed;left:0;right:0;top:16%;text-align:center;pointer-events:none;z-index:6;opacity:0;transform:translateY(-8px);transition:opacity .3s,transform .3s}
+.ibtn{pointer-events:auto;cursor:pointer;background:rgba(8,12,24,.88);border:1px solid var(--line);color:#fff;border-radius:999px;width:38px;height:38px;font-size:17px;display:grid;place-items:center}
+@media (max-width:480px) and (orientation:portrait){
+  #hud{--hud-gap:4px;--hud-edge:8px}
+  #hud .pill{padding:5px 7px;font-size:12px}
+  #hRound .posb{margin-right:4px}
+  #hudActions .ibtn{width:44px;height:44px}
+}
+#banner{grid-row:2;text-align:center;opacity:0;transform:translateY(-8px);transition:opacity .3s,transform .3s}
 #banner.show{opacity:1;transform:none}
 #banner .t{font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(38px,9vw,78px);letter-spacing:2px;text-shadow:0 4px 24px rgba(0,0,0,.7);line-height:1}
 #banner .s{display:inline-block;margin-top:6px;font-weight:900;font-size:15px;background:rgba(8,12,24,.75);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
@@ -573,17 +589,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 <div id="loading"><svg class="logo"><use href="#i-logo"/></svg><h1>BASKETBALL <span>IQ TRAINER</span></h1><div class="lt">Halle wird aufgebaut …</div></div>
 <div id="fx"></div><div id="ptsPop"></div>
 
-<div id="hud" class="hidden">
-  <div class="pill" id="hRound">4:4 · 1/10</div>
-  <div class="pill">Punkte <b id="hScore">0</b></div>
-  <div class="pill" id="hStreak"><svg class="i fill"><use href="#i-flame"/></svg> 0</div>
-  <div class="sp"></div>
-  <button class="ibtn" id="voiceBtn" title="Sprache an/aus" aria-label="Sprache an/aus"><svg class="i"><use href="#i-voice"/></svg></button>
-  <button class="ibtn" id="muteBtn" title="Ton an/aus" aria-label="Ton an/aus"><svg class="i"><use href="#i-sound"/></svg></button>
-  <button class="ibtn" id="quitBtn" title="Hauptmenü" aria-label="Hauptmenü"><svg class="i"><use href="#i-home"/></svg></button>
+<div id="gameTop">
+  <div id="hud" class="hidden">
+    <div id="hudStats">
+      <div class="pill" id="hRound">4:4 · 1/10</div>
+      <div class="pill">Punkte <b id="hScore">0</b></div>
+      <div class="pill" id="hStreak"><svg class="i fill"><use href="#i-flame"/></svg> 0</div>
+    </div>
+    <div id="hudActions">
+      <button class="ibtn" id="voiceBtn" title="Sprache an/aus" aria-label="Sprache an/aus"><svg class="i"><use href="#i-voice"/></svg></button>
+      <button class="ibtn" id="muteBtn" title="Ton an/aus" aria-label="Ton an/aus"><svg class="i"><use href="#i-sound"/></svg></button>
+      <button class="ibtn" id="quitBtn" title="Hauptmenü" aria-label="Hauptmenü"><svg class="i"><use href="#i-home"/></svg></button>
+    </div>
+  </div>
+  <div id="banner"><div class="t" id="bnT"></div><div class="s" id="bnS"></div></div>
 </div>
-
-<div id="banner"><div class="t" id="bnT"></div><div class="s" id="bnS"></div></div>
 <div id="flash"></div>
 
 <div id="bottom" class="hidden">
