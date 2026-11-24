@@ -1527,9 +1527,11 @@ const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,spin:0};
 
 // ================= Sound =================
 // Aufnahmen in sfx/: erstellt mit ElevenLabs Sound Effects (Free Plan: Namensnennung Pflicht, siehe lizenzen.html und INFO_HTML;
-// kommerzielle Nutzung eingeschränkt). Pfiff, Publikum und Signaltöne sind synthetisch (Web Audio).
+// kommerzielle Nutzung eingeschränkt). Pfiff, Hupe, Publikum, Applaus, Passgeräusch und Signaltöne sind synthetisch (Web Audio).
+// Alles läuft über ein Mischpult (mix): Hallraum einer Sporthalle (Faltungshall mit berechneter Impulsantwort), Panorama nach
+// Bildschirmposition, ferne Geräusche leiser/dumpfer/halliger (spat), am Ende ein Kompressor als Begrenzer gegen Übersteuern.
 let AC=null,muted=store.get('pgt_mute')==='1';
-function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});loadSmp();return AC;}
+function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});if(AC){mix();loadSmp();}return AC;}
 // Echte Geräusche aus sfx/ (ElevenLabs, tools/make_sfx.mjs + tools/trim_sfx.sh): SMP_N = Anzahl Varianten je Geräusch.
 // Geladen beim ersten ac() (Nutzer-Geste); fehlt eine Datei oder das Netz, bleibt der synthetische Ton (smp liefert false).
 // Zufall hier nur über Math.random, nicht R (R ist für „Nochmal ansehen“ geseedet).
@@ -1537,15 +1539,88 @@ const SMP_N={dribble:2,catch:3,squeak:3,step:2,swish:3,rim:3},SMP={},SMP_L={};le
 function loadSmp(){if(smpOn||!AC||!window.fetch)return;smpOn=true;
   const q=[];for(const k in SMP_N)for(let i=1;i<=SMP_N[k];i++)q.push([k,'sfx/'+k+i+'.mp3']);
   // nacheinander laden (schont langsame Verbindungen); fehlt die erste Datei eines Geräuschs, die übrigen überspringen
-  const miss={},next=()=>{const j=q.shift();if(!j)return;const[k,u]=j;if(miss[k])return next();
+  prerender();const miss={},next=()=>{const j=q.shift();if(!j)return;const[k,u]=j;if(miss[k])return next();
     fetch(u).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);}))
-      .then(buf=>{(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;}).then(next);};next();}
-function smp(k,v,pv){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
-  try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;
-    const s=a.createBufferSource(),g=a.createGain();s.buffer=L[i];s.playbackRate.value=1+(Math.random()*2-1)*(pv||.06);
-    g.gain.value=v*(.8+Math.random()*.35);s.connect(g).connect(a.destination);s.start();}catch(e){}return true;}
-// Lautstärke nach Abstand zur Kamera (Spieler weit weg leiser)
-const nearV=p=>p?clamp(1.25-Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z)/22,.2,1):1;
+      .then(buf=>{buf.ng=normG(buf);(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;}).then(next);};next();}
+// Lautheit angleichen: lautestes 30-ms-Fenster jeder Aufnahme auf -12 dBFS RMS (die Dateien sind nur auf Spitze normalisiert,
+// dichte Geräusche wie Quietschen und Schritte klangen dadurch viel lauter als Netz oder Fangen). Lautstärken in sfx sind relativ dazu.
+function normG(b){const d=b.getChannelData(0),w=Math.max(1,Math.round(b.sampleRate*.03));let m=0;
+  for(let i=0;i<d.length;i+=w>>1){let q=0;const e=Math.min(d.length,i+w);for(let j=i;j<e;j++)q+=d[j]*d[j];m=Math.max(m,q/w);}
+  return m>0?Math.min(3,.25/Math.sqrt(m)):1;}
+// Mischpult
+let MIX=null;
+// Impulsantwort einer Sporthalle: frühe Reflexionen (Boden, Wände), dann ein Nachhall von ca. 1,6 s, der oben schneller dunkler wird
+function gymIR(a){const sr=a.sampleRate,n=sr*1.7|0,b=a.createBuffer(2,n,sr);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);let lp=0;
+    for(let i=0;i<n;i++){const t=i/sr;if(t<.014)continue;const k=Math.min(.94,.2+t*.55);lp+=(Math.random()*2-1-lp)*(1-k);
+      d[i]=lp*Math.exp(-t*4.3)*Math.min(1,(t-.014)/.03)*(1+k);}
+    [[.017,.55],[.026,.4],[.039,.32],[.054,.25],[.071,.2],[.093,.15]].forEach(([t,g],j)=>{const q=(t+(c?.0035*(j%3):.002*(j%2)))*sr|0;d[q]+=g*((j+c)%2?-1:1);});}
+  return b;}
+function mix(){const a=AC;if(MIX||!a)return MIX;
+  try{const inp=a.createGain(),comp=a.createDynamicsCompressor();
+    comp.threshold.value=-3;comp.knee.value=2;comp.ratio.value=20;comp.attack.value=.001;comp.release.value=.12;  // nur Begrenzer (tiefe Schwelle hebt in Chrome alles per Make-up-Gain an)
+    inp.connect(comp).connect(a.destination);
+    const hp=a.createBiquadFilter(),cv=a.createConvolver(),wg=a.createGain();hp.type='highpass';hp.frequency.value=200;cv.buffer=gymIR(a);wg.gain.value=.55;
+    hp.connect(cv).connect(wg).connect(inp);MIX={inp,rev:hp};}
+  catch(e){MIX={inp:a.destination,rev:null};}
+  return MIX;}
+// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall
+function route(n,pan,wet){const a=AC,M=mix();let o=n;
+  if(pan&&a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=clamp(pan,-1,1);o.connect(P);o=P;}
+  o.connect(M.inp);if(M.rev&&wet>0){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
+// Raum: Lautstärke nach Abstand zur Kamera, Panorama nach Bildschirmposition, Hall- und Höhenverlust mit der Entfernung
+const SPV=new T3.Vector3();
+function spat(p){if(!p||!cam)return{v:1,pan:0,wet:.14,d:0};const d=Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z);
+  SPV.set(p.x,1,-p.z).project(cam);return{v:clamp(1.25-d/22,.2,1),pan:SPV.z<1?clamp(SPV.x*.5,-.7,.7):0,wet:clamp(.1+d/45,.1,.5),d};}
+function smp(k,v,pv,p,o){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
+  try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;const S=spat(p),b=L[i];
+    const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=1+(Math.random()*2-1)*(pv||.06);
+    g.gain.value=v*(b.ng||1)*S.v*(.85+Math.random()*.3);let n=s.connect(g);
+    if(S.d>7){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=clamp(17000-S.d*420,3500,17000);n=g.connect(f);}
+    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));s.start(a.currentTime+(o&&o.at||0));}catch(e){}return true;}
+// Vorberechnete Publikumsgeräusche (einmal beim ersten ac()): Applaus (viele kurze Klatscher, Stereo) und ein „Oooh“
+// (Stimmen mit Vokal-Formanten, Ton fällt am Ende ab). Fehlen sie noch, bleibt das alte Rauschen.
+const PRE={};
+function prerender(){const a=AC;if(!a||PRE.on)return;PRE.on=1;
+  try{const sr=a.sampleRate,n=sr*2.6|0,b=a.createBuffer(2,n,sr),L=b.getChannelData(0),Rr=b.getChannelData(1);
+    for(let c=0;c<520;c++){const t=Math.pow(Math.random(),1.6)*2.3,amp=(t<.15?t/.15:Math.pow(1-(t-.15)/2.2,1.3))*(.4+Math.random()*.6),i0=t*sr|0,
+      len=sr*(.004+Math.random()*.01)|0,fc=.14+Math.random()*.22,pan=Math.random();let lp=0,hp=0,x0=0;
+      for(let j=0;j<len*3&&i0+j<n;j++){const e=j<len*.08?j/(len*.08):Math.exp(-(j-len*.08)/(len*.5)),x=(Math.random()*2-1)*e;lp+=(x-lp)*fc;hp=.85*(hp+lp-x0);x0=lp;
+        const y=hp*amp*.5;L[i0+j]+=y*(1-pan*.7);Rr[i0+j]+=y*(.3+pan*.7);}}
+    PRE.clap=b;}catch(e){}
+  try{const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;if(!OC)return;const sr=a.sampleRate,o=new OC(2,sr*1.6|0,sr);
+    const bus=o.createGain();bus.gain.value=.5;bus.connect(o.destination);
+    for(let v=0;v<16;v++){const f0=v<9?110+Math.random()*70:190+Math.random()*90,st=Math.random()*.08,os=o.createOscillator(),g=o.createGain(),P=o.createStereoPanner?o.createStereoPanner():null;
+      os.type='sawtooth';os.frequency.setValueAtTime(f0*.96,st);os.frequency.linearRampToValueAtTime(f0*1.08,st+.3);os.frequency.linearRampToValueAtTime(f0*.78,1.4);
+      g.gain.setValueAtTime(0,0);g.gain.linearRampToValueAtTime(.06,st+.18);g.gain.setValueAtTime(.06,.6);g.gain.exponentialRampToValueAtTime(.001,1.5);
+      os.connect(g);let nd=g;if(P){P.pan.value=Math.random()*1.4-.7;g.connect(P);nd=P;}
+      [[330+Math.random()*60,5,1],[720+Math.random()*120,7,.5],[2600,6,.08]].forEach(([fq,q,gg])=>{const f=o.createBiquadFilter(),h=o.createGain();f.type='bandpass';f.frequency.value=fq;f.Q.value=q;h.gain.value=gg*3;nd.connect(f).connect(h).connect(bus);});
+      os.start(st);os.stop(1.55);}
+    const pr=o.startRendering(),done=b=>{PRE.ooh=b;};if(pr&&pr.then)pr.then(done).catch(()=>{});else o.oncomplete=e=>done(e.renderedBuffer);}catch(e){}}
+function playBuf(b,v,rate,wet){const a=AC;if(!a||muted||!b)return false;try{const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=rate||1;g.gain.value=v;s.connect(g);route(g,0,wet);s.start();}catch(e){}return true;}
+// Synthetische Klänge, rund statt piepsig: Pfiff mit Trillerkugel, Glockenton für richtig, weiches Abwärts für falsch, Hallenhupe
+function osc(type,f,t,d){const o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f,t);o.start(t);o.stop(t+d+.05);return o;}
+function env(t,a1,v,d,rel){const g=AC.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+a1);g.gain.setValueAtTime(v,t+Math.max(a1,d-rel));g.gain.linearRampToValueAtTime(0,t+d);return g;}
+function bell(f,t,v){const a=AC;[[1,1,1.1],[2.01,.35,.6],[3.02,.14,.35],[4.1,.06,.25]].forEach(([m,g,d])=>{const o=osc('sine',f*m,t,d),e=a.createGain();
+  e.gain.setValueAtTime(0,t);e.gain.linearRampToValueAtTime(v*g,t+.006);e.gain.exponentialRampToValueAtTime(.0008,t+d);o.connect(e);route(e,0,.32);});}
+function noiseBuf(d){const a=AC,b=a.createBuffer(1,a.sampleRate*d|0,a.sampleRate),c=b.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=Math.random()*2-1;return b;}
+const SYN={
+  whistle(){const a=AC,t=a.currentTime+.01,d=.44,o=osc('sine',2900,t,d),o2=osc('sine',5830,t,d),lfo=osc('sine',29,t,d),fm=a.createGain(),am=a.createGain(),amd=a.createGain(),h=a.createGain(),g=env(t,.012,.1,d,.06);
+    fm.gain.value=90;lfo.connect(fm);fm.connect(o.frequency);fm.connect(o2.frequency);am.gain.value=.65;amd.gain.value=.35;lfo.connect(amd).connect(am.gain);
+    h.gain.value=.12;o.connect(am);o2.connect(h).connect(am);
+    const nz=a.createBufferSource(),bp=a.createBiquadFilter(),ng=a.createGain();nz.buffer=noiseBuf(d+.05);bp.type='bandpass';bp.frequency.value=2950;bp.Q.value=6;ng.gain.value=.3;nz.connect(bp).connect(ng).connect(am);nz.start(t);
+    o.frequency.setValueAtTime(2750,t);o.frequency.linearRampToValueAtTime(2900,t+.05);am.connect(g);route(g,0,.4);},
+  good(){const t=AC.currentTime+.01;bell(880,t,.07);bell(1318.5,t+.1,.075);},
+  bad(){const a=AC,t=a.currentTime+.01;[[392,0,.16],[311,.17,.36]].forEach(([f,dt,d])=>{const o=osc('triangle',f,t+dt,d),o2=osc('sine',f/2,t+dt,d),lp=a.createBiquadFilter(),g=a.createGain(),h=a.createGain();
+    lp.type='lowpass';lp.frequency.value=1400;g.gain.setValueAtTime(0,t+dt);g.gain.linearRampToValueAtTime(.12,t+dt+.015);g.gain.exponentialRampToValueAtTime(.001,t+dt+d);
+    if(dt)o.frequency.linearRampToValueAtTime(f*.94,t+dt+d);h.gain.value=.5;o.connect(lp);o2.connect(h).connect(lp);lp.connect(g);route(g,0,.25);});},
+  buzz(){const a=AC,t=a.currentTime+.01,d=.75,lp=a.createBiquadFilter(),g=env(t,.01,.065,d,.06);lp.type='lowpass';lp.frequency.value=1700;lp.Q.value=.7;
+    [[196,'sawtooth',1],[233,'sawtooth',.8],[392,'square',.25]].forEach(([f,ty,v])=>{const o=osc(ty,f,t,d),h=a.createGain();h.gain.value=v;o.connect(h).connect(lp);});lp.connect(g);route(g,0,.45);},
+  pass(p){const a=AC,t=a.currentTime,S=spat(p),nz=a.createBufferSource(),bp=a.createBiquadFilter(),g=a.createGain();nz.buffer=noiseBuf(.2);bp.type='bandpass';bp.Q.value=1.2;
+    bp.frequency.setValueAtTime(700,t);bp.frequency.exponentialRampToValueAtTime(2200,t+.16);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.09*S.v,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.19);
+    nz.connect(bp).connect(g);route(g,S.pan,S.wet);nz.start(t);smp('catch',.16,.12,p,{wet:.6});},
+};
+function syn(k,p){if(!AC||muted)return;try{SYN[k](p);}catch(e){}}
 let sqkT=0;
 // Publikum im Hintergrund: Gemurmel aus ~24 synthetischen Stimmen (Puls + Rauschen durch zwei Formant-Resonatoren,
 // Silben mit Pausen), einmal als 6-s-Schleife berechnet, zwei versetzte Wiedergaben. Lautstärke folgt G.excite, aus im Menü/stumm.
@@ -1579,8 +1654,8 @@ function bedFinish(st){const a=AC,{sr,n,fd,out}=st;
   for(let i=0;i<fd;i++){const u=i/fd;out[i]=out[i]*u+out[n+i]*(1-u);}  // Schleife ohne Naht
   let m=0;for(let i=0;i<n;i++)m=Math.max(m,Math.abs(out[i]));const b=a.createBuffer(1,n,sr),ch=b.getChannelData(0);for(let i=0;i<n;i++)ch[i]=out[i]/(m||1)*.9;
   const g=a.createGain(),lp=a.createBiquadFilter(),hp=a.createBiquadFilter();g.gain.value=0;lp.type='lowpass';lp.frequency.value=6000;hp.type='highpass';hp.frequency.value=240;
-  lp.connect(hp).connect(g).connect(a.destination);
-  [[1,0],[.94,2.7]].forEach(([r,o])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;s.connect(lp);s.start(0,o);});
+  lp.connect(hp).connect(g);route(g,0,.18);
+  [[1,0,-.45],[.94,2.7,.45]].forEach(([r,o,pn])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;let n=s;if(a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=pn;n=s.connect(P);}n.connect(lp);s.start(0,o);});
   return g;}
 function makeBed(roar){const st=bedInit(roar);while(!bedVoice(st));return bedFinish(st);}
 let bedSt=null;
@@ -1589,14 +1664,17 @@ function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED)return;
   if(!BED.g)return;BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&G.phase!=='menu',wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
   BED.g.gain.setTargetAtTime(on?.05+.03*ex:0,a.currentTime,on?.4:.25);
   BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,ex>BED.ex?.12:.6);BED.ex=ex;}
-function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02);}catch(e){}}
-function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(a.destination);s.start();}catch(e){}}
+function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(mix().inp);o.start(t);o.stop(t+d+.02);}catch(e){}}
+function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
 function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
   for(let i=0;i<n;i++){const t=i/n,e=t<att?t/att:Math.pow(1-(t-att)/(1-att),1.6);ch[i]=(Math.random()*2-1)*e*(.75+.25*Math.sin(i/a.sampleRate*40));}
-  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(a.destination);s.start();}catch(e){}}
-const sfx={crowd:()=>crowdN(2.2,.5,1100,.12),ooh:()=>crowdN(1.1,.35,520,.3),dribble:p=>smp('dribble',.5*nearV(p))||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.45*nearV(p)),
-  squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;smp('squeak',(p===ROLE.H?.13:.08)*nearV(p),.1);},step:(p,v)=>smp('step',v*nearV(p),.1),
-  whistle:()=>{tone(2300,.18,'square',.035);tone(2500,.18,'square',.02)},swish:()=>smp('swish',.6)||noise(.35,.25,2500),good:()=>{tone(660,.12,'triangle',.15);tone(990,.22,'triangle',.15,null,.11);noise(.9,.05,600)},bad:()=>tone(180,.4,'sawtooth',.09,90),buzz:()=>tone(110,.6,'square',.07),rim:()=>smp('rim',.5)||tone(330,.2,'triangle',.12,200),pass:()=>noise(.08,.08,1200)};
+  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
+const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);playBuf(PRE.clap,1,.95+Math.random()*.1,.35)||crowdN(2.2,.5,1100,.12);},
+  ooh:()=>playBuf(PRE.ooh,1.1,.92+Math.random()*.16,.4)||crowdN(1.1,.35,520,.3),
+  dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:p=>smp('dribble',.32,.1,p,{wet:1.4}),
+  squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;return smp('squeak',p===ROLE.H?.12:.08,.1,p);},step:(p,v)=>smp('step',v,.12,p,{wet:.5}),
+  whistle:()=>syn('whistle'),swish:()=>smp('swish',.7,.05,null,{wet:1.6})||noise(.35,.25,2500),good:()=>syn('good'),bad:()=>syn('bad'),buzz:()=>syn('buzz'),
+  rim:()=>smp('rim',.45,.05,null,{wet:1.8})||tone(330,.2,'triangle',.12,200),pass:p=>syn('pass',p||ball.owner)};
 
 // ================= Spielzustand =================
 const G={ts:1,slowT:0,wave:-9,phase:'menu',pos:'pg',level:1,mode:4,noLimit:false,round:0,rounds:10,score:0,streak:0,bestStreak:0,results:[],sc:null,t:0,dStart:0,win:4,timers:[],replay:false,choice:null,snap:null,bag:[],plays:['top','break','wing','backdoor'],excite:0,saved:false};
@@ -1767,7 +1845,7 @@ let lastCos=1;
 function updBall(dt){
   if(ball.fl){const f=ball.fl;f.t+=dt;const u=clamp(f.t/f.d,0,1);
     ball.x=lerp(f.a.x,f.b.x,u);ball.z=lerp(f.a.z,f.b.z,u);ball.y=lerp(f.a.y,f.b.y,u)+f.h*4*u*(1-u);ball.spin+=dt*(f.shot?-11:14);
-    if(u>=1){ball.fl=null;f.end&&f.end();}}
+    if(u>=1){ball.fl=null;if(f.b.y<.3)sfx.bounce(ball);f.end&&f.end();}}
   else if(ball.owner){const o=ball.owner,a=o.ang,lx=Math.cos(a),lz=Math.sin(a),fx=Math.sin(a),fz=-Math.cos(a);
     if(ball.hold){const sa=o.act&&o.act.k==='shoot'?o.act:null;ball.x=o.x+fx*(sa?.2:.33);ball.z=o.z+fz*(sa?.2:.33);ball.y=(sa?lerp(1.25,2.3,clamp((sa.t-.08)/.14,0,1)):o.armsUp>0?2.25:1.18)+(o.jy||0);}
     else{ball.x=o.x+lx*o.dside*.36+fx*.3;ball.z=o.z+lz*o.dside*.36+fz*.3;const c=Math.cos(o.drib);ball.y=.13+.8*Math.abs(c);ball.spin+=dt*8;
@@ -3479,7 +3557,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');render
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
-window.__snd={SMP,sfx,mute:v=>{muted=v;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
+window.__snd={SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
 window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 window.__rig=(t,n,l,g)=>{setGirl(g);return (GLB.ok?makeGLBRig:makeRig)(t,n,l);};window.__setGirl=setGirl;window.__miniMap=miniMap; // nur für Tests (Figuren-Aufstellung, Frage auf der Mini-Karte)
