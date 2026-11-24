@@ -24,6 +24,10 @@ from playwright.async_api import async_playwright
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
+# Bildschirm-Position des gesuchten Spielers auf der Mini-Karte (wie der pointerdown-Handler in index.html rechnet)
+QUIZ_XY = '''()=>{const G=window.__G,q=G.quiz,m=document.getElementById('mini'),r=m.getBoundingClientRect(),k=Math.min(r.width/m.width,r.height/m.height),M=window.__miniMap(),
+  p=G.snap.find(p=>p.role===q.r);return [r.left+(r.width-m.width*k)/2+M.sx(p.x)*k, r.top+(r.height-m.height*k)/2+M.sz(p.z)*k];}'''
+
 class Quiet(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a): pass
 
@@ -83,10 +87,20 @@ async def run(a):
             ans = sc[2]
             if i % 3 == 2:
                 opts = await pg.eval_on_selector_all('#controls .cb:not(.hidden), #tags .tag[data-c]', 'els=>els.map(e=>e.dataset.c)')
-                ans = random.choice(opts)
+                ans = random.choice([o for o in opts if o != sc[2]] or opts)  # bewusst falsch: Frage in der Auswertung testen
             await pg.click(f'#bottom [data-c="{ans}"], #tags [data-c="{ans}"]')
             await pg.wait_for_function('window.__G.phase==="feedback"', timeout=300000)
             await pg.screenshot(path=f'{a.out}/feedback{i}.png')
+            if await pg.evaluate('!!window.__G.quiz'):  # falsche Wahl: erst die Frage beantworten
+                await pg.click('#nextBtn')
+                assert await pg.is_visible('#feedback'), 'Weiter darf vor der Antwort nicht gehen'
+                await pg.wait_for_timeout(500)
+                await pg.screenshot(path=f'{a.out}/feedback{i}_gesperrt.png')
+                xy = await pg.evaluate(QUIZ_XY)
+                await pg.mouse.click(xy[0], xy[1])
+                assert not await pg.evaluate('!!window.__G.quiz'), 'Antippen auf der Karte hat die Frage nicht beantwortet'
+                await pg.wait_for_timeout(300)
+                await pg.screenshot(path=f'{a.out}/feedback{i}_antwort.png')
             await pg.click('#nextBtn')
         await pg.wait_for_selector('#summary:not(.hidden)', timeout=30000)
         await pg.wait_for_timeout(1300)
