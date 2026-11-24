@@ -1464,14 +1464,35 @@ const glbJerseys=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>{
   };
   return [team,material];
 }));
+// Farben in Ruhekoordinaten: Die Besätze bleiben auch bei gebeugten Knien am Stoff.
+function kitMaterial(team,part,color,roughness,pattern){
+  const material=matC(part+team,{color,roughness});
+  material.customProgramCacheKey=()=>part;
+  material.onBeforeCompile=shader=>{
+    shader.uniforms.kitAccent={value:new T3.Color(TEAM[team].trim)};
+    shader.vertexShader='varying vec3 kitRest;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nkitRest=position;');
+    shader.fragmentShader='varying vec3 kitRest; uniform vec3 kitAccent;\n'+shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n'+pattern);
+  };
+  return material;
+}
+const teamGear=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>[team,{
+  shorts:kitMaterial(team,'shorts',kit.shorts,.82,`
+    float panel=(1.0-smoothstep(.035,.06,abs(kitRest.z+.027)))*smoothstep(.08,.14,abs(kitRest.x));
+    float hem=1.0-smoothstep(.008,.018,abs(kitRest.y+.385));
+    diffuseColor.rgb=mix(diffuseColor.rgb,kitAccent,max(panel*.85,hem));`),
+  shoe:kitMaterial(team,'shoe',kit.shoe,.5,`
+    float sole=1.0-smoothstep(-.917,-.903,kitRest.y);
+    float heel=(1.0-smoothstep(-.085,-.06,kitRest.z))*smoothstep(-.91,-.88,kitRest.y);
+    diffuseColor.rgb=mix(mix(diffuseColor.rgb,kitAccent,heel),vec3(.74),sole);`)
+}]));
 function makeGLBRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
-  const MT={jersey:glbJerseys[team],shorts:matC('s'+team,{color:C.shorts,roughness:.6}),skin:matC('k'+si,{color:SKINC[si],roughness:.55}),
-    sock:matC('t',{color:0xffffff,roughness:.5}),shoe:matC('sh'+team,{color:C.shoe,roughness:.4})};
+  const MT={jersey:glbJerseys[team],shorts:teamGear[team].shorts,skin:matC('k'+si,{color:SKINC[si],roughness:.55}),
+    sock:matC('t',{color:0xffffff,roughness:.5}),shoe:teamGear[team].shoe};
   const hm=matC('h'+L.hairC,{color:HAIRC[L.hairC],roughness:.9}),em=matC('eye',{color:0x111111}),bm=matC('b'+L.hairC,{color:new T3.Color(HAIRC[L.hairC]).multiplyScalar(.7),roughness:.9}),tm=MT.sock;
   const root=new T3.Group(),body=GLB.clone(GLB.src);root.add(body);
   const B={};
-  const gg=GIRL&&girlGeo();
+  const gg=youthGeo(GIRL);
   body.traverse(o=>{if(o.isMesh){o.material=MT[o.material.name]||MT.skin;if(gg&&gg[o.geometry.uuid])o.geometry=gg[o.geometry.uuid];o.castShadow=true;o.frustumCulled=false;}if(o.isBone)B[o.name.replace('DEF-','')]=o;});
   root.updateMatrixWorld(true);
   // Anker an einem Knochen, ausgerichtet wie die ganze Figur (für Haare, Gesicht, Nummer)
@@ -1495,11 +1516,16 @@ function makeGLBRig(team,num,look){
 const GIRL_F={shoulder:['upper_arm',.55],upper_arm:['forearm',.66],forearm:['hand',.78],neck:['head',.8],spine003:['neck',.8],spine002:['spine003',.87],
   spine001:['spine002',.94],hips:['spine001',1.06],thigh:['shin',.9],shin:['foot',.9]};
 const GC=['getX','getY','getZ','getW'];
-function girlGeo(){if(GLB.gg)return GLB.gg;const gg=GLB.gg={};GLB.src.updateMatrixWorld(true);
+const YOUTH_F={...GIRL_F,shoulder:['upper_arm',.77],upper_arm:['forearm',.8],forearm:['hand',.86],
+  spine003:['neck',.9],spine002:['spine003',.94],hips:['spine001',1],thigh:['shin',.95]};
+function youthGeo(girl){
+  const key=girl?'girlGeometry':'boyGeometry', factors=girl?GIRL_F:YOUTH_F;
+  if(GLB[key])return GLB[key];
+  const gg=GLB[key]={};GLB.src.updateMatrixWorld(true);
   const v=new T3.Vector3(),d=new T3.Vector3(),ab=new T3.Vector3(),pr=new T3.Vector3();
   GLB.src.traverse(o=>{if(!o.isSkinnedMesh||gg[o.geometry.uuid])return;const sk=o.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-',''));
     const P=sk.boneInverses.map(m=>new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
-    const spec=nm.map(n=>{const m=n.match(/^(.*?)([LR]?)$/),f=GIRL_F[m[1]];if(!f)return null;const t=nm.indexOf(f[0]+m[2]);return t<0?null:{a:P[nm.indexOf(n)],b:P[t],f:f[1]};});
+    const spec=nm.map(n=>{const m=n.match(/^(.*?)([LR]?)$/),f=factors[m[1]];if(!f)return null;const t=nm.indexOf(f[0]+m[2]);return t<0?null:{a:P[nm.indexOf(n)],b:P[t],f:f[1]};});
     const g=o.geometry.clone(),pos=g.attributes.position,si=g.attributes.skinIndex,sw=g.attributes.skinWeight,inv=o.bindMatrixInverse;
     for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i).applyMatrix4(o.bindMatrix);d.set(0,0,0);
       for(let k=0;k<4;k++){const w=sw[GC[k]](i),S=w&&spec[si[GC[k]](i)];if(!S)continue;
@@ -1546,11 +1572,20 @@ function poseGLB(p,dt){
   // seitlich → Hüfte in Laufrichtung drehen, Oberkörper dreht zurück
   const a=p.ang,lx=Math.cos(a),lz=Math.sin(a),fx=Math.sin(a),fz=-Math.cos(a);
   const busy=A&&/shoot|layup|block|cheer|sad/.test(A.k);
-  let yawT=0;
+  let yawT=0,slideWeight=0;
+  const sideways=p.vx*lx+p.vz*lz;
   if(s>.35&&!busy){const rel=Math.atan2(p.vx*lx+p.vz*lz,p.vx*fx+p.vz*fz),ar=Math.abs(rel);
+    if(def&&has('slide')&&has('slideM')){
+      const across=Math.abs(Math.sin(rel));
+      slideWeight=smooth(clamp((across-.62)/.30,0,1))*smooth(clamp((s-.15)/.55,0,1))*(1-smooth(clamp((s-1.8)/1.2,0,1)));
+    }
     if(has('jogBack')){if(ar>1.9)c.bm=1;else if(ar<1.6)c.bm=0;}
     yawT=clamp(c.bm?wrapA(rel-Math.PI):rel,-1,1)*clamp((s-.35)/.6,0,1);}
   else if(busy)c.bm=0;
+  yawT*=1-slideWeight;
+  // Am Standbein entscheidet der zurückgelegte Seitenweg über die Clip-Phase.
+  c.slidePhase=((c.slidePhase||0)+dt*sideways/.64)%1;
+  const phase=(c.slidePhase+1)%1;
   c.bk=lerp(c.bk||0,c.bm||0,1-Math.exp(-dt*8));
   const mv=W.walk+W.jog+W.sprint,ub=clamp((s-2.6)/1.4,0,1);
   W.jogBack=mv*c.bk*(1-ub);W.runBack=mv*c.bk*ub;W.walk*=1-c.bk;W.jog*=1-c.bk;W.sprint*=1-c.bk;
@@ -1572,6 +1607,9 @@ function poseGLB(p,dt){
   const keep=(1-air)*(1-cheer);
   for(const n of['idle','ready','walk','jog','sprint','jogBack','runBack','sadWalk'])tw[n]*=(1-cr)*(1-drib)*keep;
   tw.crouch*=(1-drib)*keep;tw.crouchFwd*=(1-drib)*keep;tw.dribble*=keep;tw.dribbleM*=keep;tw.jump*=(1-cheer);
+  for(const n in tw)tw[n]*=1-slideWeight;
+  tw.slide=sideways>=0?slideWeight:0;
+  tw.slideM=sideways<0?slideWeight:0;
   for(const n in tw){c['w_'+n]=c['w_'+n]===undefined?tw[n]:lerp(c['w_'+n],tw[n],k);}
   let sum=0;for(const n in tw)if(r.A[n])sum+=c['w_'+n];
   c.it=(c.it||0)+dt;c.dt2=cheer?(c.dt2||0)+dt:0;
@@ -1592,6 +1630,7 @@ function poseGLB(p,dt){
   const up=c.ac&&/U$/.test(c.ac),fa=up?0:c.aw,ua=up?Math.min(c.aw,.97):0;
   const db=((p.drib||0)/Math.PI)%3;   // Ball oben bei ganzen Zahlen; der Clip enthält drei Dribblings
   for(const n in tw){const an=r.A[n];if(!an)continue;an.setEffectiveWeight(c['w_'+n]/Math.max(sum,.001)*(1-fa));const D=an.getClip().duration;
+    if(n==='slide'||n==='slideM'){an.time=(n==='slide'?phase:1-phase)*D;continue;}
     an.time=n==='idle'||n==='ready'||n==='crouch'||n==='jump'?(c.it+p.ph)%D:/dance|cheer|clap/.test(n)?c.dt2%D:/dribble/.test(n)?db*D/3:r.ph*D;}
   for(const n of ACT_ALL){const an=r.A[n];if(!an)continue;const on=n===c.ac&&c.aw>0;an.setEffectiveWeight(on?(up?ua/(1-ua):fa):0);if(on)an.time=(c.at||0)*an.getClip().duration;}
   r.mx.update(0);
