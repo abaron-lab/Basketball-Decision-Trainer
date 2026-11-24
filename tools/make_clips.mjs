@@ -75,7 +75,7 @@ export const CLIPS = {
     // Die Stützhand löst sich beim Hochführen und sinkt in einem Bogen ab.
     { t: .28, B: [-.16, 2.32, .36], RN: [0, .97, .1], RF: [0, -.1, 1], Rsh: .35, Lb: 0, LP: [.26, 1.66, .31], RP: [-.16, 2.17, .29], LN: [-1, 0, .2], LF: [0, .9, .4],
       Lf: [.1, .2, -.12], Rf: [-.11, .5, .26] },
-    { t: .31, Rb: 0, Lb: 0, RP: [-.15, 2.2, .38], LP: [.28, 1.59, .30], LE: [1, -.4, 0] },
+    { t: .34, Rb: 0, Lb: 0, RP: [-.16, 2.20, .32], LP: [.28, 1.59, .30], LE: [1, -.4, 0] },
     { t: .45, LP: [.32, 1.33, .26], RP: [-.15, 2.15, .36], RN: [.35, .85, .35], RF: [0, -.35, 1], Rf: [-.12, .36, .16], Lf: [.11, .18, -.06], Lfp: .5, Rfp: .45, np: -.12 },
     { t: .62, RP: [-.21, 1.86, .36], RN: [.7, .65, .25], Rsh: .16, Lf: [.13, .104, -.02], Rf: [-.13, .104, .06], Lfp: 0, Rfp: 0, Lt: 1, Rt: 1, hy: .08, hp: .12 },
     { t: .7, hy: .16, hp: .2, sp: .08, RP: [-.25, 1.5, .3], LP: [.25, 1.3, .25], Rsh: 0, np: 0 },
@@ -181,9 +181,14 @@ const _q1 = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _q3 = new THRE
 function rotW(bone, q) { const pq = bone.parent.getWorldQuaternion(_q3); bone.quaternion.premultiply(_q2.copy(pq).invert().multiply(q).multiply(pq)); bone.updateMatrixWorld(true); }
 function setW(bone, q) { const pq = bone.parent.getWorldQuaternion(_q3); bone.quaternion.copy(_q2.copy(pq).invert().multiply(q)); bone.updateMatrixWorld(true); }
 const qE = (p, y, r) => new THREE.Quaternion().setFromEuler(new THREE.Euler(p, y, r, 'YXZ'));
-function ik2(up, lo, end, T, pole) {
+function ik2(up, lo, end, T, pole, softenReach = false) {
   const S = up.getWorldPosition(V()), E = lo.getWorldPosition(V()), H = end.getWorldPosition(V());
-  const la = S.distanceTo(E), lb = E.distanceTo(H), d = Math.min(Math.max(S.distanceTo(T), Math.abs(la - lb) + .01), la + lb - .002);
+  const la = S.distanceTo(E), lb = E.distanceTo(H), reach = la + lb - .002;
+  let d = Math.max(S.distanceTo(T), Math.abs(la - lb) + .01);
+  // Beim Strecken weich an die Reichweite annähern, damit der Ellbogen nicht einrastet.
+  const ease = .065;
+  if (softenReach && d > reach - ease) d = reach - ease * Math.exp(-(d - reach + ease) / ease);
+  else d = Math.min(d, reach);
   const u = V().subVectors(S, E), v = V().subVectors(H, E), th0 = u.angleTo(v), th1 = Math.acos(Math.min(1, Math.max(-1, (la * la + lb * lb - d * d) / (2 * la * lb))));
   let n = u.clone().cross(v); if (n.lengthSq() < 1e-8) n = V().subVectors(T, S).cross(V().subVectors(pole, S));
   if (n.lengthSq() > 1e-10) rotW(lo, new THREE.Quaternion().setFromAxisAngle(n.normalize(), th1 - th0));
@@ -201,7 +206,7 @@ function handQ(side, N, F) {
 }
 const PALM = .145, FING = .07;   // Handgelenk → Ballmitte: Handfläche liegt am Ball (Radius 0,122 m)
 
-function solve(P) {
+function solve(P, shootingSide) {
   for (const b of bones) { b.quaternion.copy(restQ.get(b)); b.position.copy(restP.get(b)); }
   fingers.forEach(f => f.quaternion.copy(fingerQ.get(f)));
   scene.updateMatrixWorld(true);
@@ -219,7 +224,7 @@ function solve(P) {
     const onBall = ball.clone().addScaledVector(N, -PALM).addScaledVector(fo, -FING);
     const T = V(...P[s + 'P']).lerp(onBall, Math.min(1, Math.max(0, P[s + 'b'])));
     const S = B('upper_arm' + s).getWorldPosition(V());
-    ik2(B('upper_arm' + s), B('forearm' + s), B('hand' + s), T, S.clone().add(V(...P[s + 'E'])));
+    ik2(B('upper_arm' + s), B('forearm' + s), B('hand' + s), T, S.clone().add(V(...P[s + 'E'])), s === shootingSide);
     setW(B('hand' + s), handQ(s, P[s + 'N'], P[s + 'F']));
     // Beine
     const th = B('thigh' + s), K = th.getWorldPosition(V());
@@ -233,7 +238,7 @@ function solve(P) {
 }
 
 // ---------------------------------------------------------------- Schreiben
-const FPS = 30;
+
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
 const doc = await io.readBinary(new Uint8Array(glbBuf));
 const root = doc.getRoot(), buf = root.listBuffers()[0];
@@ -250,12 +255,13 @@ for (const [name, cfg] of Object.entries(CLIPS)) {
   for (const mirror of cfg.mirror ? [false, true] : [false]) {
     const nm = name + (mirror ? 'M' : '');
     root.listAnimations().filter(a => a.getName() === nm).forEach(a => a.dispose());
-    const n = Math.round(cfg.d * FPS) + 1, times = new Float32Array(n);
+    const fps = name === 'layup' ? 100 : 30;
+    const n = Math.round(cfg.d * fps) + 1, times = new Float32Array(n);
     const rot = new Map(bones.map(b => [b, new Float32Array(n * 4)])), hp = new Float32Array(n * 3), bp = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
-      const t = Math.min(cfg.d, i / FPS); times[i] = t;
+      const t = Math.min(cfg.d, i / fps); times[i] = t;
       let P = at(t); if (mirror) P = mirrorPose(P);
-      const ball = solve(P);
+      const ball = solve(P, name === 'layup' ? (mirror ? 'L' : 'R') : null);
       for (const b of bones) {
         const q = b.quaternion.clone().normalize(), arr = rot.get(b);
         if (i && q.dot(_q1.fromArray(arr, (i - 1) * 4)) < 0) q.set(-q.x, -q.y, -q.z, -q.w);
