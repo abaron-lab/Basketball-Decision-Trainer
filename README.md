@@ -58,9 +58,10 @@ Bevor die Seite öffentlich genutzt wird, in `impressum.html` und `datenschutz.h
 In der Firebase-Konsole (Projekteinstellungen) prüfen, ob den „Firebase Data Processing and Security Terms“ zugestimmt ist; darauf verweist die Datenschutzerklärung. Die Seiten sind sorgfältig erstellt, ersetzen aber keine Rechtsberatung.
 
 ### Als App auf dem Handy
-Das Spiel lässt sich wie eine App auf den Startbildschirm legen und startet dann im Vollbild, ohne Browserleisten:
-- **iPhone (Safari):** Teilen-Symbol → „Zum Home-Bildschirm“.
-- **Android (Chrome):** Menü ⋮ → „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.
+Über **App installieren** im Hauptmenü lässt sich das Spiel auf den Startbildschirm legen. Beim Start über das App-Symbol öffnet es sich ohne Browserleiste.
+
+- **iPhone (Safari)** zeigt die Schritte zum manuellen Hinzufügen an. [Apple-Anleitung für iOS 27](https://support.apple.com/de-ch/guide/iphone/iphea86e5236/27/ios/27)
+- **Android (Chrome)** öffnet den Installationsdialog, sobald Chrome ihn anbietet. Alternativ zeigt der Knopf die Schritte über das Chrome-Menü an. [Chrome-Hilfe für Android](https://support.google.com/chrome/answer/9658361?co=GENIE.Platform%3DAndroid&hl=de)
 
 Nach dem ersten Öffnen funktioniert es auch ohne Internet (die Online-Rangliste natürlich nicht).
 

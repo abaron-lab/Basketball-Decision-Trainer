@@ -180,6 +180,12 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .best{font-size:12.5px;color:#9fb0d4;font-weight:800;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;min-height:18px}
 .best .i{width:15px;height:15px;color:var(--gold)}
 .mfoot{flex-direction:column;gap:6px}
+#installBtn{align-self:center;flex:none;padding:10px 14px;font-size:14px}
+#installHelp{position:fixed;inset:0;margin:auto;width:min(400px,calc(100% - 32px));height:fit-content;max-height:calc(100% - 32px);padding:0;color:#fff;border-radius:20px}
+#installHelp:not([open]){display:none}
+#installHelp::backdrop{background:rgba(3,5,12,.75)}
+#installHelp .body{padding:16px 18px}
+#installHelp ol{margin:6px 0 14px;padding-left:22px}
 /* Tipps */
 .tpane{display:none;margin-top:6px}.tpane.on{display:block;animation:fadeIn .25s}
 @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}}
@@ -634,9 +640,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
     <div class="foot mfoot">
       <button class="btn big" id="startBtn"><svg class="i fill"><use href="#i-play"/></svg>SPIELEN</button>
       <div class="best" id="bestTxt"></div>
+      <button type="button" class="btn sec hidden" id="installBtn" aria-haspopup="dialog"><svg class="i" aria-hidden="true"><use href="#i-device"/></svg>App installieren</button>
     </div>
   </div>
 </div>
+
+<dialog class="card" id="installHelp" aria-labelledby="installTitle">
+  <div class="body info">
+    <div class="bhead"><h2 id="installTitle">App installieren</h2><form method="dialog"><button class="rbtn" aria-label="Schließen" autofocus><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></form></div>
+    <div id="installApple" class="hidden">
+      <ol>
+        <li>Öffne den Trainer in Safari. Tippe auf <b>Teilen</b>. Im kompakten Layout findest du den Punkt im Seitenmenü.</li>
+        <li>Wähle <b>Zu Home-Bildschirm hinzufügen</b>.</li>
+        <li>Aktiviere <b>Als Web-App öffnen</b> und tippe auf <b>Hinzufügen</b>.</li>
+      </ol>
+      <p><a href="https://support.apple.com/de-ch/guide/iphone/iphea86e5236/27/ios/27" target="_blank" rel="noopener">Apple-Anleitung für iOS 27</a></p>
+    </div>
+    <div id="installAndroid" class="hidden">
+      <ol>
+        <li>Öffne den Trainer in Chrome und tippe auf das Dreipunkt-Menü <b>⋮</b>.</li>
+        <li>Wähle <b>Installieren und Verknüpfung erstellen</b> und dann <b>Installieren</b>.</li>
+      </ol>
+      <p><a href="https://support.google.com/chrome/answer/9658361?co=GENIE.Platform%3DAndroid&amp;hl=de" target="_blank" rel="noopener">Chrome-Anleitung für Android</a></p>
+    </div>
+  </div>
+</dialog>
 
 <div id="tips" class="overlay hidden">
   <div class="card">
@@ -904,6 +932,50 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
   </div>
 </div>
 
+<script>
+(()=>{
+  const apple=/iPhone|iPad|iPod/.test(navigator.userAgent)||
+    (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const android=navigator.userAgentData?.platform==='Android'||/Android/.test(navigator.userAgent);
+  if(!apple&&!android)return;
+
+  const button=document.getElementById('installBtn');
+  const help=document.getElementById('installHelp');
+  const displayMode=matchMedia('(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)');
+  let installPrompt=null,installed=false;
+  const reflectInstalled=()=>{
+    const hide=installed||displayMode.matches||navigator.standalone===true;
+    button.classList.toggle('hidden',hide);
+    if(hide&&help.open)help.close();
+  };
+  const markInstalled=()=>{installed=true;installPrompt=null;reflectInstalled();};
+  reflectInstalled();
+  displayMode.addEventListener('change',reflectInstalled);
+  window.addEventListener('appinstalled',markInstalled);
+  if(android)window.addEventListener('beforeinstallprompt',event=>{
+    event.preventDefault();
+    installPrompt=event;
+  });
+  document.getElementById(apple?'installApple':'installAndroid').classList.remove('hidden');
+  button.addEventListener('click',async()=>{
+    if(installPrompt){
+      const prompt=installPrompt;
+      installPrompt=null;
+      button.disabled=true;
+      try{
+        await prompt.prompt();
+        if((await prompt.userChoice).outcome==='accepted')markInstalled();
+        return;
+      }catch{
+        // Wenn der Browser den Dialog nicht öffnen kann, bleiben die manuellen Schritte verfügbar.
+      }finally{
+        button.disabled=false;
+      }
+    }
+    if(!button.classList.contains('hidden'))help.showModal();
+  });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
 <script type="importmap">{"imports":{"three":"./three-shim.js"}}</script>
 <script src="config.js"></script>
