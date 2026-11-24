@@ -259,6 +259,11 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .fbq.nudge{animation:nudge .45s;border-color:#ffd23d;background:rgba(255,210,61,.16)}@keyframes nudge{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
 .rule{display:flex;gap:9px;align-items:flex-start;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.25);border-radius:13px;padding:8px 11px;margin:6px 0 2px;font-weight:800;font-size:14px;line-height:1.3;color:#ffe39a}
 .rule .i{color:var(--gold);width:18px;height:18px;margin-top:1px}
+@media (max-width:560px) and (orientation:portrait){
+  /* Platz für die Karte, solange die Frage auf einen Tipp wartet. */
+  .quiz .choices,.quiz #fbWhy,.quiz #fbWrong,.quiz .rule,.quiz .legend .lnl{display:none}
+  .quiz .mapbox{flex:0 1 auto;aspect-ratio:var(--map-aspect,4/3);overflow:hidden}
+}
 @media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.1fr 1fr;grid-template-rows:1fr auto;gap:8px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px}.legend{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}#fbWhy{font-size:16px}}
 /* Handy quer (flach): Karte links über die ganze Höhe, rechts Kopf, Wahl, Text (scrollt) und Tasten */
 @media (max-height:500px) and (orientation:landscape){
@@ -3167,10 +3172,19 @@ $('mini').addEventListener('pointerdown',e=>{const q=G.quiz;if(!q||G.phase!=='fe
   const x=(e.clientX-r.left-(r.width-m.width*k)/2)/k,y=(e.clientY-r.top-(r.height-m.height*k)/2)/k,M=miniMap();let best=null,bd=1e9;
   G.snap.forEach(p=>{if(p.z<-10.8&&!M.far)return;const d=Math.hypot(M.sx(p.x)-x,M.sz(p.z)-y);if(d<bd){bd=d;best=p;}});
   if(!best||bd>48){quizNudge('Tippe direkt auf einen Spieler.');return;}quizReveal(best.role===q.r);});
-// Langer Pass: ganzes Feld zeigen, sonst nur das Halbfeld
-function miniMap(){const m=$('mini'),w=m.width,h=m.height,far=!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel))),zr=(h-34)/(far?28.4:12.2),S=far?zr*1.3:w/15.6;return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far};}
+// Langer Pass: schmalere Zeichenfläche für das längliche Ganzfeld.
+function miniMap(){
+  const far=!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel)));
+  const w=far?368:640,h=$('mini').height,zr=(h-34)/(far?28.4:12.2),S=far?zr*1.3:w/15.6;
+  return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far,w};
+}
 function drawMini(choice,o){o=o||{};
-  const m=$('mini'),c=m.getContext('2d'),w=m.width,h=m.height,{S,zr,sx,sz,far}=miniMap();
+  const m=$('mini'),h=m.height,{S,zr,sx,sz,far,w}=miniMap();
+  if(m.width!==w){
+    m.width=w;
+    m.parentElement.style.setProperty('--map-aspect',w+'/'+h);
+  }
+  const c=m.getContext('2d');
   c.fillStyle=far?'#10141f':'#d29b5f';c.fillRect(0,0,w,h);
   if(far){c.fillStyle='#d29b5f';c.fillRect(sx(-HW),sz(BASE),2*HW*S,sz(-26.425)-sz(BASE));c.strokeStyle='#fff';c.lineWidth=3;
     c.beginPath();c.moveTo(sx(-HW),sz(-12.425));c.lineTo(sx(HW),sz(-12.425));c.stroke();c.beginPath();c.ellipse(sx(0),sz(-12.425),1.8*S,1.8*zr,0,0,7);c.stroke();
