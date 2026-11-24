@@ -192,24 +192,24 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 /* Feedback */
 .card.fb{width:min(880px,100%)}
 .fbhead{display:flex;align-items:center;gap:12px;padding:16px 18px 14px;background:linear-gradient(180deg,rgba(46,204,113,.28),rgba(46,204,113,0));flex:0 0 auto}
-.fbhead.bad{background:linear-gradient(180deg,rgba(255,80,70,.3),rgba(255,80,70,0))}
+.fbhead.bad{background:linear-gradient(180deg,rgba(240,180,40,.28),rgba(240,180,40,0))}
 .fbhead.slow{background:linear-gradient(180deg,rgba(255,160,40,.3),rgba(255,160,40,0))}
 .badge{width:48px;height:48px;flex:0 0 48px;border-radius:50%;display:grid;place-items:center;background:#22b866;box-shadow:0 0 0 4px rgba(46,204,113,.25),0 8px 20px rgba(0,0,0,.35);animation:pop .45s cubic-bezier(.2,1.6,.4,1)}
-.bad .badge{background:#e8463c;box-shadow:0 0 0 4px rgba(255,80,70,.25),0 8px 20px rgba(0,0,0,.35)}
+.bad .badge{background:#d99a12;box-shadow:0 0 0 4px rgba(240,180,40,.25),0 8px 20px rgba(0,0,0,.35)}
 .slow .badge{background:#f0901c;box-shadow:0 0 0 4px rgba(255,160,40,.25),0 8px 20px rgba(0,0,0,.35)}
 .badge .i{width:28px;height:28px;stroke-width:3.2;color:#fff}
 @keyframes pop{from{transform:scale(.3);opacity:0}}
 .fbt{flex:1;min-width:0}
 #fbTitle{font-family:'Bebas Neue',Impact,sans-serif;font-size:36px;letter-spacing:1.5px;line-height:.95;color:#8ef5b8}
-.bad #fbTitle{color:#ff9a90}.slow #fbTitle{color:#ffc477}
+.bad #fbTitle{color:#ffd77a}.slow #fbTitle{color:#ffc477}
 #fbPlay{font-size:12.5px;font-weight:800;color:#a9b6d6;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pts{font-family:'Bebas Neue',Impact,sans-serif;font-size:30px;letter-spacing:1px;color:#1d1500;background:linear-gradient(180deg,#ffd45e,#f2b01c);border-radius:14px;padding:4px 10px 1px;box-shadow:0 6px 16px rgba(255,190,40,.3);animation:pop .5s .15s cubic-bezier(.2,1.6,.4,1) both}
 .card.fb>.body{padding-top:4px}
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}
 .choices.one{grid-template-columns:1fr}
-.chc{border-radius:13px;padding:7px 10px;background:rgba(255,90,80,.12);border:1.5px solid rgba(255,110,100,.45);min-width:0}
+.chc{border-radius:13px;padding:7px 10px;background:rgba(143,180,255,.1);border:1.5px solid rgba(143,180,255,.4);min-width:0}
 .chc.good{background:rgba(46,204,113,.13);border-color:rgba(70,220,130,.55)}
-.chc small{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#ff9a90}
+.chc small{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#aab7d6}
 .chc.good small{color:#7ff0ad}
 .chc small .i{width:13px;height:13px;stroke-width:3}
 .chc b{display:block;font-size:14.5px;line-height:1.15;margin-top:1px}
@@ -223,7 +223,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .legend .ln.d{border-top:3px dashed #ff4d4d}
 .fbtext{flex:0 0 auto}
 #fbWhy{font-size:14.5px;margin:2px 0 4px}
-#fbWrong{font-size:13.5px;margin:0 0 4px;color:#ffb3ad}
+#fbWrong{font-size:13.5px;margin:0 0 4px;color:#ffd9a0}
 .fbq{display:flex;gap:10px;align-items:center;background:rgba(111,165,255,.12);border:1px solid rgba(111,165,255,.35);border-radius:13px;padding:9px 11px;margin:2px 0 4px}
 .fbq>.i{width:26px;height:26px;color:#8fb4ff;flex:0 0 auto}.fbq>div{flex:1}.fbq b{display:block;font-size:16px;color:#fff}.fbq span{font-size:12.5px;color:#aab7d6;font-weight:700}
 .fbq .vbtn{flex:0 0 auto;width:34px;height:34px;border-radius:999px;border:1px solid rgba(143,180,255,.4);background:rgba(8,12,24,.35);color:#8fb4ff;display:grid;place-items:center;cursor:pointer;padding:0}
@@ -1611,14 +1611,14 @@ function playBuf(b,v,rate,wet){const a=AC;if(!a||muted||!b)return false;try{cons
 // fehlende Dateien bleiben still. Nichts wird zur Laufzeit bei ElevenLabs geholt.
 // VOICE-START
 const VOICE={
-  bad:'Leider falsch',slow:'Zu langsam!',
+  look:'Schau noch mal genau hin.',time:'Die Zeit ist um.',
   q_free:'Wer war frei?',q_help:'Wer hat ausgeholfen?',q_def:'Wo stand dein Verteidiger?',q_opp:'Wo stand dein Gegenspieler?',
   q_opp2:'Wo war dein Gegenspieler?',q_ball:'Wo war der Ball?',q_bh:'Wo war der Ballführer?',q_had:'Wer hatte den Ball?',
   q_thru:'Wer war durch?',q_pass:'Wohin ging der Pass?',q_safe:'Wer sicherte schon euren Korb?',
   tap:'Tippe auf der Karte auf den richtigen Punkt.',nudge:'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.',
   nudge2:'Tippe direkt auf einen Spieler.',
   hit:'Richtig erkannt!',hit2:'Genau darauf kommt es an. Jetzt die ganze Lösung:',
-  miss:'Nicht ganz. Schau auf den Ring.',sol:'Hier ist die Lösung:'
+  miss:'Guter Versuch! Schau auf den Ring.',sol:'Hier ist die Lösung:'
 };
 // VOICE-END
 const VOICE_ID={};for(const k in VOICE)VOICE_ID[VOICE[k]]=k;
@@ -2984,13 +2984,15 @@ function wrongNote(sc,c){
 function showFeedback(){
   G.phase='feedback';const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
   const r=G.results[G.results.length-1],kind=ok?'ok':ch===null?'slow':'bad';
-  $('fbHead').className='fbhead '+kind;$('fbIco').innerHTML=`<use href="#i-${ok?'check':ch===null?'clock':'x'}"/>`;
-  $('fbTitle').textContent=ok?'Richtig!':ch===null?'Zu langsam!':'Leider falsch';
+  $('fbHead').className='fbhead '+kind;$('fbIco').innerHTML=`<use href="#i-${ok?'check':ch===null?'clock':'eye'}"/>`;
+  // Kindgerecht (DBB-Leitfaden: Lernen durch Ausprobieren, Fragen statt Lösungen): kein Urteil „falsch“, kein Rot,
+  // sondern eine Einladung, noch mal hinzuschauen. Die eigene Wahl war ein Versuch, die Lösung heißt „Noch besser“.
+  $('fbTitle').textContent=ok?'Richtig!':ch===null?'Die Zeit ist um':'Schau noch mal hin';
   $('fbPlay').textContent=PLAYS[sc.play].name+(G.replay?' · Wiederholung':r&&r.rt!=null?` · ${r.rt.toFixed(1).replace('.',',')} s`:'');
   const pts=!G.replay&&r&&r.pts;$('fbPts').textContent=pts?'+'+r.pts:'';$('fbPts').classList.toggle('hidden',!pts);
   const chc=(cls,lab,ic,txt)=>`<div class="chc ${cls}"><small>${svgI(ic)}${lab}</small><b></b></div>`;
   const fa=$('fbAns');fa.className='choices'+(ok||!ch?' one':'');
-  fa.innerHTML=(ok||!ch?'':chc('','Deine Wahl','x'))+chc('good',ok?'Deine Wahl':'Beste Lösung','check');
+  fa.innerHTML=(ok||!ch?'':chc('','Deine Wahl','ball'))+chc('good',ok?'Deine Wahl':ch?'Noch besser':'Beste Lösung','check');
   const bs=fa.querySelectorAll('b');if(ok||!ch)bs[0].textContent=choiceName(sc.ans);else{bs[0].textContent=choiceName(ch);bs[1].textContent=choiceName(sc.ans);}
   $('fbWhy').textContent=sc.why;$('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
   let wn=ok?'':wrongNote(sc,ch);if(!ok&&sc.fake)wn+=' Achtung: Ein Verteidiger hat nur so getan, als würde er helfen.';
@@ -3002,7 +3004,7 @@ function showFeedback(){
   const q=!ok&&!G.replay?quizOf(sc):null;G.quiz=q;$('fbQ').className='fbq'+(q?'':' hidden');
   $('feedback').querySelector('.card').classList.toggle('quiz',!!q);
   if(q){$('fbQt').textContent=q.t;$('fbQs').textContent='Tippe auf der Karte auf den richtigen Punkt.';drawMini(ch,{quiz:true});
-    say([ch===null?'Zu langsam!':'Leider falsch',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);}
+    say([ch===null?'Die Zeit ist um.':'Schau noch mal genau hin.',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);}
   else drawMini(ch);
   $('feedback').classList.remove('hidden');
 }
@@ -3013,11 +3015,11 @@ function quizOf(sc){const has=r=>G.snap.some(p=>p.role===r);let q=sc.q;
   return has(q.r)?q:null;}
 function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
   $('fbQ').className='fbq '+(hit===true?'ok':hit===false?'no':'');
-  $('fbQt').textContent=hit===true?'Richtig erkannt!':hit===false?'Nicht ganz. Schau auf den Ring.':q.t;
+  $('fbQt').textContent=hit===true?'Richtig erkannt!':hit===false?'Guter Versuch! Schau auf den Ring.':q.t;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
   if(hit===true){sfx.good();confetti(18);}
-  say(hit===true?['Richtig erkannt!','Genau darauf kommt es an. Jetzt die ganze Lösung:']:hit===false?['Nicht ganz. Schau auf den Ring.','Hier ist die Lösung:']:['Hier ist die Lösung:'],hit===true?.25:0);}
+  say(hit===true?['Richtig erkannt!','Genau darauf kommt es an. Jetzt die ganze Lösung:']:hit===false?['Guter Versuch! Schau auf den Ring.','Hier ist die Lösung:']:['Hier ist die Lösung:'],hit===true?.25:0);}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
 function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
