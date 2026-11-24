@@ -1007,10 +1007,14 @@ const V=(x,y,z)=>new T3.Vector3(x,y,-z);
 // ================= Renderer, Szene =================
 const cv=$('c');
 const LITE=/[?&]lite\b/.test(location.search);
-// Handy/Tablet: weniger Pixel (DPR höchstens 1,5), kleinere Schattenkarte, keine Tiefenunschärfe (rendert die Szene ein zweites Mal)
+// Handy/Tablet: weniger Pixel (DPR höchstens 1,5), kleinere Schattenkarte, keine Tiefenunschärfe
 const MOBILE=(()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(e){return false;}})();
 const renderer=new T3.WebGLRenderer({canvas:cv,antialias:!LITE,powerPreference:'high-performance'});
-renderer.setPixelRatio(LITE?1:Math.min(MOBILE?1.5:2,window.devicePixelRatio||1));
+// Pixel-Budget: Große Retina-Fenster (z. B. 2230×1220 bei DPR 2 = 10,9 Mio. Pixel) schafft die GPU mit Bildeffekten nicht in
+// 16 ms, die Wurfkamera ruckelte. Höchstens PX_MAX echte Pixel; PR_CAP ist die Obergrenze (perfAdapt senkt sie). fitPR() in computeFit().
+let PR_CAP=LITE?1:Math.min(MOBILE?1.5:2,window.devicePixelRatio||1);const PX_MAX=4.2e6;
+renderer.setPixelRatio(PR_CAP);
+function fitPR(){const pr=Math.max(1,Math.min(PR_CAP,Math.sqrt(PX_MAX/Math.max(1,W*H))));if(Math.abs(pr-renderer.getPixelRatio())>.01)renderer.setPixelRatio(pr);}
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=T3.PCFSoftShadowMap;
 renderer.outputEncoding=T3.sRGBEncoding;renderer.toneMapping=T3.ACESFilmicToneMapping;renderer.toneMappingExposure=1.08;
 const scene=new T3.Scene();
@@ -2822,7 +2826,7 @@ function camPose(hx,hz,dx,dz){const cs=G.sc&&G.sc.camSide||1,rx=dz*cs,rz=-dx*cs;
   return{pos:[hx-dx*CP.back+rx*CP.side,CP.h,hz-dz*CP.back+rz*CP.side],look:[hx+dx*CP.look+rx*CP.side*.4,CP.lookY,hz+dz*CP.look+rz*CP.side*.4]};}
 const tmpCam=new T3.PerspectiveCamera(50,1,.1,200);
 function computeFit(){
-  W=innerWidth;H=cv.clientHeight||innerHeight;renderer.setSize(W,H,false);fxSize();
+  W=innerWidth;H=cv.clientHeight||innerHeight;fitPR();renderer.setSize(W,H,false);fxSize();
   const ctrl=$('bottom'),ch=ctrl.classList.contains('hidden')?170:ctrl.offsetHeight;
   const top=56+(G.sc&&passers().length?32:0),bot=H-ch-10,left=6,right=W-6,rw=right-left,rh=Math.max(120,bot-top);
   const t=clamp((rh/rw-.55)/1.1,0,1);
@@ -2875,7 +2879,7 @@ function startRound(){hush();
   beginApproach();showBanner(PLAYS[p].name,PLAYS[p].desc);
 }
 function beginApproach(){
-  G.phase='approach';G.t=0;G.timers=[];G.choice=null;endCam();G.ts=1;G.slowT=0;shooter=null;players.forEach(p=>p.act=null);
+  G.phase='approach';G.t=0;G.timers=[];G.choice=null;endCam();warmGL();G.ts=1;G.slowT=0;shooter=null;players.forEach(p=>p.act=null);
   computeFit();camDir=startDir();updCam(0,true);
   buildButtons();setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
   updateHud();
@@ -3575,17 +3579,40 @@ const FX={on:false,want:!LITE&&!/[?&]fx=0\b/.test(location.search),force:/[?&]fx
 window.initFX=function(M){
   if(!FX.want||FX.on||!renderer.capabilities.isWebGL2)return;
   try{const ex=renderer.extensions,hf=ex.has('EXT_color_buffer_float')||ex.has('EXT_color_buffer_half_float');
-    // stencilBuffer:true → 24-Bit-Tiefe (sonst nimmt three.js nur 16 Bit: Boden und Untergrund flimmern als Streifen ineinander)
-    const rt=new T3.WebGLRenderTarget(W,H,{type:hf?T3.HalfFloatType:T3.UnsignedByteType,samples:4,stencilBuffer:true});
-    const C=new M.EffectComposer(renderer,rt);C.addPass(new M.RenderPass(scene,cam));
+    // Nur die Szene braucht MSAA. Eigenes Ziel dafür (4× MSAA, HalfFloat; stencilBuffer:true → 24-Bit-Tiefe, sonst nimmt three.js
+    // nur 16 Bit: Boden und Untergrund flimmern als Streifen ineinander). Die Zwischenbilder des Composers sind einfache Puffer:
+    // Hätten sie ebenfalls MSAA (EffectComposer klont sein Ziel), schreibt jeder Vollbild-Schritt (Unschärfe, Bloom) in einen
+    // 4-fach-Puffer und löst ihn wieder auf. Das kostete auf Retina-Fenstern so viel, dass die Wurfkamera ruckelte.
+    const ty=hf?T3.HalfFloatType:T3.UnsignedByteType;
+    const srt=new T3.WebGLRenderTarget(W,H,{type:ty,samples:4,stencilBuffer:true});
+    // Tiefe als Textur (wird beim Auflösen des MSAA-Bildes mitkopiert): die Tiefenunschärfe liest sie direkt,
+    // statt die ganze Halle ein zweites Mal mit Tiefen-Material zu rendern
+    srt.depthTexture=new T3.DepthTexture(W,H,T3.UnsignedInt248Type);srt.depthTexture.format=T3.DepthStencilFormat;
+    const rt=new T3.WebGLRenderTarget(W,H,{type:ty,depthBuffer:false});
+    const C=new M.EffectComposer(renderer,rt);
+    const cp=new M.ShaderPass({uniforms:{tDiffuse:{value:null}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader:'uniform sampler2D tDiffuse;varying vec2 vUv;void main(){gl_FragColor=texture2D(tDiffuse,vUv);}'});
+    C.addPass({enabled:true,needsSwap:true,clear:false,renderToScreen:false,setSize:(w,h)=>srt.setSize(w,h),dispose(){},
+      render(r,wb){r.setRenderTarget(srt);r.render(scene,cam);cp.render(r,wb,srt);}});
     const bok=new M.BokehPass(scene,cam,{focus:6,aperture:0,maxblur:.008});bok.enabled=false;bok.needsSwap=true;C.addPass(bok); // in r149 sonst nur als letzter Pass
+    bok.materialBokeh.defines.DEPTH_PACKING=0;bok.materialBokeh.needsUpdate=true;bok.renderTargetDepth.dispose();bok.setSize=()=>{};
+    bok.render=function(r,wb,rb){const u=this.uniforms;u.tColor.value=rb.texture;u.tDepth.value=srt.depthTexture;u.nearClip.value=cam.near;u.farClip.value=cam.far;
+      r.setRenderTarget(this.renderToScreen?null:wb);this.fsQuad.render(r);};
     const bl=new M.UnrealBloomPass(new T3.Vector2(W,H),.5,.45,.9);C.addPass(bl);
+    // Bloom in höchstens 1280 Pixel Breite rechnen (er ist ohnehin weich); in voller Retina-Auflösung kostete er ~24 ms pro Bild
+    const blSize=bl.setSize.bind(bl);bl.setSize=(w,h)=>{const k=Math.min(1,1280/w);blSize(Math.round(w*k),Math.round(h*k));};
     C.addPass(new M.ShaderPass(M.GammaCorrectionShader));
     Object.assign(FX,{C,bok,bl,on:true,bokeh:!MOBILE||FX.force});fxSize();
     // Prüfen, ob das Gerät in die Zwischenbilder rendern kann, sonst ohne Effekte weiter
-    const gl=renderer.getContext();renderer.setRenderTarget(rt);const ok=gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;renderer.setRenderTarget(null);
+    const gl=renderer.getContext();const ok=[srt,rt].every(t=>{renderer.setRenderTarget(t);return gl.checkFramebufferStatus(gl.FRAMEBUFFER)===gl.FRAMEBUFFER_COMPLETE;});renderer.setRenderTarget(null);
     if(!ok)throw new Error('Framebuffer');
+    // Shader schon jetzt übersetzen (Tiefenunschärfe, Fotoblitze), sonst hängt das erste Bild der Wurfkamera
+    bok.enabled=true;C.render(0);bok.enabled=false;warmGL();
   }catch(e){console.warn('Bildeffekte aus',e);FX.on=false;}};
+// Alle Shader vorab übersetzen, auch für Verstecktes und für Dinge außerhalb des Blickfelds (Tribüne hinter dem Korb,
+// die erst die Wurfkamera zeigt). Sonst hängt das erste Bild nach dem Schnitt. Läuft bei jedem Rundenstart, weil sich nach
+// perfCheck/perfAdapt (Schatten aus) die Shader ändern; ist schon alles übersetzt, kostet es kaum etwas.
+function warmGL(){const hid=[];try{scene.traverse(o=>{if(!o.visible){o.visible=true;hid.push(o);}});renderer.compile(scene,cam);}catch(e){}hid.forEach(o=>o.visible=false);}
 function fxSize(){if(!FX.on)return;FX.C.setPixelRatio(renderer.getPixelRatio());FX.C.setSize(W,H);}
 const _fp=new T3.Vector3();
 function draw(rdt){
@@ -3602,18 +3629,20 @@ function draw(rdt){
 // Schwache Geräte: nach dem Start Bildeffekte, Schatten und Auflösung automatisch reduzieren
 let perfN=0,perfSum=0,perfDone=LITE;
 function perfCheck(dt){if(perfDone)return;perfN++;if(perfN<30)return;perfSum+=dt;if(perfN>=120){perfDone=true;const a=perfSum/90;
-  if(a>.03&&FX.on&&!FX.force){FX.on=false;if(a>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}
-  else if(a>.045){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}}
+  if(a>.03&&FX.on&&!FX.force){FX.on=false;if(a>.045){sun.castShadow=false;warmGL();PR_CAP=1;computeFit();}}
+  else if(a>.045){sun.castShadow=false;warmGL();PR_CAP=1;computeFit();}}}
 // Laufend nachregeln: Ist das Spiel (nicht das Menü) über ~30 Bilder zu langsam, eine Stufe herunter, dann wieder messen.
 // Reihenfolge: Tiefenunschärfe → Auflösung (bis 1,25) → Bildeffekte → Schatten und Auflösung 1. Nie wieder hoch (kein Flackern).
-let adN=0,adS=0;
+// Zusätzlich zählen verpasste Bilder (> 25 ms, bei 60 Hz ein doppeltes Bild): Ruckelt es nur jedes 3.–5. Bild, bleibt der
+// Durchschnitt unter 22 ms, man sieht es aber deutlich (Wurfkamera). Ab 4 von 30 gilt das als zu langsam.
+let adN=0,adS=0,adL=0;
 function perfAdapt(raw){if(LITE||FX.force||bedSt||!/approach|decide|outcome|feedback/.test(G.phase)||raw>.25||document.hidden)return;
-  adN++;adS+=raw;if(adN<30)return;const a=adS/adN;adN=0;adS=0;const pr=renderer.getPixelRatio();
-  if(a<.022)return;
+  adN++;adS+=raw;if(raw>.025)adL++;if(adN<30)return;const a=adS/adN,L=adL;adN=0;adS=0;adL=0;const pr=renderer.getPixelRatio();
+  if(a<.022&&L<4)return;
   if(FX.on&&FX.bokeh&&camMode){FX.bokeh=false;return;}
-  if(pr>1.25&&a>.024){renderer.setPixelRatio(Math.max(1.25,pr-.25));computeFit();return;}
-  if(FX.on&&a>.028){FX.on=false;return;}
-  if(a>.04&&(sun.castShadow||pr>1)){sun.castShadow=false;renderer.setPixelRatio(1);computeFit();}}
+  if(pr>1.25&&(a>.024||L>=4)){PR_CAP=Math.max(1.25,pr-.25);computeFit();return;}
+  if(FX.on&&(a>.028||L>=6)){FX.on=false;return;}
+  if(a>.04&&(sun.castShadow||pr>1)){sun.castShadow=false;warmGL();PR_CAP=1;computeFit();}}
 window.__perf=()=>({pr:renderer.getPixelRatio(),fx:FX.on,bokeh:!!FX.bokeh,shadow:sun.castShadow});
 function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;perfCheck(raw);perfAdapt(raw);try{update(dt);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
 if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2,-7);scene.updateMatrixWorld(true);
