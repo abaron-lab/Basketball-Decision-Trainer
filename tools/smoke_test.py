@@ -108,6 +108,9 @@ async def run(a):
                 xy = await pg.evaluate(QUIZ_XY)
                 await pg.mouse.click(xy[0], xy[1])
                 assert not await pg.evaluate('!!window.__G.quiz'), 'Antippen auf der Karte hat die Frage nicht beantwortet'
+                rf = await pg.evaluate('[window.__G.sc.rule, window.__snd.voice.file(window.__G.sc.rule)]')
+                assert rf[1], f'Keine Sprachdatei für den Merksatz (in VOICE ergänzen): {rf[0]}'
+                print('Merksatz:', rf[1])
                 await pg.wait_for_timeout(300)
                 await pg.screenshot(path=f'{a.out}/feedback{i}_antwort.png')
             await pg.click('#nextBtn')
