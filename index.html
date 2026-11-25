@@ -226,43 +226,48 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 #fbPlay{font-size:12.5px;font-weight:800;color:#a9b6d6;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pts{font-family:'Bebas Neue',Impact,sans-serif;font-size:30px;letter-spacing:1px;color:#1d1500;background:linear-gradient(180deg,#ffd45e,#f2b01c);border-radius:14px;padding:4px 10px 1px;box-shadow:0 6px 16px rgba(255,190,40,.3);animation:pop .5s .15s cubic-bezier(.2,1.6,.4,1) both}
 .card.fb>.body{padding-top:4px}
-.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}
-.choices.one{grid-template-columns:1fr}
-.chc{border-radius:13px;padding:7px 10px;background:rgba(143,180,255,.1);border:1.5px solid rgba(143,180,255,.4);min-width:0}
-.chc.good{background:rgba(46,204,113,.13);border-color:rgba(70,220,130,.55)}
-.chc small{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#aab7d6}
-.chc.good small{color:#7ff0ad}
-.chc small .i{width:13px;height:13px;stroke-width:3}
-.chc b{display:block;font-size:14.5px;line-height:1.15;margin-top:1px}
 .fbgrid{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.mapbox{position:relative;flex:1 1 0;min-height:120px}
+/* Hochformat: Kasten so hoch wie die Karte (--ar setzt drawMini), sonst bleibt über und unter der flachen Karte leerer Raum */
+.mapbox{position:relative;flex:0 1 auto;aspect-ratio:var(--ar,4/3);min-height:120px}
 #mini{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
 .legend b{font-weight:800}
-.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11.5px;color:#9fb0d4;font-weight:800;flex:0 0 auto}
+.lgwrap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11.5px;color:#9fb0d4;font-weight:800;padding:2px 0}
+.lgbtn,.more summary{min-height:44px;display:flex;align-items:center;gap:6px;cursor:pointer;background:none;border:0;padding:0 8px;color:#8fb4ff;font:900 13px Nunito,system-ui,sans-serif}
+.more summary{padding:0;list-style:none}.more summary::-webkit-details-marker{display:none}
+.more summary:before{content:'›';font-size:20px;line-height:1;transition:transform .2s}.more[open] summary:before{transform:rotate(90deg)}
+.more p{margin:0 0 6px;font-size:14px;line-height:1.35;color:#c9d3ea}
+/* Wahl-Zeile: eigene Wahl klein und neutral, daneben die Lösung als grüner Chip */
+.swap{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;flex:0 0 auto;font-weight:800;font-size:14.5px}
+.swap .mine{display:inline-flex;align-items:center;gap:6px;color:#aab7d6}.swap .mine .i{width:15px;height:15px}
+.swap .arr{color:#6f80a8;font-size:18px;line-height:1}
+.swap .best{display:inline-flex;align-items:center;gap:7px;background:rgba(46,204,113,.13);border:1.5px solid rgba(70,220,130,.55);border-radius:999px;padding:5px 13px 5px 9px;min-width:0}
+.swap small{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#7ff0ad}.swap .best .i{width:15px;height:15px;color:#7ff0ad;stroke-width:3}
+@media (max-width:560px){.swap{font-size:13.5px;gap:6px}.swap .arr,.swap .mine .i{display:none}.swap .mine:before{content:'Deine Wahl:';font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase}}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #fff}
 .legend .ln{display:inline-block;width:16px;height:0;border-top:3px solid #16c060;margin-right:4px;vertical-align:3px}
 .legend .ln.d{border-top:3px dashed #ff4d4d}
 .fbtext{flex:0 0 auto}
 #fbWhy{font-size:14.5px;margin:2px 0 4px}
-#fbWrong{font-size:13.5px;margin:0 0 4px;color:#ffd9a0}
 .fbq{display:flex;gap:10px;align-items:center;background:rgba(111,165,255,.12);border:1px solid rgba(111,165,255,.35);border-radius:13px;padding:9px 11px;margin:2px 0 4px}
 .fbq>.i{width:26px;height:26px;color:#8fb4ff;flex:0 0 auto}.fbq>div{flex:1}.fbq b{display:block;font-size:16px;color:#fff}.fbq span{font-size:12.5px;color:#aab7d6;font-weight:700}
 .fbq .vbtn{flex:0 0 auto;width:34px;height:34px;border-radius:999px;border:1px solid rgba(143,180,255,.4);background:rgba(8,12,24,.35);color:#8fb4ff;display:grid;place-items:center;cursor:pointer;padding:0}
 .fbq .vbtn .i{width:18px;height:18px}.fbq .vbtn.off,#voiceBtn.off{opacity:.55}
 .fbq.ok{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.45)}.fbq.no{background:rgba(255,200,61,.1);border-color:rgba(255,200,61,.35)}
+/* Nach dem Antippen nur noch eine Zeile („Richtig erkannt!“ / „Guter Versuch!“), der Platz gehört Erklärung und Merksatz */
+.fbq.ok,.fbq.no{padding:5px 8px 5px 11px}.fbq.ok #fbQs,.fbq.no #fbQs{display:none}.fbq.ok b,.fbq.no b{font-size:15px}.fbq.ok>.i,.fbq.no>.i{width:22px;height:22px}.fbq.ok>.i{color:#7ff0ad}
 .lnk{cursor:pointer;background:none;border:0;color:#8fb4ff;font:900 12.5px Nunito,system-ui,sans-serif;text-decoration:underline;padding:4px;flex:0 0 auto}
-.quiz #mini{cursor:pointer}.quiz .choices,.quiz #fbWhy,.quiz #fbWrong,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
+.quiz #mini{cursor:pointer}.quiz .swap,.quiz #fbWhy,.quiz .more,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
 /* Frage muss erst beantwortet werden: Weiter/Nochmal sehen gesperrt aus, Antippen rüttelt an der Frage */
 .quiz #nextBtn,.quiz #replayBtn{opacity:.4;filter:saturate(.3)}.quiz .mapbox{box-shadow:0 0 0 2px rgba(111,165,255,.55);border-radius:12px}
 .fbq.nudge{animation:nudge .45s;border-color:#ffd23d;background:rgba(255,210,61,.16)}@keyframes nudge{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
-.rule{display:flex;gap:9px;align-items:flex-start;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.25);border-radius:13px;padding:8px 11px;margin:6px 0 2px;font-weight:800;font-size:14px;line-height:1.3;color:#ffe39a}
-.rule .i{color:var(--gold);width:18px;height:18px;margin-top:1px}
+.rule{display:flex;gap:10px;align-items:flex-start;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.25);border-radius:13px;padding:10px 13px;margin:6px 0 2px;font-weight:800;font-size:16.5px;line-height:1.3;color:#ffe39a}
+.rule .i{color:var(--gold);width:22px;height:22px;margin-top:1px;flex:0 0 auto}.rule small{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#d9b34a;font-weight:900;margin-bottom:1px}
 @media (max-width:560px) and (orientation:portrait){
   /* Platz für die Karte, solange die Frage auf einen Tipp wartet. */
-  .quiz .choices,.quiz #fbWhy,.quiz #fbWrong,.quiz .rule,.quiz .legend .lnl{display:none}
-  .quiz .mapbox{flex:0 1 auto;aspect-ratio:var(--map-aspect,4/3);overflow:hidden}
+  .quiz .swap,.quiz #fbWhy,.quiz .more,.quiz .rule,.quiz .legend .lnl{display:none}
 }
-@media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.1fr 1fr;grid-template-rows:1fr auto;gap:8px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px}.legend{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}#fbWhy{font-size:16px}}
+@media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr auto;gap:4px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px;aspect-ratio:auto}.lgwrap{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}#fbWhy{font-size:16px}}
 /* Handy quer (flach): Karte links über die ganze Höhe, rechts Kopf, Wahl, Text (scrollt) und Tasten */
 @media (max-height:500px) and (orientation:landscape){
   #feedback.overlay{padding:6px max(6px,env(safe-area-inset-right)) 6px max(6px,env(safe-area-inset-left))}
@@ -270,9 +275,12 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
   .card.fb>.body,.card.fb .fbgrid{display:contents}
   .card.fb .fbhead{grid-column:2;grid-row:1;padding:10px 14px 6px}
   .card.fb #fbAns{grid-column:2;grid-row:2;margin:0 14px}
-  .card.fb .mapbox{grid-column:1;grid-row:1/4;min-height:0;margin:10px 0 2px 10px}
-  .card.fb .legend{grid-column:1;grid-row:4;padding:2px 0 10px 10px;align-self:start}
-  .card.fb .fbtext{grid-column:2;grid-row:3;min-height:0;overflow:auto;padding:6px 14px 2px;display:block}
+  .card.fb .mapbox{grid-column:1;grid-row:1/4;min-height:0;aspect-ratio:auto;margin:10px 0 2px 10px}
+  .card.fb .lgwrap{grid-column:1;grid-row:4;padding:0 0 4px 10px;align-self:start}
+  .card.fb .rule{font-size:15px}
+  .card.fb .fbtext{grid-column:2;grid-row:3;min-height:0;overflow:auto;padding:6px 14px 2px;display:flex;flex-direction:column}
+  /* wenig Höhe: Merksatz vor die Erklärung, damit er ohne Scrollen sichtbar ist */
+  .card.fb .rule{order:1;margin-top:0}.card.fb #fbWhy{order:2}.card.fb .more{order:3}.card.fb .swap{gap:4px 8px}
   .card.fb>.foot{grid-column:2;grid-row:4;padding:6px 14px 10px}
   .card.fb #fbWhy{font-size:14px}
 }
@@ -742,15 +750,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="pts" id="fbPts"></div>
     </div>
     <div class="body">
-      <div id="fbAns" class="choices"></div>
+      <div id="fbAns" class="swap"></div>
       <div class="fbgrid">
         <div class="mapbox"><canvas id="mini" width="640" height="480"></canvas></div>
-        <div class="legend"><span><i style="background:#ffd23d"></i>Du</span><span><i style="background:#2f6fe4"></i><b id="lgO">Mitspieler</b></span><span><i style="background:#e2453b"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div>
+        <div class="lgwrap"><button class="lgbtn" id="lgBtn">Was bedeuten die Farben?</button><div class="legend" id="lgd"><span><i style="background:#ffd23d"></i>Du</span><span><i style="background:#2f6fe4"></i><b id="lgO">Mitspieler</b></span><span><i style="background:#e2453b"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div></div>
         <div class="fbtext">
-          <div id="fbQ" class="fbq hidden"><svg class="i"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
+          <div id="fbQ" class="fbq hidden"><svg class="i" id="fbQi"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
           <p id="fbWhy"></p>
-          <p id="fbWrong"></p>
-          <div class="rule"><svg class="i"><use href="#i-bulb"/></svg><span id="fbRule"></span></div>
+          <div class="rule"><svg class="i"><use href="#i-bulb"/></svg><div><small>Merk dir</small><span id="fbRule"></span></div></div>
+          <details class="more" id="fbMore"><summary id="fbMoreT"></summary><p id="fbMoreP"></p></details>
         </div>
       </div>
     </div>
@@ -1796,11 +1804,60 @@ const VOICE={
   look:'Schau noch mal genau hin.',time:'Die Zeit ist um.',
   q_free:'Wer war frei?',q_help:'Wer hat ausgeholfen?',q_def:'Wo stand dein Verteidiger?',q_opp:'Wo stand dein Gegenspieler?',
   q_opp2:'Wo war dein Gegenspieler?',q_ball:'Wo war der Ball?',q_bh:'Wo war der Ballführer?',q_had:'Wer hatte den Ball?',
+  q_thedef:'Wo stand der Verteidiger?',q_dow:'Wo stand der Verteidiger vom Flügel gegenüber?',
   q_thru:'Wer war durch?',q_pass:'Wohin ging der Pass?',q_safe:'Wer sicherte schon euren Korb?',
   tap:'Tippe auf der Karte auf den richtigen Punkt.',nudge:'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.',
   nudge2:'Tippe direkt auf einen Spieler.',
   hit:'Richtig erkannt!',hit2:'Genau darauf kommt es an. Jetzt die ganze Lösung:',
-  miss:'Guter Versuch! Schau auf den Ring.',sol:'Hier ist die Lösung:'
+  miss:'Guter Versuch! Schau auf den Ring.',sol:'Hier ist die Lösung:',
+  // Merksätze (sc.rule), vorgelesen nach dem Antippen der Lösung (quizReveal). Text muss genau dem Merksatz im Builder entsprechen.
+  r_top_drive:'Freie Bahn? Dann geh zum Korb!',
+  r_top_helpl:'Wer hilft, lässt jemanden frei. Schau, woher die Hilfe kommt!',
+  r_top_sag:'Viel Platz, und keiner ist frei? Nimm den Wurf!',
+  r_break_drive:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, pass zum freien Läufer.',
+  r_wing_helptop:'Wer dir entgegenkommt, lässt jemanden frei. Finde ihn!',
+  r_give_cut:'Pass und geh: Schaut dein Verteidiger zum Ball, schneide zum Korb!',
+  r_give_stay:'Pass und raus: Bleibt dein Verteidiger zwischen dir und dem Korb, mach Platz für deinen Mitspieler!',
+  r_backdoor_cut:'Steht der Verteidiger im Passweg, schneidet dein Mitspieler hinten rum. Spiel ihm den Ball in den Lauf!',
+  r_backdoor_gap:'Wer hilft, lässt jemanden frei. Manchmal bist du das selbst: Ist der Weg frei, geh zum Korb!',
+  r_backdoor_helpc:'Wer hilft, lässt jemanden frei.',
+  r_wcatch_shot:'Ist dein Verteidiger beim Fangen weit weg? Dann wirf!',
+  r_wcatch_drive:'Steht dein Verteidiger neben dir statt vor dir? Ab zum Korb!',
+  r_wcut_deny:'Steht dein Verteidiger im Passweg, lauf hinter seinem Rücken zum Korb!',
+  r_wcut_sag:'Steht dein Verteidiger weit weg, fordere den Ball. Du bist frei!',
+  r_wcut_dribble:'Dribbelt der Ballführer auf dich zu, mach ihm Platz: Schneide zum Korb!',
+  r_wbreak_drive:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, ist ein anderer frei!',
+  r_xpass_open:'Bleibt dein Verteidiger weg? Fangen und werfen!',
+  r_xpass_close:'Frei ist gut, noch freier ist besser: Kommt dein Verteidiger zu dir, spiel den Extra-Pass!',
+  r_xpass_fly:'Kommt dein Verteidiger angerannt und keiner ist frei? Zieh an ihm vorbei!',
+  r_two_toyou:'Einer kann nicht zwei decken. Schau, wen er nimmt, und spiel den anderen!',
+  r_two_middle:'Bleibt der Verteidiger tief zwischen euch, hast du Platz zum Werfen.',
+  r_cpost_drive:'Allein mit deinem Verteidiger am Brett? Dreh dich und geh zum Korb!',
+  r_cpost_helpw:'Hilft beim Zug zum Korb ein zweiter Verteidiger aus, ist einer deiner Mitspieler frei. Pass raus!',
+  r_chigh_shot:'Viel Platz an der Freiwurflinie? Nimm den Wurf!',
+  r_chigh_drive:'Steht dein Verteidiger neben dir, geh zum Korb!',
+  r_chigh_backdoor:'Läuft ein Mitspieler backdoor, spiel ihm den Ball in den Lauf!',
+  r_cdive_help:'Hilft dein Verteidiger aus, lauf zum Korb und zeig die Hände!',
+  r_cdive_stay:'Bleibt dein Verteidiger bei dir, lass dem Ballführer die Zone frei.',
+  r_cdive_helpw:'Schau auf deinen eigenen Verteidiger! Bleibt er bei dir, lass die Zone frei, auch wenn ein anderer aushilft.',
+  r_dball_wing:'Am Ball: zwischen Gegenspieler und Korb, eine Armlänge Abstand.',
+  r_dpass_wing:'Ein Pass weg: Ball, du, Gegenspieler. Eine Hand im Passweg, höchstens zwei Schritte weg.',
+  r_dhelp_wing:'Zwei Pässe weg: ab in die Zone, Ball und Gegenspieler im Blick.',
+  r_drot_top:'Ist der Ballführer durch, hilf aus und stell dich in den Weg!',
+  r_dclose_wing:'Ball zu deinem Gegenspieler? Zurück, abstoppen, Hände hoch!',
+  r_djump_away:'Bei jedem Pass mitgehen: Geht der Ball weg, ab in die Zone. Kommt er näher, zurück in den Passweg.',
+  r_dback_first:'Zurück in die Abwehr: erst den Korb sichern, dann den Ball stoppen, dann deinen Gegenspieler finden.',
+  r_rimrun_run:'Ist dein Verteidiger hinter dir, sprinte zum Korb!',
+  r_rimrun_back:'Ist dein Verteidiger schon zurück, bleib hinten und biete dich an.',
+  r_dkick_lay:'Zieh zum Korb. Springt dir keiner in den Weg, mach den Korbleger!',
+  r_dkick_kickl:'Zieh zum Korb. Springt dir einer in den Weg, pass zu dem, den er allein gelassen hat!',
+  r_plong_longl:'Ist ein Läufer allein vorne, wirf sofort den langen Pass!',
+  r_plong_drive:'Sind die Läufer gedeckt, dribbel selbst schnell nach vorne.',
+  r_clong_outlet:'Sind die Läufer gedeckt, spiel den kurzen Pass zum freien Aufbau.',
+  r_swing_swing:'Steht die Abwehr auf einer Seite, spiel den Ball schnell auf die andere Seite!',
+  r_swing_gap:'Läuft ein Mitspieler in die Lücke zwischen zwei Verteidigern, spiel ihm den Ball!',
+  r_cflash_flash:'Ist der Platz zwischen dir und dem Ball frei, lauf ihm entgegen: Flash-Cut!',
+  r_cflash_busy:'Steht dort schon jemand, lauf nicht auch noch hin. Bleib unten und lass Platz.'
 };
 // VOICE-END
 const VOICE_ID={};for(const k in VOICE)VOICE_ID[VOICE[k]]=k;
@@ -3186,16 +3243,22 @@ function showFeedback(){
   // Kindgerecht (DBB-Leitfaden: Lernen durch Ausprobieren, Fragen statt Lösungen): kein Urteil „falsch“, kein Rot,
   // sondern eine Einladung, noch mal hinzuschauen. Die eigene Wahl war ein Versuch, die Lösung heißt „Noch besser“.
   $('fbTitle').textContent=ok?'Richtig!':ch===null?'Die Zeit ist um':'Schau noch mal hin';
-  $('fbPlay').textContent=PLAYS[sc.play].name+(G.replay?' · Wiederholung':r&&r.rt!=null?` · ${r.rt.toFixed(1).replace('.',',')} s`:'');
+  // Reaktionszeit nur bei richtiger Wahl: Nach einer falschen Wahl hilft sie nicht und verleitet eher zum schnellen Raten.
+  $('fbPlay').textContent=PLAYS[sc.play].name+(G.replay?' · Wiederholung':ok&&r&&r.rt!=null?` · ${r.rt.toFixed(1).replace('.',',')} s`:'');
   const pts=!G.replay&&r&&r.pts;$('fbPts').textContent=pts?'+'+r.pts:'';$('fbPts').classList.toggle('hidden',!pts);
-  const chc=(cls,lab,ic,txt)=>`<div class="chc ${cls}"><small>${svgI(ic)}${lab}</small><b></b></div>`;
-  const fa=$('fbAns');fa.className='choices'+(ok||!ch?' one':'');
-  fa.innerHTML=(ok||!ch?'':chc('','Deine Wahl','ball'))+chc('good',ok?'Deine Wahl':ch?'Noch besser':'Beste Lösung','check');
+  // Weniger ist mehr (DBB: wenig reden, viel spielen): eine Zeile Wahl → Lösung, ein Erklärsatz, der Merksatz.
+  // Alles Weitere steckt unter „Warum?“ (#fbMore), die Legende hinter „Was bedeuten die Farben?“.
+  const fa=$('fbAns'),best=`<span class="best">${svgI('check')}<small>${ok?'Deine Wahl':ch?'Noch besser':'Beste Lösung'}</small><b></b></span>`;
+  fa.innerHTML=(ok||!ch?'':`<span class="mine">${svgI('ball')}<b></b></span><span class="arr">→</span>`)+best;
   const bs=fa.querySelectorAll('b');if(ok||!ch)bs[0].textContent=choiceName(sc.ans);else{bs[0].textContent=choiceName(ch);bs[1].textContent=choiceName(sc.ans);}
-  $('fbWhy').textContent=sc.why;$('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
+  $('fbWhy').textContent=sc.why;$('fbWhy').classList.toggle('hidden',ok);$('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
   let wn=ok?'':wrongNote(sc,ch);if(!ok&&sc.fake)wn+=' Achtung: Ein Verteidiger hat nur so getan, als würde er helfen.';
-  $('fbWrong').textContent=wn;$('fbWrong').classList.toggle('hidden',!wn);
+  const more=ok?sc.why:wn,mo=$('fbMore');mo.open=false;mo.classList.toggle('hidden',!more);
+  $('fbMoreT').textContent=ok?'Warum?':`Warum nicht „${choiceName(ch)}“?`;$('fbMoreP').textContent=more;
   $('fbRule').textContent=sc.rule;
+  // Legende nur in den ersten Spielen offen, danach auf Antippen
+  const lg=PROFILE.games<3;$('lgd').classList.toggle('hidden',!lg);$('lgBtn').classList.toggle('hidden',lg);
+  $('fbQi').innerHTML='<use href="#i-help"/>';
   if(ok&&!G.replay)setTimeout(()=>confetti(40),150);
   $('nextBtn').innerHTML=(G.round>=G.rounds?'Ergebnis':'Weiter')+svgI('play','fill');
   // Fragen statt fertiger Lösungen (DBB-Leitfaden Minibasketball: Trainer helfen mit Fragen). Erst suchen lassen, dann erklären.
@@ -3212,12 +3275,13 @@ function quizOf(sc){const has=r=>G.snap.some(p=>p.role===r);let q=sc.q;
     else q={t:'Wo stand dein Verteidiger?',r:'dH'};}
   return has(q.r)?q:null;}
 function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
-  $('fbQ').className='fbq '+(hit===true?'ok':hit===false?'no':'');
+  $('fbQ').className='fbq '+(hit===true?'ok':hit===false?'no':'');if(hit===true)$('fbQi').innerHTML='<use href="#i-eye"/>';
   $('fbQt').textContent=hit===true?'Richtig erkannt!':hit===false?'Guter Versuch! Schau auf den Ring.':q.t;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
   if(hit===true){sfx.good();confetti(18);}
-  say(hit===true?['Richtig erkannt!','Genau darauf kommt es an. Jetzt die ganze Lösung:']:hit===false?['Guter Versuch! Schau auf den Ring.','Hier ist die Lösung:']:['Hier ist die Lösung:'],hit===true?.25:0);}
+  // Danach der Merksatz: das, was vom Spielzug hängen bleiben soll (Sprachdatei über VOICE, sonst still)
+  say((hit===true?['Richtig erkannt!']:hit===false?['Guter Versuch! Schau auf den Ring.']:['Hier ist die Lösung:']).concat(G.sc.rule||[]),hit===true?.25:0);}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
 function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
@@ -3226,19 +3290,16 @@ $('mini').addEventListener('pointerdown',e=>{const q=G.quiz;if(!q||G.phase!=='fe
   const x=(e.clientX-r.left-(r.width-m.width*k)/2)/k,y=(e.clientY-r.top-(r.height-m.height*k)/2)/k,M=miniMap();let best=null,bd=1e9;
   G.snap.forEach(p=>{if(p.z<-10.8&&!M.far)return;const d=Math.hypot(M.sx(p.x)-x,M.sz(p.z)-y);if(d<bd){bd=d;best=p;}});
   if(!best||bd>48){quizNudge('Tippe direkt auf einen Spieler.');return;}quizReveal(best.role===q.r);});
-// Langer Pass: schmalere Zeichenfläche für das längliche Ganzfeld.
-function miniMap(){
-  const far=!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel)));
-  const w=far?368:640,h=$('mini').height,zr=(h-34)/(far?28.4:12.2),S=far?zr*1.3:w/15.6;
-  return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far,w};
-}
+// Langer Pass: ganzes Feld auf schmalerer Zeichenfläche (368 px), sonst nur das Halbfeld (640 px)
+function miniFar(){return!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel)));}
+// Halbfeld: Maßstab fest (wie früher bei 12,2 m Tiefe), der Ausschnitt endet aber knapp hinter dem tiefsten Spieler.
+// Die Karte wird dadurch flacher und auf dem Handy breiter, die Spieler größer. Größe setzt drawMini, miniMap liest sie.
+const MINI_ZR=446/12.2;
+function miniDepth(){let d=8.6;(G.snap||[]).forEach(p=>{if(p.z>-10.8)d=Math.max(d,BASE-p.z+1.5);});(G.sc&&G.sc.spots||[]).forEach(sp=>d=Math.max(d,BASE-sp.z+1.3));return Math.min(12.2,d);}
+function miniMap(){const m=$('mini'),far=miniFar(),w=far?368:640,h=m.height,zr=far?(h-34)/28.4:MINI_ZR,S=far?zr*1.3:w/15.6;return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far,w};}
 function drawMini(choice,o){o=o||{};
-  const m=$('mini'),h=m.height,{S,zr,sx,sz,far,w}=miniMap();
-  if(m.width!==w){
-    m.width=w;
-    m.parentElement.style.setProperty('--map-aspect',w+'/'+h);
-  }
-  const c=m.getContext('2d');
+  {const m=$('mini'),far=miniFar(),ww=far?368:640,hh=far?480:Math.round(34+miniDepth()*MINI_ZR);if(m.width!==ww)m.width=ww;if(m.height!==hh)m.height=hh;m.parentNode.style.setProperty('--ar',ww+'/'+hh);}
+  const m=$('mini'),c=m.getContext('2d'),w=m.width,h=m.height,{S,zr,sx,sz,far}=miniMap();
   c.fillStyle=far?'#10141f':'#d29b5f';c.fillRect(0,0,w,h);
   if(far){c.fillStyle='#d29b5f';c.fillRect(sx(-HW),sz(BASE),2*HW*S,sz(-26.425)-sz(BASE));c.strokeStyle='#fff';c.lineWidth=3;
     c.beginPath();c.moveTo(sx(-HW),sz(-12.425));c.lineTo(sx(HW),sz(-12.425));c.stroke();c.beginPath();c.ellipse(sx(0),sz(-12.425),1.8*S,1.8*zr,0,0,7);c.stroke();
@@ -3606,7 +3667,7 @@ function vib(p){try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
-$('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;
+$('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;$('lgBtn').onclick=()=>{$('lgd').classList.remove('hidden');$('lgBtn').classList.add('hidden');};
 function toMenu(){hush();if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
   if(G.first){G.first=false;G.rounds=10;}
   tape(false);G.phase='menu';G.timers=[];renderStrip();endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
