@@ -3115,13 +3115,16 @@ function buildScenario(seed,play,variant){
 // ================= Kamera =================
 const CP={h:4,back:6,look:6,lookY:.9,side:.9};
 let camDir={x:0,z:1},camPos=null,fit={f:600,px:0,py:0};
-function camPose(hx,hz,dx,dz){const cs=G.sc&&G.sc.camSide||1;
-  if(G.sc?.featured){
-    // Blick von der Seitenlinie: beide Flügel staffeln sich in der Tiefe.
-    return{pos:[-cs*10.8,W<H?5.4:4.3,-9.2],look:[0,1,-3.8]};
-  }
-  const rx=dz*cs,rz=-dx*cs;hz=Math.min(hz,-5.2);
-  return{pos:[hx-dx*CP.back+rx*CP.side,CP.h,hz-dz*CP.back+rz*CP.side],look:[hx+dx*CP.look+rx*CP.side*.4,CP.lookY,hz+dz*CP.look+rz*CP.side*.4]};}
+function camPose(hx,hz,dx,dz){
+  const cs=G.sc?.camSide||1,rx=dz*cs,rz=-dx*cs;
+  hz=Math.min(hz,-5.2);
+  const featured=G.sc?.featured;
+  // Beim Kick-out knapp neben der Schulter bleiben, damit die Hilfe nicht hinter der Spielfigur verschwindet.
+  const side=featured?CP.side+.4:CP.side;
+  const height=featured?CP.h-.35:CP.h;
+  return{pos:[hx-dx*CP.back+rx*side,height,hz-dz*CP.back+rz*side],
+    look:[hx+dx*CP.look+rx*side*.4,CP.lookY,hz+dz*CP.look+rz*side*.4]};
+}
 const tmpCam=new T3.PerspectiveCamera(50,1,.1,200);
 function computeFit(){
   W=innerWidth;H=cv.clientHeight||innerHeight;fitPR();renderer.setSize(W,H,false);fxSize();
