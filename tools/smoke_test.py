@@ -44,6 +44,22 @@ async def run(a):
         pg = await b.new_page(viewport={'width': w, 'height': h})
         await pg.route('**/three.min.js', lambda r: r.fulfill(body=three, content_type='application/javascript'))
         await pg.route('**/config.js', lambda r: r.abort())  # Test schreibt nicht in die echte Online-Rangliste
+        # Kurze Ansagen können schon vor dem nächsten Screenshot beendet sein.
+        await pg.add_init_script("""(() => {
+            window.spokenClips = [];
+            const start = AudioBufferSourceNode.prototype.start;
+            AudioBufferSourceNode.prototype.start = function(...args) {
+                const result = start.apply(this, args);
+                const clips = window.__snd?.voice.VBUF || {};
+                const buffer = this.buffer;
+                for (const [id, pending] of Object.entries(clips)) {
+                    if (pending) pending.then(clip => {
+                        if (clip && clip === buffer) window.spokenClips.push(id);
+                    });
+                }
+                return result;
+            };
+        })();""")
         errs = []
         pg.on('pageerror', lambda e: errs.append(str(e)))
         pg.on('console', lambda m: m.type == 'error' and errs.append(m.text))
@@ -89,31 +105,63 @@ async def run(a):
             sc = await pg.evaluate('[window.__G.sc.play, window.__G.sc.variant, window.__G.sc.ans]')
             seen.append(sc)
             await pg.screenshot(path=f'{a.out}/decide{i}_{sc[0]}_{sc[1]}.png')
+            checks = await pg.evaluate("""() => {
+                const players = __players();
+                for (const team of ['off', 'def']) {
+                    const nums = players.filter(p => p.team === team).map(p => p.num);
+                    if (new Set(nums).size !== nums.length) return 'Doppelte Trikotnummer: ' + nums;
+                }
+                return '';
+            }""")
+            assert not checks, (sc, checks)
+            await pg.evaluate('window.spokenClips.length = 0')
             ans = sc[2]
-            if i % 3 == 2:
+            if i % 3 == 2 or a.keyboard_quiz:
                 opts = await pg.eval_on_selector_all('#controls .cb:not(.hidden), #tags .tag[data-c]', 'els=>els.map(e=>e.dataset.c)')
                 ans = random.choice([o for o in opts if o != sc[2]] or opts)  # bewusst falsch: Frage in der Auswertung testen
-            await pg.click(f'#bottom [data-c="{ans}"], #tags [data-c="{ans}"]')
+            if a.keyboard_quiz:
+                keys = {'shot': 'Space', 'drive': 'ArrowUp'}
+                key = keys.get(ans)
+                if ans.startswith('pass:'):
+                    key = str(await pg.evaluate('r => __players().find(p => p.role === r).key', ans[5:]))
+                if ans.startswith('spot:'):
+                    key = str(await pg.evaluate('c => __G.sc.spots.findIndex(p => "spot:"+p.id === c)+1', ans))
+                await pg.keyboard.press(key)
+            else:
+                await pg.click(f'#bottom [data-c="{ans}"], #tags [data-c="{ans}"]')
             await pg.wait_for_function('window.__G.phase==="feedback"', timeout=300000)
-            assert await pg.evaluate('window.__snd.mixer().court.gain.value === 0'), 'Feedback muss stumm sein'
+            await pg.wait_for_function('window.__snd.mixer().court.gain.value === 0', timeout=4000)
             await pg.screenshot(path=f'{a.out}/feedback{i}.png')
+            if a.keyboard_quiz:
+                assert await pg.evaluate('!!window.__G.quiz'), ('Rückfrage fehlt', sc)
             if await pg.evaluate('!!window.__G.quiz'):  # falsche Wahl: erst die Frage beantworten
-                await pg.wait_for_function('window.__snd.voice.playing()', timeout=8000)  # Frage wird vorgelesen, obwohl das Feld stumm ist
                 vt = await pg.evaluate('[window.__G.quiz.t, window.__snd.voice.file(window.__G.quiz.t)]')
                 assert vt[1], f'Keine Sprachdatei für die Frage: {vt[0]}'
+                await pg.wait_for_function('id => spokenClips.includes(id)', arg=vt[1], timeout=15000)
                 print('Sprache:', vt[1], '·', vt[0])
-                await pg.click('#nextBtn')
+                if a.keyboard_quiz:
+                    await pg.keyboard.press('Enter')
+                else:
+                    await pg.click('#nextBtn')
                 assert await pg.is_visible('#feedback'), 'Weiter darf vor der Antwort nicht gehen'
                 await pg.wait_for_timeout(500)
                 await pg.screenshot(path=f'{a.out}/feedback{i}_gesperrt.png')
-                xy = await pg.evaluate(QUIZ_XY)
-                await pg.mouse.click(xy[0], xy[1])
+                if a.keyboard_quiz:
+                    for _ in range(10):
+                        await pg.keyboard.press('ArrowRight')
+                        if await pg.evaluate('__G.quiz.cursor === __G.quiz.r'):
+                            break
+                    assert await pg.evaluate('__G.quiz.cursor === __G.quiz.r')
+                    await pg.keyboard.press('Enter')
+                else:
+                    xy = await pg.evaluate(QUIZ_XY)
+                    await pg.mouse.click(xy[0], xy[1])
                 assert not await pg.evaluate('!!window.__G.quiz'), 'Antippen auf der Karte hat die Frage nicht beantwortet'
                 want = await pg.evaluate('g=>g?window.__snd.voice.fem(window.__G.sc.rule):window.__G.sc.rule', bool(a.girl))  # Mädchen-Version: fem() stellt um
                 assert await pg.inner_text('#fbRule') == want, 'Merksatz fehlt'
                 rf = await pg.evaluate('[window.__G.sc.rule, window.__snd.voice.file(window.__G.sc.rule)]')
                 assert rf[1], f'Keine Sprachdatei für den Merksatz (in VOICE ergänzen): {rf[0]}'
-                await pg.wait_for_function('window.__snd.voice.playing()', timeout=8000)  # Merksatz wird vorgelesen
+                await pg.wait_for_function('id => spokenClips.includes(id)', arg=rf[1], timeout=15000)
                 print('Merksatz:', rf[1])
                 assert await pg.evaluate('window.__snd.mixer().court.gain.value === 0'), 'Feld muss in der Auflösung stumm sein'
                 await pg.wait_for_timeout(300)
@@ -124,7 +172,10 @@ async def run(a):
                 mt = await pg.evaluate('g=>[document.getElementById("fbMoreP").innerText, g?window.__snd.voice.fem(window.__G.sc.why):window.__G.sc.why]', bool(a.girl))
                 assert mt[1] in mt[0] and 'Warum nicht „“' not in mt[0], f'„Warum?“ unvollständig: {mt[0]}'
                 await pg.screenshot(path=f'{a.out}/feedback{i}_warum.png')
-            await pg.click('#nextBtn')
+            if a.keyboard_quiz:
+                await pg.keyboard.press('Enter')
+            else:
+                await pg.click('#nextBtn')
         await pg.wait_for_selector('#summary:not(.hidden)', timeout=30000)
         await pg.wait_for_timeout(1300)
         if await pg.is_visible('#unlock'):  # Popup mit neuen Abzeichen
@@ -154,5 +205,6 @@ if __name__ == '__main__':
     ap.add_argument('--full', action='store_true')
     ap.add_argument('--out', default='shots')
     ap.add_argument('--rig', default='glb')
+    ap.add_argument('--keyboard-quiz', action='store_true', help='Jede Runde per Tastatur falsch lösen und die Rückfrage beantworten')
     ap.add_argument('--girl', action='store_true', help='Mädchen-Version (Texte und Figuren)')
     asyncio.run(run(ap.parse_args()))
