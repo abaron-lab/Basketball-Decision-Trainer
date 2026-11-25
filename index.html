@@ -1721,14 +1721,13 @@ function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)
 // Echte Geräusche aus sfx/ (ElevenLabs, tools/make_sfx.mjs + tools/trim_sfx.sh): SMP_N = Anzahl Varianten je Geräusch.
 // Geladen beim ersten ac() (Nutzer-Geste); fehlt eine Datei oder das Netz, bleibt der synthetische Ton (smp liefert false).
 // Zufall hier nur über Math.random, nicht R (R ist für „Nochmal ansehen“ geseedet).
-let hallUnavailable=false;
-const SMP_N={hall:1,tape:1,release:2,cheer:2,gasp:1,dribble:2,catch:3,squeak:3,step:2,swish:3,rim:3},SMP={},SMP_L={};let smpOn=false;
+const SMP_N={tape:1,release:2,cheer:2,gasp:1,dribble:2,catch:3,squeak:3,step:2,swish:3,rim:3},SMP={},SMP_L={};let smpOn=false;
 function loadSmp(){if(smpOn||!AC||!window.fetch)return;smpOn=true;
   const q=[];for(const k in SMP_N)for(let i=1;i<=SMP_N[k];i++)q.push([k,'sfx/'+k+i+'.mp3']);
   // nacheinander laden (schont langsame Verbindungen); fehlt die erste Datei eines Geräuschs, die übrigen überspringen
   prerender();const miss={},next=()=>{const j=q.shift();if(!j)return;const[k,u]=j;if(miss[k])return next();
     fetch(u).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);}))
-      .then(buf=>{buf.ng=k==='cheer'?1:normG(buf);(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;if(k==='hall')hallUnavailable=true;}).then(next);};next();}
+      .then(buf=>{buf.ng=k==='cheer'?1:normG(buf);(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;}).then(next);};next();}
 // Lautheit angleichen: lautestes 30-ms-Fenster jeder Aufnahme auf -12 dBFS RMS (die Dateien sind nur auf Spitze normalisiert,
 // dichte Geräusche wie Quietschen und Schritte klangen dadurch viel lauter als Netz oder Fangen). Lautstärken in sfx sind relativ dazu.
 function normG(b){const d=b.getChannelData(0),w=Math.max(1,Math.round(b.sampleRate*.03));let m=0;
@@ -1759,12 +1758,28 @@ function route(n,pan,wet,bus){const a=AC,M=mix();let o=n;
 const SPV=new T3.Vector3();
 function spat(p){if(!p||!cam)return{v:1,pan:0,wet:.14,d:0};const d=Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z);
   SPV.set(p.x,1,-p.z).project(cam);return{v:clamp(1.25-d/22,.2,1),pan:SPV.z<1?clamp(SPV.x*.5,-.7,.7):0,wet:clamp(.1+d/45,.1,.5),d};}
+// Jubelaufnahmen und ihre Ersatzklänge beim Feedback gemeinsam ausblenden.
+const activeCheers=new Map();
+function startEffect(source,gain,time,cheer){
+  source.start(time);
+  if(cheer){activeCheers.set(source,gain.gain);source.onended=()=>activeCheers.delete(source);}
+}
+function fadeCheers(){
+  if(!AC)return;
+  const t=AC.currentTime,end=t+.7;
+  activeCheers.forEach((gain,source)=>{
+    gain.setValueAtTime(gain.value,t);
+    gain.linearRampToValueAtTime(0,end);
+    source.stop(end);
+  });
+  activeCheers.clear();
+}
 function smp(k,v,pv,p,o){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
   try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;const S=spat(p),b=L[i];
     const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=1+(Math.random()*2-1)*(pv||.06);
     g.gain.value=v*(b.ng||1)*S.v*(.85+Math.random()*.3);let n=s.connect(g);
     if(S.d>7){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=clamp(17000-S.d*420,3500,17000);n=g.connect(f);}
-    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));s.start(a.currentTime+(o&&o.at||0));}catch(e){}return true;}
+    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));startEffect(s,g,a.currentTime+(o&&o.at||0),k==='cheer');}catch(e){}return true;}
 // Vorberechnete Publikumsgeräusche (einmal beim ersten ac()): Applaus (viele kurze Klatscher, Stereo) und ein „Oooh“
 // (Stimmen mit Vokal-Formanten, Ton fällt am Ende ab). Fehlen sie noch, bleibt das alte Rauschen.
 const PRE={};
@@ -1784,7 +1799,7 @@ function prerender(){const a=AC;if(!a||PRE.on)return;PRE.on=1;
       [[330+Math.random()*60,5,1],[720+Math.random()*120,7,.5],[2600,6,.08]].forEach(([fq,q,gg])=>{const f=o.createBiquadFilter(),h=o.createGain();f.type='bandpass';f.frequency.value=fq;f.Q.value=q;h.gain.value=gg*3;nd.connect(f).connect(h).connect(bus);});
       os.start(st);os.stop(1.55);}
     const pr=o.startRendering(),done=b=>{PRE.ooh=b;};if(pr&&pr.then)pr.then(done).catch(()=>{});else o.oncomplete=e=>done(e.renderedBuffer);}catch(e){}}
-function playBuf(b,v,rate,wet){const a=AC;if(!a||muted||!b)return false;try{const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=rate||1;g.gain.value=v;s.connect(g);route(g,0,wet);s.start();}catch(e){}return true;}
+function playBuf(b,v,rate,wet,cheer){const a=AC;if(!a||muted||!b)return false;try{const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=rate||1;g.gain.value=v;s.connect(g);route(g,0,wet);startEffect(s,g,a.currentTime,cheer);}catch(e){}return true;}
 // ================= Sprachausgabe =================
 // Feste Ansagen im Dialog nach einer falschen Entscheidung (Frage auf der Karte, Hinweise, Auflösung), gesprochen mit
 // ElevenLabs (Stimme „Chris“, tools/make_voice.mjs liest genau diese Liste zwischen VOICE-START und VOICE-END).
@@ -1888,27 +1903,15 @@ function bedFinish(st){const a=AC,{sr,n,fd,out}=st;
   const tg=a.createGain();lp.connect(hp).connect(g).connect(tg);route(tg,0,.18);g.tg=tg;g.buf=b;g.srcs=[];
   [[1,0,-.45],[.94,2.7,.45]].forEach(([r,o,pn])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;let n=s;if(a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=pn;n=s.connect(P);}n.connect(lp);s.start(0,o);g.srcs.push([s,r]);});
   return g;}
-function makeBed(roar){const st=bedInit(roar);while(!bedVoice(st));return bedFinish(st);}
 let bedSt=null;
 function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED)return;
-  if(SMP.hall){
-    if(!BED){
-      const b=SMP.hall[0],src=a.createBufferSource(),g=a.createGain(),tg=a.createGain();
-      src.buffer=b;src.loop=true;g.gain.value=0;src.connect(g).connect(tg);route(tg,0,0);
-      g.srcs=[[src,1]];g.tg=tg;g.buf=b;src.start();BED={g,t:0};
-      if(G.phase==='decide'){tg.gain.value=0;src.playbackRate.value=.05;}
-    }
-    BED.t-=rdt;
-    if(BED.t<=0){BED.t=.1;const level=muted||G.phase==='menu'?0:.32+.09*G.excite;
-      BED.g.gain.setTargetAtTime(level*SMP.hall[0].ng,a.currentTime,.12);}
-    return;
-  }
-  if(!hallUnavailable)return;
   if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;if(G.phase==='decide')tape(true);}
   if(!BED.g)return;
-  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&G.phase!=='menu',wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
+  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;
+  const on=!muted&&G.phase!=='menu',wave=gclock-G.wave>=0&&gclock-G.wave<3.4;
+  const outcome=G.phase==='outcome',ex=on&&outcome?Math.max(G.excite,wave?.75:0):0;
   BED.g.gain.setTargetAtTime(on?.05+.03*ex:0,a.currentTime,on?.4:.25);
-  BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,ex>BED.ex?.12:.6);BED.ex=ex;}
+  BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,outcome?(ex>BED.ex?.12:.6):.18);BED.ex=ex;}
 // Band-Stopp (wie ein angehaltenes Video): Publikum im Hintergrund wird in 0,5 s langsamer, tiefer und leiser bis zum Stillstand,
 // nach der Entscheidung läuft es in 0,3 s wieder an. Der kurze Tape-Stop liegt auf demselben Hallenausgang.
 function tape(stop){const a=AC;if(!a)return;const t=a.currentTime;
@@ -1919,10 +1922,10 @@ function tape(stop){const a=AC;if(!a)return;const t=a.currentTime;
     const q=g.tg.gain;q.cancelScheduledValues(t);q.setValueAtTime(q.value,t);q.linearRampToValueAtTime(stop?0:1,t+(stop?.5:.3));});}catch(e){}}
 function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(mix().inp);o.start(t);o.stop(t+d+.02);}catch(e){}}
 function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
-function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
+function crowdN(d,v,fq,att,cheer){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
   for(let i=0;i<n;i++){const t=i/n,e=t<att?t/att:Math.pow(1-(t-att)/(1-att),1.6);ch[i]=(Math.random()*2-1)*e*(.75+.25*Math.sin(i/a.sampleRate*40));}
-  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
-const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.14})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35)||crowdN(2.2,.5,1100,.12);},
+  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);startEffect(s,g,a.currentTime,cheer);}catch(e){}}
+const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.14})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35,true)||crowdN(2.2,.5,1100,.12,true);},
   ooh:()=>smp('gasp',.7,.035,null,{wet:.45,at:.09})||playBuf(PRE.ooh,1.1,.92+Math.random()*.16,.4)||crowdN(1.1,.35,520,.3),
   dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:p=>smp('dribble',.32,.1,p,{wet:1.4}),
   squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;return smp('squeak',p===ROLE.H?.12:.08,.1,p);},step:(p,v)=>smp('step',v,.12,p,{wet:.5}),
@@ -3180,7 +3183,7 @@ function wrongNote(sc,c){
   if(c.startsWith('pass:')){const p=role(c.slice(5));return`${p&&p.name?p.name:'Dieser Mitspieler'}: noch gedeckt, sein Verteidiger stand direkt bei ihm.`;}
   return'';}
 function showFeedback(){
-  G.phase='feedback';const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
+  G.phase='feedback';fadeCheers();const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
   const r=G.results[G.results.length-1],kind=ok?'ok':ch===null?'slow':'bad';
   $('fbHead').className='fbhead '+kind;$('fbIco').innerHTML=`<use href="#i-${ok?'check':ch===null?'clock':'eye'}"/>`;
   // Kindgerecht (DBB-Leitfaden: Lernen durch Ausprobieren, Fragen statt Lösungen): kein Urteil „falsch“, kein Rot,
