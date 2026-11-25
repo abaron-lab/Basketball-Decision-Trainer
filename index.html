@@ -3196,7 +3196,7 @@ function passBad(Wp,finish,D){ball.y=Math.max(1,ball.y);act(ball.owner,'pass',.4
   const[tx,tz]=Wp.path?evalPath(Wp.path,Wp.pt+.4,Wp.lin):[Wp.x,Wp.z];
   const ix=lerp(ball.x,tx,.68),iz=lerp(ball.z,tz,.68);D=D||nearestDef(ix,iz,role('dH'))||nearestDef(ix,iz);
   goTo(D,[[.38,ix,iz-.1]]);
-  fly({x:ix,y:1.2,z:iz},.42,.25,()=>{ball.owner=D;ball.hold=true;act(D,'catch',.4);G.slowT=.45;sfx.bad();sfx.ooh();flash('Abgefangen!','#ff7b72');goTo(D,[[1.6,ix*.4,-13]]);finish(1.2);});}
+  fly({x:ix,y:1.2,z:iz},.42,.25,()=>{ball.owner=D;ball.hold=true;act(D,'catch',.4);G.slowT=.45;sfx.bad();flash('Abgefangen!','#ff7b72');goTo(D,[[1.6,ix*.4,-13]]);finish(1.2);});}
 function blocked(S,B,finish,msg){const mx=lerp(S.x,B.x,.6),mz=Math.min(B.z-.2,lerp(S.z,0,.4));
   ball.hold=false;goTo(S,[[.55,lerp(S.x,mx,.75),lerp(S.z,mz,.75)-.3]],true);goTo(B,[[.45,mx,mz]]);
   later(.42,()=>act(B,'block',.85));
