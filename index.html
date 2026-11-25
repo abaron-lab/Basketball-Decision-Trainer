@@ -1771,9 +1771,12 @@ function spat(p){if(!p||!cam)return{v:1,pan:0,wet:.14,d:0};const d=Math.hypot(ca
 function smp(k,v,pv,p,o){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
   try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;const S=spat(p),b=L[i];
     const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=k==='tape'?b.duration/TAPE_STOP:1+(Math.random()*2-1)*(pv||.06);
-    g.gain.value=v*(b.ng||1)*S.v*(.85+Math.random()*.3);let n=s.connect(g);
+    const level=v*(b.ng||1)*S.v*(.85+Math.random()*.3),at=a.currentTime+(o?.at||0);
+    if(o?.attack){g.gain.setValueAtTime(0,at);g.gain.linearRampToValueAtTime(level,at+o.attack);}
+    else g.gain.value=level;
+    let n=s.connect(g);
     if(S.d>7){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=clamp(17000-S.d*420,3500,17000);n=g.connect(f);}
-    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));s.start(a.currentTime+(o&&o.at||0));}catch(e){}return true;}
+    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));s.start(at);}catch(e){}return true;}
 // Vorberechnete Publikumsgeräusche (einmal beim ersten ac()): Applaus (viele kurze Klatscher, Stereo) und ein „Oooh“
 // (Stimmen mit Vokal-Formanten, Ton fällt am Ende ab). Fehlen sie noch, bleibt das alte Rauschen.
 const PRE={};
@@ -1975,7 +1978,7 @@ function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer
 function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
   for(let i=0;i<n;i++){const t=i/n,e=t<att?t/att:Math.pow(1-(t-att)/(1-att),1.6);ch[i]=(Math.random()*2-1)*e*(.75+.25*Math.sin(i/a.sampleRate*40));}
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
-const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.14})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35)||crowdN(2.2,.5,1100,.12);},
+const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.04,attack:.22})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35)||crowdN(2.2,.5,1100,.12);},
   ooh:()=>smp('gasp',.7,.035,null,{wet:.45,at:.09})||playBuf(PRE.ooh,1.1,.92+Math.random()*.16,.4)||crowdN(1.1,.35,520,.3),
   dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:p=>smp('dribble',.32,.1,p,{wet:1.4}),
   squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;return smp('squeak',p===ROLE.H?.12:.08,.1,p);},step:(p,v)=>smp('step',v,.12,p,{wet:.5}),
@@ -3166,7 +3169,7 @@ function score(after){sfx.swish();netKick(ball.x*3,ball.z*3);G.excite=1;G.slowT=
   fly({x:0,y:2.3,z:0},.2,0,()=>fly({x:rand(-.4,.4),y:.13,z:-.7},.35,.1,()=>after&&after()));}
 function shootFrom(S,make,after){S.armsUp=1.3;ball.owner=S;ball.hold=true;act(S,'shoot',1.0);shooter=S;
   later(.24,()=>{const d=Math.hypot(S.x,S.z);rimCam(S);fly({x:0,y:3.25,z:make?0:-.12},.75+d*.04,1.1+d*.13,()=>{
-    if(make)score(()=>after&&after(true));else{sfx.rim();rimHit();G.slowT=.35;sfx.ooh();fly({x:rand(-2.5,2.5),y:.13,z:-2.6},.75,1.6,()=>after&&after(false));}},{shot:true});});}
+    if(make)score(()=>after&&after(true));else{sfx.rim();rimHit();G.slowT=.35;fly({x:rand(-2.5,2.5),y:.13,z:-2.6},.75,1.6,()=>after&&after(false));}},{shot:true});});}
 function layShot(S,after){S.armsUp=1;act(S,'layup',.85);shooter=S;rimCam(S);
   // mit eigenem Korbleger-Clip: Ball bleibt bis zum Abwurf (0,28 s) in der Hand
   if(S.rig.glb&&S.rig.A.layup){ball.owner=S;ball.hold=true;later(.28,()=>fly({x:0,y:3.25,z:0},.3,.28,()=>score(after),{shot:true}));}
