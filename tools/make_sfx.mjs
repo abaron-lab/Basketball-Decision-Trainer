@@ -20,9 +20,6 @@ const SFX = {
   tape: { dur: 1, inf: .8, texts: [
     'Single abrupt analog tape-stop of a live basketball gym recording. A very short burst of crowd and ball resonance pitching steeply down into a low rubbery motor stop, then silence. Begins slowing immediately. No music, melody, rewind or restart.',
   ] },
-  hall: { dur: 9, inf: .65, texts: [
-    'Continuous courtside room tone inside a modest packed indoor basketball gym. Natural wide diffuse murmur of seated spectators, soft indistinct voices and spacious gym acoustics, steady level throughout. No foreground play, cheers, music, whistle or announcer.',
-  ] },
   cheer: { dur: 5.5, inf: .82, texts: [
     'Packed indoor basketball arena erupting at a home basket. Immediate massive wall of thousands of fans yelling YEAHH together across both stands, a rolling sustained roar, many overlapping human voices with dense applause underneath, fading naturally across the arena. Wide courtside stereo crowd recording. No music, no commentary.',
     'Live courtside stereo recording: deafening massed human cheers from a sold-out indoor basketball arena after a slam dunk. Instant explosive roar from the whole building, layered high and low voices shouting in celebration, sustained for several seconds then subsiding with clapping. Crowd only, no announcer or music.',

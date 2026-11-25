@@ -1718,22 +1718,22 @@ const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,spin:0};
 
 // ================= Sound =================
 // Aufnahmen in sfx/: erstellt mit ElevenLabs Sound Effects (Free Plan: Namensnennung Pflicht, siehe lizenzen.html und INFO_HTML;
-// kommerzielle Nutzung eingeschränkt). Band-Stopp, Hupe, Publikum, Applaus, Passgeräusch und Signaltöne sind synthetisch (Web Audio).
+// kommerzielle Nutzung eingeschränkt). Hallengemurmel, Hupe, Signaltöne und Ersatzgeräusche entstehen mit Web Audio.
 // Alles läuft über ein Mischpult (mix): Hallraum einer Sporthalle (Faltungshall mit berechneter Impulsantwort), Panorama nach
 // Bildschirmposition, ferne Geräusche leiser/dumpfer/halliger (spat), am Ende ein Kompressor als Begrenzer gegen Übersteuern.
+const TAPE_STOP=.85;
 let AC=null,muted=store.get('pgt_mute')==='1';
 function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});if(AC){mix();loadSmp();vPreload();}return AC;}
 // Echte Geräusche aus sfx/ (ElevenLabs, tools/make_sfx.mjs + tools/trim_sfx.sh): SMP_N = Anzahl Varianten je Geräusch.
 // Geladen beim ersten ac() (Nutzer-Geste); fehlt eine Datei oder das Netz, bleibt der synthetische Ton (smp liefert false).
 // Zufall hier nur über Math.random, nicht R (R ist für „Nochmal ansehen“ geseedet).
-let hallUnavailable=false;
-const SMP_N={hall:1,tape:1,release:2,cheer:2,gasp:1,dribble:2,catch:3,squeak:3,step:2,swish:3,rim:3},SMP={},SMP_L={};let smpOn=false;
+const SMP_N={tape:1,release:2,cheer:2,gasp:1,dribble:2,catch:3,squeak:3,step:2,swish:3,rim:3},SMP={},SMP_L={};let smpOn=false;
 function loadSmp(){if(smpOn||!AC||!window.fetch)return;smpOn=true;
   const q=[];for(const k in SMP_N)for(let i=1;i<=SMP_N[k];i++)q.push([k,'sfx/'+k+i+'.mp3']);
   // nacheinander laden (schont langsame Verbindungen); fehlt die erste Datei eines Geräuschs, die übrigen überspringen
   prerender();const miss={},next=()=>{const j=q.shift();if(!j)return;const[k,u]=j;if(miss[k])return next();
     fetch(u).then(r=>r.ok?r.arrayBuffer():Promise.reject()).then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);}))
-      .then(buf=>{buf.ng=k==='cheer'?1:normG(buf);(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;if(k==='hall')hallUnavailable=true;}).then(next);};next();}
+      .then(buf=>{buf.ng=k==='cheer'?1:normG(buf);(SMP[k]=SMP[k]||[]).push(buf);},()=>{if(!SMP[k])miss[k]=1;}).then(next);};next();}
 // Lautheit angleichen: lautestes 30-ms-Fenster jeder Aufnahme auf -12 dBFS RMS (die Dateien sind nur auf Spitze normalisiert,
 // dichte Geräusche wie Quietschen und Schritte klangen dadurch viel lauter als Netz oder Fangen). Lautstärken in sfx sind relativ dazu.
 function normG(b){const d=b.getChannelData(0),w=Math.max(1,Math.round(b.sampleRate*.03));let m=0;
@@ -1749,24 +1749,28 @@ function gymIR(a){const sr=a.sampleRate,n=sr*1.7|0,b=a.createBuffer(2,n,sr);
     [[.017,.55],[.026,.4],[.039,.32],[.054,.25],[.071,.2],[.093,.15]].forEach(([t,g],j)=>{const q=(t+(c?.0035*(j%3):.002*(j%2)))*sr|0;d[q]+=g*((j+c)%2?-1:1);});}
   return b;}
 function mix(){const a=AC;if(MIX||!a)return MIX;
-  try{const inp=a.createGain(),duck=a.createGain(),vin=a.createGain(),comp=a.createDynamicsCompressor();
+  // vin: Spracheingang, läuft am court vorbei (court ist im Entscheidungsbild und in der Auswertung stumm, die Ansagen nicht)
+  const inp=a.createGain(),court=a.createGain(),vin=a.createGain();court.gain.value=G.phase==='feedback'||G.phase==='decide'?0:1;
+  court.connect(a.destination);vin.connect(a.destination);MIX={inp,court,vin,rev:null,filter:null};
+  try{const filter=a.createBiquadFilter(),comp=a.createDynamicsCompressor();
+    filter.type='lowpass';filter.frequency.value=a.sampleRate/2;
     comp.threshold.value=-3;comp.knee.value=2;comp.ratio.value=20;comp.attack.value=.001;comp.release.value=.12;  // nur Begrenzer (tiefe Schwelle hebt in Chrome alles per Make-up-Gain an)
-    const court=a.createGain();inp.connect(court).connect(duck).connect(comp).connect(a.destination);vin.connect(comp);  // duck: senkt Effekte und Publikum während der Sprache (say)
+    inp.connect(filter).connect(comp).connect(court);
     const hp=a.createBiquadFilter(),cv=a.createConvolver(),wg=a.createGain();hp.type='highpass';hp.frequency.value=200;cv.buffer=gymIR(a);wg.gain.value=.55;
-    hp.connect(cv).connect(wg).connect(inp);MIX={inp,court,rev:hp,duck,vin};}
-  catch(e){MIX={inp:a.destination,rev:null,duck:null,vin:a.destination};}
+    hp.connect(cv).connect(wg).connect(inp);Object.assign(MIX,{rev:hp,filter});}
+  catch(e){inp.disconnect();inp.connect(court);}
   return MIX;}
-// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall, bus 'v' = Spracheingang (wird nicht abgesenkt)
+// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall, bus 'v' = Spracheingang (am stummen court vorbei, ohne Hall)
 function route(n,pan,wet,bus){const a=AC,M=mix();let o=n;
   if(pan&&a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=clamp(pan,-1,1);o.connect(P);o=P;}
-  o.connect(bus==='v'?M.vin:M.inp);if(M.rev&&wet>0){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
+  o.connect(bus==='v'?M.vin:M.inp);if(M.rev&&wet>0&&bus!=='v'){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
 // Raum: Lautstärke nach Abstand zur Kamera, Panorama nach Bildschirmposition, Hall- und Höhenverlust mit der Entfernung
 const SPV=new T3.Vector3();
 function spat(p){if(!p||!cam)return{v:1,pan:0,wet:.14,d:0};const d=Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z);
   SPV.set(p.x,1,-p.z).project(cam);return{v:clamp(1.25-d/22,.2,1),pan:SPV.z<1?clamp(SPV.x*.5,-.7,.7):0,wet:clamp(.1+d/45,.1,.5),d};}
 function smp(k,v,pv,p,o){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
   try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;const S=spat(p),b=L[i];
-    const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=1+(Math.random()*2-1)*(pv||.06);
+    const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=k==='tape'?b.duration/TAPE_STOP:1+(Math.random()*2-1)*(pv||.06);
     g.gain.value=v*(b.ng||1)*S.v*(.85+Math.random()*.3);let n=s.connect(g);
     if(S.d>7){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=clamp(17000-S.d*420,3500,17000);n=g.connect(f);}
     route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));s.start(a.currentTime+(o&&o.at||0));}catch(e){}return true;}
@@ -1870,16 +1874,14 @@ function vLoad(id){if(VBUF[id])return VBUF[id];
 let vPre=false;function vPreload(){if(vPre||!AC||!voiceOn)return;vPre=true;const q=Object.keys(VOICE).filter(k=>!k.startsWith('r_')).map(k=>vFile(VOICE[k]));
   const next=()=>{const id=q.shift();if(id)Promise.resolve(vLoad(id)).then(next);};next();}
 function vRule(t){if(!AC||!voiceOn||!t)return;const id=vFile(t);if(id)vLoad(id);}
-function vDuck(on){const M=MIX;if(!M||!M.duck||!AC)return;const g=M.duck.gain,t=AC.currentTime;
-  g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.setTargetAtTime(on?.4:1,t,on?.06:.3);}
 // Laufende Ansage abbrechen (neue Ansage, Antippen, Taste, neue Runde)
-function hush(){VSEQ++;if(VQ){try{VQ.stop();}catch(e){}VQ=null;vDuck(false);}}
+function hush(){VSEQ++;if(VQ){try{VQ.stop();}catch(e){}VQ=null;}}
 // Texte nacheinander sprechen (kurze Pause dazwischen); delay = Sekunden bis zum Start
 function say(texts,delay){hush();if(!voiceOn)return;const a=ac();if(!a)return;const my=VSEQ,ids=texts.map(vFile).filter(Boolean);if(!ids.length)return;
   Promise.all(ids.map(vLoad)).then(bufs=>{if(my!==VSEQ)return;bufs=bufs.filter(Boolean);let t0=a.currentTime+(delay||0);
-    const play=i=>{if(my!==VSEQ)return;if(i>=bufs.length){VQ=null;vDuck(false);return;}
+    const play=i=>{if(my!==VSEQ)return;if(i>=bufs.length){VQ=null;return;}
       try{const s=a.createBufferSource(),g=a.createGain();s.buffer=bufs[i];g.gain.value=.9;s.connect(g);route(g,0,.06,'v');
-        s.onended=()=>{if(my===VSEQ)setTimeout(()=>play(i+1),220);};if(!i)vDuck(true);VQ=s;s.start(i?0:t0);}catch(e){VQ=null;vDuck(false);}};
+        s.onended=()=>{if(my===VSEQ)setTimeout(()=>play(i+1),220);};VQ=s;s.start(i?0:t0);}catch(e){VQ=null;}};
     play(0);});}
 addEventListener('pointerdown',()=>{if(VQ)hush();},true);
 // Synthetische Klänge, rund statt piepsig: Band-Stopp, Glockenton für richtig, weiches Abwärts für falsch, Hallenhupe
@@ -1891,7 +1893,7 @@ function noiseBuf(d){const a=AC,b=a.createBuffer(1,a.sampleRate*d|0,a.sampleRate
 const SYN={
   // Band-Stopp: ein Stück Hallengeräusch (Publikum, falls schon berechnet, sonst Rauschen) wird von normalem Tempo auf Stillstand
   // abgebremst, dazu ein tiefer werdendes Brummen und ein sich schließender Tiefpass (Kassette/Video wird angehalten)
-  tape(){const a=AC,t=a.currentTime+.005,d=.5,lp=a.createBiquadFilter(),g=a.createGain();lp.type='lowpass';lp.Q.value=.8;
+  tape(delay){const a=AC,t=a.currentTime+delay,d=TAPE_STOP,lp=a.createBiquadFilter(),g=a.createGain();lp.type='lowpass';lp.Q.value=.8;
     lp.frequency.setValueAtTime(7000,t);lp.frequency.exponentialRampToValueAtTime(160,t+d);
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(1,t+.02);g.gain.setValueAtTime(1,t+d*.55);g.gain.linearRampToValueAtTime(0,t+d);lp.connect(g);route(g,0,.12);
     const src=a.createBufferSource(),sg=a.createGain(),B=BED&&(BED.r&&BED.r.buf||BED.g&&BED.g.buf);src.buffer=B||noiseBuf(1);
@@ -1944,35 +1946,24 @@ function bedFinish(st){const a=AC,{sr,n,fd,out}=st;
   const tg=a.createGain();lp.connect(hp).connect(g).connect(tg);route(tg,0,.18);g.tg=tg;g.buf=b;g.srcs=[];
   [[1,0,-.45],[.94,2.7,.45]].forEach(([r,o,pn])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;let n=s;if(a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=pn;n=s.connect(P);}n.connect(lp);s.start(0,o);g.srcs.push([s,r]);});
   return g;}
-function makeBed(roar){const st=bedInit(roar);while(!bedVoice(st));return bedFinish(st);}
 let bedSt=null;
-function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED)return;
-  if(SMP.hall){
-    if(!BED){
-      const b=SMP.hall[0],src=a.createBufferSource(),g=a.createGain(),tg=a.createGain();
-      src.buffer=b;src.loop=true;g.gain.value=0;src.connect(g).connect(tg);route(tg,0,0);
-      g.srcs=[[src,1]];g.tg=tg;g.buf=b;src.start();BED={g,t:0};
-      if(G.phase==='decide'){tg.gain.value=0;src.playbackRate.value=.05;}
-    }
-    BED.t-=rdt;
-    if(BED.t<=0){BED.t=.1;const level=muted||G.phase==='menu'?0:.32+.09*G.excite;
-      BED.g.gain.setTargetAtTime(level*SMP.hall[0].ng,a.currentTime,.12);}
-    return;
-  }
-  if(!hallUnavailable)return;
-  if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;if(G.phase==='decide')tape(true);}
+function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED||G.phase==='decide'||(G.phase==='approach'&&G.stopElapsed!==null))return;
+  if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;}
   if(!BED.g)return;
-  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&G.phase!=='menu',wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
+  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&(G.phase==='approach'||G.phase==='outcome'),wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
   BED.g.gain.setTargetAtTime(on?.05+.03*ex:0,a.currentTime,on?.4:.25);
   BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,ex>BED.ex?.12:.6);BED.ex=ex;}
-// Band-Stopp (wie ein angehaltenes Video): Publikum im Hintergrund wird in 0,5 s langsamer, tiefer und leiser bis zum Stillstand,
-// nach der Entscheidung läuft es in 0,3 s wieder an. Der kurze Tape-Stop liegt auf demselben Hallenausgang.
-function tape(stop){const a=AC;if(!a)return;const t=a.currentTime;
-  const court=mix().court;
-  if(court){const g=court.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(stop?0:1,t+(stop?.42:.045));}
-  try{[BED&&BED.g,BED&&BED.r].forEach(g=>{if(!g||!g.srcs)return;
-    g.srcs.forEach(([s,r])=>{const p=s.playbackRate;p.cancelScheduledValues(t);p.setValueAtTime(Math.max(.01,p.value),t);p.exponentialRampToValueAtTime(stop?r*.05:r,t+(stop?.5:.3));});
-    const q=g.tg.gain;q.cancelScheduledValues(t);q.setValueAtTime(q.value,t);q.linearRampToValueAtTime(stop?0:1,t+(stop?.5:.3));});}catch(e){}}
+// Blende den vollständigen Mix aus, einschließlich Hall und laufender Publikumsreaktionen.
+function tape(stop,delay=0){const a=AC;if(!a)return;const t=a.currentTime+delay;
+  const {court,filter}=mix(),end=t+(stop?TAPE_STOP:.045),g=court.gain;
+  g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(stop?0:1,end);
+  if(filter){const f=filter.frequency;f.cancelScheduledValues(t);f.setValueAtTime(f.value,t);f.exponentialRampToValueAtTime(stop?220:a.sampleRate/2,end);}
+  [BED?.g,BED?.r].forEach(layer=>layer?.srcs?.forEach(([src,rate])=>{
+    const p=src.playbackRate;p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);
+    p.linearRampToValueAtTime(stop?0:rate,t+(stop?TAPE_STOP:.3));
+  }));
+}
+function quietCourt(){if(!AC)return;const g=mix().court.gain,t=AC.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(0,t);}
 function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(mix().inp);o.start(t);o.stop(t+d+.02);}catch(e){}}
 function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
 function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
@@ -1982,11 +1973,11 @@ const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{we
   ooh:()=>smp('gasp',.7,.035,null,{wet:.45,at:.09})||playBuf(PRE.ooh,1.1,.92+Math.random()*.16,.4)||crowdN(1.1,.35,520,.3),
   dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:p=>smp('dribble',.32,.1,p,{wet:1.4}),
   squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;return smp('squeak',p===ROLE.H?.12:.08,.1,p);},step:(p,v)=>smp('step',v,.12,p,{wet:.5}),
-  tape:()=>smp('tape',.52,.015,null,{wet:0})||syn('tape'),swish:()=>smp('swish',.85,.05,ball,{wet:1.6})||noise(.35,.25,2500),good:()=>syn('good'),bad:()=>syn('bad'),buzz:()=>syn('buzz'),
+  tape:delay=>smp('tape',.52,0,null,{wet:0,at:delay})||syn('tape',delay),swish:()=>smp('swish',.85,.05,ball,{wet:1.6})||noise(.35,.25,2500),good:()=>syn('good'),bad:()=>syn('bad'),buzz:()=>syn('buzz'),
   rim:()=>smp('rim',.65,.05,ball,{wet:1.8})||tone(330,.2,'triangle',.12,200),release:p=>smp('release',.33,.05,p),pass:p=>sfx.release(p||ball.owner)||syn('pass',p||ball.owner)};
 
 // ================= Spielzustand =================
-const G={ts:1,slowT:0,wave:-9,phase:'menu',pos:'pg',level:1,mode:4,noLimit:false,round:0,rounds:10,score:0,streak:0,bestStreak:0,results:[],sc:null,t:0,dStart:0,win:4,timers:[],replay:false,choice:null,snap:null,bag:[],plays:['top','break','wing','backdoor'],excite:0,saved:false};
+const G={ts:1,stopElapsed:null,slowT:0,wave:-9,phase:'menu',pos:'pg',level:1,mode:4,noLimit:false,round:0,rounds:10,score:0,streak:0,bestStreak:0,results:[],sc:null,t:0,dStart:0,win:4,timers:[],replay:false,choice:null,snap:null,bag:[],plays:['top','break','wing','backdoor'],excite:0,saved:false};
 const WIN=[4,2.5,1.8];
 // Lernziele: Begriffe aus dem DBB-Leitfaden Minibasketball (Kap. 7.2), dazu „Guter Wurf“ (DBB-Spielkonzeption: Wofür spielen wir?)
 // und „Mann-Mann-Verteidigung“ (Miniregeln: MMV-Pflicht). Quellen siehe Info-Seite und docs/TRAINER.md.
@@ -3128,18 +3119,18 @@ function startRound(){hush();
   beginApproach();showBanner(PLAYS[p].name,PLAYS[p].desc);
 }
 function beginApproach(){
-  tape(false);FX.dof=0;
+  tape(false);FX.dof=0;G.stopElapsed=null;
   G.phase='approach';G.t=0;G.timers=[];G.choice=null;endCam();warmGL();G.ts=1;G.slowT=0;shooter=null;players.forEach(p=>p.act=null);
   computeFit();camDir=startDir();updCam(0,true);
   buildButtons();setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
   updateHud();
 }
 function startDecide(){
-  G.phase='decide';G.dStart=performance.now();G.t=0;
+  G.phase='decide';quietCourt();G.dStart=performance.now();G.t=0;
   G.snap=players.map(p=>({role:p.role,team:p.team,x:p.x,z:p.z,num:p.num,sel:p.sel,ball:ball.owner===p}));
   setControls(true);$('prompt').classList.add('on');$('vig').classList.add('on');
   $('timer').classList.toggle('on',!G.noLimit&&!G.replay);$('timerFill').style.transform='scaleX(1)';
-  cam.updateMatrixWorld();updRing();posMe();makeBubbles();sfx.tape();tape(true);
+  cam.updateMatrixWorld();updRing();posMe();makeBubbles();
   if(G.replay){const a=G.sc.ans;const b=document.querySelector(`.cb[data-c="${a}"]`);b&&b.classList.add('hint');
     if(a.startsWith('pass:')||a.startsWith('spot:')){const t=document.querySelector(a.startsWith('spot:')?`.tag[data-c="${a}"]`:`.tag[data-r="${a.slice(5)}"]`);t&&t.classList.add('hint');}
   }
@@ -3236,7 +3227,7 @@ function wrongNote(sc,c){
   if(c.startsWith('pass:')){const p=role(c.slice(5));return`${p&&p.name?p.name:'Dieser Mitspieler'}: noch gedeckt, sein Verteidiger stand direkt bei ihm.`;}
   return'';}
 function showFeedback(){
-  G.phase='feedback';const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
+  G.phase='feedback';quietCourt();const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
   const r=G.results[G.results.length-1],kind=ok?'ok':ch===null?'slow':'bad';
   $('fbHead').className='fbhead '+kind;$('fbIco').innerHTML=`<use href="#i-${ok?'check':ch===null?'clock':'eye'}"/>`;
   // Kindgerecht (DBB-Leitfaden: Lernen durch Ausprobieren, Fragen statt Lösungen): kein Urteil „falsch“, kein Rot,
@@ -3283,13 +3274,13 @@ function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
   $('fbQt').textContent=hit===true?'Richtig erkannt!':hit===false?'Guter Versuch! Schau auf den Ring.':q.t;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
-  if(hit===true){sfx.good();confetti(18);}
+  if(hit===true)confetti(18);
   // Danach der Merksatz: das, was vom Spielzug hängen bleiben soll (Sprachdatei über VOICE, sonst still)
   say((hit===true?['Richtig erkannt!']:hit===false?['Guter Versuch! Schau auf den Ring.']:['Hier ist die Lösung:']).concat(G.sc.rule||[]),hit===true?.25:0);}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
 function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
-  f.classList.remove('nudge');void f.offsetWidth;f.classList.add('nudge');tone(240,.08,'triangle',.06);}
+  f.classList.remove('nudge');void f.offsetWidth;f.classList.add('nudge');}
 $('mini').addEventListener('pointerdown',e=>{const q=G.quiz;if(!q||G.phase!=='feedback')return;const m=$('mini'),r=m.getBoundingClientRect(),k=Math.min(r.width/m.width,r.height/m.height);
   const x=(e.clientX-r.left-(r.width-m.width*k)/2)/k,y=(e.clientY-r.top-(r.height-m.height*k)/2)/k,M=miniMap();let best=null,bd=1e9;
   G.snap.forEach(p=>{if(p.z<-10.8&&!M.far)return;const d=Math.hypot(M.sx(p.x)-x,M.sz(p.z)-y);if(d<bd){bd=d;best=p;}});
@@ -3811,7 +3802,16 @@ function feedBall(sc){if(sc.give&&!sc.gave&&G.t>=sc.give.t0){sc.gave=true;const 
   if(!sc.feed||sc.fed||G.t<sc.feed.t0)return;sc.fed=true;
   const f=sc.feed,[x,z]=evalPath(Hd.path,f.t1,Hd.lin),moving=Hd.path[Hd.path.length-1][0]>f.t1+.1;
   act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},f.t1-f.t0,.35,()=>{ball.owner=Hd;ball.hold=!moving;act(Hd,'catch',.25);});}
-function update(rdt){
+// Lineare Bremskurve: In TAPE_STOP Sekunden verstreicht noch eine halbe TAPE_STOP an Spielzeit.
+function approachDt(rdt,raw){const start=G.sc.T-TAPE_STOP/2;
+  if(G.stopElapsed===null&&G.t+rdt<start)return rdt;
+  const lead=G.stopElapsed===null?Math.max(0,start-G.t):0;
+  if(G.stopElapsed===null){G.stopElapsed=0;sfx.tape(lead);tape(true,lead);}
+  G.stopElapsed=Math.min(TAPE_STOP,G.stopElapsed+raw-lead);
+  const u=G.stopElapsed/TAPE_STOP;
+  return Math.max(0,start+TAPE_STOP*u*(1-u/2)-G.t);
+}
+function update(rdt,raw=rdt){
   updBed(rdt);
   if(G.phase==='decide'){
     const elapsed=(performance.now()-G.dStart)/1000;
@@ -3824,11 +3824,10 @@ function update(rdt){
   }
   // Zeitlupe bei Würfen, Blocks und Ballgewinnen
   let tsT=1;if(G.phase==='outcome'){if(ball.fl&&ball.fl.shot&&ball.fl.t/ball.fl.d>.42)tsT=.3;if(G.slowT>0){G.slowT-=rdt;tsT=Math.min(tsT,.32);}}
-  // Band-Stopp im Bild: kurz vor dem Entscheidungsmoment bremst die Szene in ca. 0,5 s bis zum Stillstand ab (Tempo proportional
-  // zur verbleibenden Anlaufzeit, Untergrenze 0,08, damit sie T sicher erreicht); die Stellung bei T bleibt dieselbe
-  const stopT=G.phase==='approach'&&G.sc&&G.t>G.sc.T-.14;if(stopT)G.ts=clamp((G.sc.T-G.t)/.14,.08,1);
-  else G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));const dt=rdt*G.ts;
-  clock+=rdt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
+  G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));
+  const dt=G.phase==='approach'?approachDt(rdt,raw):rdt*G.ts;
+  const sceneDt=G.phase==='approach'&&G.stopElapsed!==null?dt:rdt;
+  clock+=sceneDt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
   const sc=G.sc;if(!sc)return;
   let pdt=dt;
   if(G.phase==='approach'||G.phase==='menu'){G.t+=dt;feedBall(sc);
@@ -3842,8 +3841,8 @@ function update(rdt){
   players.forEach(p=>poseP(p,dt));
   BL.x=ball.x;BL.y=ball.y;BL.z=ball.z;
   updRing();posMe();
-  updNet(dt,gclock);updFans(gclock,G.excite,dt);updTrail(dt);updHall(dt,rdt);updCam(rdt,false);
-  if(G.phase==='approach'&&G.t>=sc.T)startDecide();
+  updNet(dt,gclock);updFans(gclock,G.excite,dt);updTrail(dt);updHall(dt,sceneDt);updCam(sceneDt,false);
+  if(G.phase==='approach'&&G.stopElapsed===TAPE_STOP)startDecide();
   else if(bubbles.length)posBubbles();
 }
 // ================= Bildeffekte =================
@@ -3920,7 +3919,7 @@ function perfAdapt(raw){if(LITE||FX.force||bedSt||!/approach|decide|outcome|feed
   if(FX.on&&(a>.028||L>=6)){FX.on=false;return;}
   if(a>.04&&(sun.castShadow||pr>1)){sun.castShadow=false;warmGL();PR_CAP=1;computeFit();}}
 window.__perf=()=>({pr:renderer.getPixelRatio(),fx:FX.on,bokeh:!!FX.bokeh,shadow:sun.castShadow});
-function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;if(G.phase!=='decide'){perfCheck(raw);perfAdapt(raw);}try{update(dt);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
+function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;if(G.phase!=='decide'){perfCheck(raw);perfAdapt(raw);}try{update(dt,raw);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
 if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2,-7);scene.updateMatrixWorld(true);
   scene.environment=pm.fromScene(scene,.03,.1,120).texture;scene.position.set(0,0,0);scene.updateMatrixWorld(true);pm.dispose();
   }catch(e){scene.position.set(0,0,0);}}
@@ -3929,7 +3928,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');render
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
-window.__snd={voice:{say,hush,fem,VOICE,VBUF,file:vFile,playing:()=>!!VQ,on:()=>voiceOn,duck:()=>MIX&&MIX.duck?MIX.duck.gain.value:null},SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
+window.__snd={voice:{say,hush,fem,VOICE,VBUF,file:vFile,playing:()=>!!VQ,on:()=>voiceOn},SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
 window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 window.__rig=(t,n,l,g)=>{setGirl(g);return (GLB.ok?makeGLBRig:makeRig)(t==='off'?'home':'away',n,l);};window.__setGirl=setGirl;window.__miniMap=miniMap; // nur für Tests (Figuren-Aufstellung, Frage auf der Mini-Karte)
