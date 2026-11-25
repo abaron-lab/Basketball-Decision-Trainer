@@ -1868,9 +1868,11 @@ function vFile(t){const id=VOICE_ID[t];if(!id)return null;return GIRL&&fem(t)!==
 function vLoad(id){if(VBUF[id])return VBUF[id];
   return VBUF[id]=(window.fetch?fetch('voice/'+id+'.mp3'):Promise.reject()).then(r=>r.ok?r.arrayBuffer():Promise.reject())
     .then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);})).catch(()=>{VBUF[id]=null;return null;});}
-// alle Ansagen vorab laden (klein, nacheinander), sobald es Ton gibt
-let vPre=false;function vPreload(){if(vPre||!AC||!voiceOn)return;vPre=true;const q=Object.keys(VOICE).map(k=>vFile(VOICE[k]));
+// feste Dialogsätze vorab laden (klein, nacheinander), sobald es Ton gibt. Merksätze (r_…) nicht: Davon braucht ein Spiel
+// nur ein, zwei; vRule() holt den passenden, sobald die Auswertung mit Frage erscheint (spart gut 1,7 MB mobile Daten).
+let vPre=false;function vPreload(){if(vPre||!AC||!voiceOn)return;vPre=true;const q=Object.keys(VOICE).filter(k=>!k.startsWith('r_')).map(k=>vFile(VOICE[k]));
   const next=()=>{const id=q.shift();if(id)Promise.resolve(vLoad(id)).then(next);};next();}
+function vRule(t){if(!AC||!voiceOn||!t)return;const id=vFile(t);if(id)vLoad(id);}
 function vDuck(on){const M=MIX;if(!M||!M.duck||!AC)return;const g=M.duck.gain,t=AC.currentTime;
   g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.setTargetAtTime(on?.4:1,t,on?.06:.3);}
 // Laufende Ansage abbrechen (neue Ansage, Antippen, Taste, neue Runde)
@@ -3267,7 +3269,7 @@ function showFeedback(){
   const q=!ok&&!G.replay?quizOf(sc):null;G.quiz=q;$('fbQ').className='fbq'+(q?'':' hidden');
   $('feedback').querySelector('.card').classList.toggle('quiz',!!q);
   if(q){$('fbQt').textContent=q.t;$('fbQs').textContent='Tippe auf der Karte auf den richtigen Punkt.';drawMini(ch,{quiz:true});
-    say([ch===null?'Die Zeit ist um.':'Schau noch mal genau hin.',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);}
+    say([ch===null?'Die Zeit ist um.':'Schau noch mal genau hin.',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);vRule(sc.rule);}
   else drawMini(ch);
   $('feedback').classList.remove('hidden');
 }
