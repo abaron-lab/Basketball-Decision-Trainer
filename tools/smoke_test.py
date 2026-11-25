@@ -59,11 +59,6 @@ async def run(a):
                 await pg.wait_for_timeout(500)
             await pg.screenshot(path=f'{a.out}/welcome.png')
             await pg.click('#wSkip')
-        # Sprachausgabe: zu jedem Text in VOICE gibt es voice/<id>.mp3 (und <id>_w.mp3, wenn fem() den Text ändert)
-        miss = await pg.evaluate('''async()=>{const V=window.__snd.voice.VOICE,out=[];for(const k in V){const ids=[k];if(window.__snd.voice.fem(V[k])!==V[k])ids.push(k+'_w');
-          for(const id of ids){const r=await fetch('voice/'+id+'.mp3');if(!r.ok)out.push(id);}}return out;}''')
-        assert not miss, f'Sprachdateien fehlen: {miss}'
-        print('Sprachdateien: vollständig')
         await pg.click(f'#pos .lvb[data-v="{a.pos}"]')
         await pg.click(f'#mode .lvb[data-m="{a.mode}"]')
         await pg.click(f'#lvl .lvb[data-l="{a.level}"]')
@@ -95,12 +90,9 @@ async def run(a):
                 ans = random.choice([o for o in opts if o != sc[2]] or opts)  # bewusst falsch: Frage in der Auswertung testen
             await pg.click(f'#bottom [data-c="{ans}"], #tags [data-c="{ans}"]')
             await pg.wait_for_function('window.__G.phase==="feedback"', timeout=300000)
+            assert await pg.evaluate('window.__snd.mixer().court.gain.value === 0'), 'Feedback muss stumm sein'
             await pg.screenshot(path=f'{a.out}/feedback{i}.png')
             if await pg.evaluate('!!window.__G.quiz'):  # falsche Wahl: erst die Frage beantworten
-                await pg.wait_for_function('window.__snd.voice.playing()', timeout=8000)  # Frage wird vorgelesen
-                vt = await pg.evaluate('[window.__G.quiz.t, window.__snd.voice.file(window.__G.quiz.t), window.__snd.voice.duck()]')
-                assert vt[1], f'Keine Sprachdatei für die Frage: {vt[0]}'
-                print('Sprache:', vt[1], '·', vt[0], '· Effekte abgesenkt auf', round(vt[2] or 0, 2))
                 await pg.click('#nextBtn')
                 assert await pg.is_visible('#feedback'), 'Weiter darf vor der Antwort nicht gehen'
                 await pg.wait_for_timeout(500)
@@ -108,9 +100,8 @@ async def run(a):
                 xy = await pg.evaluate(QUIZ_XY)
                 await pg.mouse.click(xy[0], xy[1])
                 assert not await pg.evaluate('!!window.__G.quiz'), 'Antippen auf der Karte hat die Frage nicht beantwortet'
-                rf = await pg.evaluate('[window.__G.sc.rule, window.__snd.voice.file(window.__G.sc.rule)]')
-                assert rf[1], f'Keine Sprachdatei für den Merksatz (in VOICE ergänzen): {rf[0]}'
-                print('Merksatz:', rf[1])
+                assert await pg.inner_text('#fbRule') == await pg.evaluate('window.__G.sc.rule'), 'Merksatz fehlt'
+                assert await pg.evaluate('window.__snd.mixer().court.gain.value === 0'), 'Auflösung muss stumm sein'
                 await pg.wait_for_timeout(300)
                 await pg.screenshot(path=f'{a.out}/feedback{i}_antwort.png')
             await pg.click('#nextBtn')
