@@ -1749,7 +1749,7 @@ function gymIR(a){const sr=a.sampleRate,n=sr*1.7|0,b=a.createBuffer(2,n,sr);
     [[.017,.55],[.026,.4],[.039,.32],[.054,.25],[.071,.2],[.093,.15]].forEach(([t,g],j)=>{const q=(t+(c?.0035*(j%3):.002*(j%2)))*sr|0;d[q]+=g*((j+c)%2?-1:1);});}
   return b;}
 function mix(){const a=AC;if(MIX||!a)return MIX;
-  // vin: Spracheingang, läuft am court vorbei (court ist im Entscheidungsbild und in der Auswertung stumm, die Ansagen nicht)
+  // vin: Spracheingang, läuft unabhängig vom Feldton (court).
   const inp=a.createGain(),court=a.createGain(),vin=a.createGain();court.gain.value=G.phase==='feedback'||G.phase==='decide'?0:1;
   court.connect(a.destination);vin.connect(a.destination);MIX={inp,court,vin,rev:null,filter:null};
   try{const filter=a.createBiquadFilter(),comp=a.createDynamicsCompressor();
@@ -1963,7 +1963,13 @@ function tape(stop,delay=0){const a=AC;if(!a)return;const t=a.currentTime+delay;
     p.linearRampToValueAtTime(stop?0:rate,t+(stop?TAPE_STOP:.3));
   }));
 }
-function quietCourt(){if(!AC)return;const g=mix().court.gain,t=AC.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(0,t);}
+function quietCourt(fade=0){
+  if(!AC)return;
+  const g=mix().court.gain,t=AC.currentTime;
+  g.cancelScheduledValues(t);
+  g.setValueAtTime(fade?g.value:0,t);
+  if(fade)g.linearRampToValueAtTime(0,t+fade);
+}
 function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(mix().inp);o.start(t);o.stop(t+d+.02);}catch(e){}}
 function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
 function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
@@ -3227,7 +3233,7 @@ function wrongNote(sc,c){
   if(c.startsWith('pass:')){const p=role(c.slice(5));return`${p&&p.name?p.name:'Dieser Mitspieler'}: noch gedeckt, sein Verteidiger stand direkt bei ihm.`;}
   return'';}
 function showFeedback(){
-  G.phase='feedback';quietCourt();const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
+  G.phase='feedback';quietCourt(.7);const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
   const r=G.results[G.results.length-1],kind=ok?'ok':ch===null?'slow':'bad';
   $('fbHead').className='fbhead '+kind;$('fbIco').innerHTML=`<use href="#i-${ok?'check':ch===null?'clock':'eye'}"/>`;
   // Kindgerecht (DBB-Leitfaden: Lernen durch Ausprobieren, Fragen statt Lösungen): kein Urteil „falsch“, kein Rot,
