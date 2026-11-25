@@ -113,6 +113,12 @@ async def run(a):
                 print('Merksatz:', rf[1])
                 await pg.wait_for_timeout(300)
                 await pg.screenshot(path=f'{a.out}/feedback{i}_antwort.png')
+                # Offen bleibt nur der Merksatz, die Erklärung steckt unter „Warum?“
+                await pg.click('#fbMore summary')
+                await pg.wait_for_timeout(300)
+                mt = await pg.evaluate('[document.getElementById("fbMoreP").innerText, window.__G.sc.why]')
+                assert mt[1] in mt[0] and 'Warum nicht „“' not in mt[0], f'„Warum?“ unvollständig: {mt[0]}'
+                await pg.screenshot(path=f'{a.out}/feedback{i}_warum.png')
             await pg.click('#nextBtn')
         await pg.wait_for_selector('#summary:not(.hidden)', timeout=30000)
         await pg.wait_for_timeout(1300)
