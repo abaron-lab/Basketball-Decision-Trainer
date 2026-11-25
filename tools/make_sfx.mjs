@@ -17,12 +17,29 @@ import path from 'path';
 
 // Pro Geräusch feste englische Texte (eine Variante pro Text). Name + Nummer = Dateiname (dribble1.mp3 …).
 const SFX = {
+  tape: { dur: 1, inf: .8, texts: [
+    'Single abrupt analog tape-stop of a live basketball gym recording. A very short burst of crowd and ball resonance pitching steeply down into a low rubbery motor stop, then silence. Begins slowing immediately. No music, melody, rewind or restart.',
+  ] },
+  hall: { dur: 9, inf: .65, texts: [
+    'Continuous courtside room tone inside a modest packed indoor basketball gym. Natural wide diffuse murmur of seated spectators, soft indistinct voices and spacious gym acoustics, steady level throughout. No foreground play, cheers, music, whistle or announcer.',
+  ] },
+  cheer: { dur: 5.5, inf: .82, texts: [
+    'Packed indoor basketball arena erupting at a home basket. Immediate massive wall of thousands of fans yelling YEAHH together across both stands, a rolling sustained roar, many overlapping human voices with dense applause underneath, fading naturally across the arena. Wide courtside stereo crowd recording. No music, no commentary.',
+    'Live courtside stereo recording: deafening massed human cheers from a sold-out indoor basketball arena after a slam dunk. Instant explosive roar from the whole building, layered high and low voices shouting in celebration, sustained for several seconds then subsiding with clapping. Crowd only, no announcer or music.',
+  ] },
+  gasp: { dur: 1.8, inf: .7, texts: [
+    'Short spontaneous collective ohhh from surprised basketball spectators after a near miss. Mixed human voices, staggered intake of breath and falling pitch, decaying naturally in a small indoor gym. No music.',
+  ] },
+  release: { dur: 1, inf: .75, texts: [
+    'Isolated close Foley of a basketball jump shot release: fingertips softly brushing off textured leather and a slight dry skin flick. One subtle contact, no ball bounce, no swoosh, no hoop.',
+    'Close microphone courtside: hands pushing a pebbled basketball away for a chest pass, soft palm pop and fingertip scrape, single short dry release, no rebound.',
+  ] },
   dribble: { dur: 1.0, inf: 0.7, texts: [
-    'one basketball dribble hitting an indoor wooden court, short punchy bounce',
-    'basketball dribble, one loud bounce on indoor wooden court, strong punchy impact, close up',
+    'Single regulation inflated leather basketball dribble on sprung maple hardwood, courtside microphone, hollow round low thump with a crisp initial slap and short woody decay. No other sounds.',
+    'One firm basketball bounce during a sprint on polished indoor hardwood, realistic taut rubber resonance, weighty and close, isolated dry court Foley.',
   ] },
   catch: { dur: 1.0, inf: 0.7, texts: [
-    'hands catching a basketball, sharp slap of palms on leather ball, close up',
+    'One two-handed catch of a fast chest pass, warm muffled ball thump and palms slapping pebbled leather together, courtside dry Foley.',
     'basketball caught with both hands, quick smack, isolated, no voice',
     'loud slap of two hands catching a basketball, sharp leather smack, close microphone',
   ] },
