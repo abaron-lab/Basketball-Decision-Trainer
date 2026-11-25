@@ -1641,10 +1641,15 @@ function poseGLB(p,dt){
   const sadMv=A&&A.k==='sad'&&has('sadWalk')?clamp((s-.3)/.5,0,1):0;
   if(sadMv){W.sadWalk=(W.walk+W.jog+W.sprint+W.jogBack+W.runBack)*sadMv;for(const n of['walk','jog','sprint','jogBack','runBack'])W[n]*=1-sadMv;}
   let sw=0,sl=0;for(const n of['walk','jog','sprint','jogBack','runBack','sadWalk'])if(W[n]){sw+=W[n]*STRIDE[n];sl+=W[n];}
-  r.ph=(r.ph+dt*s/(sl>.001?sw/sl:STRIDE.walk))%1;
+  const driving=G.sc?.featured&&G.phase==='approach'&&ball.owner===p&&p===Hd;
+  // Beim langsamen Andribbeln mischt der Gehclip mit der Grundstellung:
+  // Seine kürzeren Schritte brauchen entsprechend weniger Weg pro Zyklus.
+  const stride=sl>.001?sw/sl:STRIDE.walk;
+  const distance=driving?(p.travel||0):dt*s;
+  r.ph=(r.ph+distance/(driving?stride*Math.max(.35,sl):stride))%1;
   // Ballführer: Dribbel-Clip (Hand passend zur Ballseite), Takt an den Ball gekoppelt
   const sb=p.dside>0?1:-1;
-  const drib=ball.owner===p&&!ball.hold&&has('dribble')&&!(A&&/shoot|layup|pass/.test(A.k))?1-clamp((s-.6)/1.6,0,1):0;
+  const drib=(!driving||p.travel===0)&&ball.owner===p&&!ball.hold&&has('dribble')&&!(A&&/shoot|layup|pass/.test(A.k))?1-clamp((s-.6)/1.6,0,1):0;
   let cr=def&&s<3.5&&!(p.armsUp>0)?.42:(p===Hd&&ball.owner===p&&!drib?.14:0);if(A&&/shoot|layup|block|cheer/.test(A.k))cr=0;
   const air=clamp(jy/.12,0,1),cheer=A&&A.k==='cheer'&&A.t>=(A.dl||0)?1:0;
   if(cheer&&!c.ck)c.ck=CHEERS.filter(has)[(p.num+(G.round||0))%CHEERS.filter(has).length]||'dance';if(!cheer)c.ck=null;
@@ -2121,8 +2126,9 @@ function goTo(p,list,lin){setPath(p,[[0,p.x,p.z],...list],lin);}
 function evalPath(P,t,lin){const L=P[P.length-1];if(t<=P[0][0])return[P[0][1],P[0][2]];if(t>=L[0])return[L[1],L[2]];
   for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1];if(t<=b[0]){let u=(t-a[0])/(b[0]-a[0]);if(!lin)u=smooth(u);return[lerp(a[1],b[1],u),lerp(a[2],b[2],u)];}}return[L[1],L[2]];}
 function updP(p,dt){
+  p.travel=0;
   if(p.path&&dt>0&&G.phase!=='menu')footSfx(p,dt);
-  if(p.path&&dt>0){p.pt+=dt;const[x,z]=evalPath(p.path,p.pt,p.lin);const vx=(x-p.x)/dt,vz=(z-p.z)/dt;p.vx=lerp(p.vx,vx,.25);p.vz=lerp(p.vz,vz,.25);p.spd=Math.hypot(p.vx,p.vz);p.x=x;p.z=z;}
+  if(p.path&&dt>0){p.pt+=dt;const[x,z]=evalPath(p.path,p.pt,p.lin);p.travel=Math.hypot(x-p.x,z-p.z);const vx=(x-p.x)/dt,vz=(z-p.z)/dt;p.vx=lerp(p.vx,vx,.25);p.vz=lerp(p.vz,vz,.25);p.spd=Math.hypot(p.vx,p.vz);p.x=x;p.z=z;}
   else if(dt>0){p.vx*=.8;p.vz*=.8;p.spd=Math.hypot(p.vx,p.vz);}
   p.ph+=dt*(1.2+p.spd*1.9);p.armsUp=Math.max(0,p.armsUp-dt*.55);
 }
