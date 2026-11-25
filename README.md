@@ -24,6 +24,8 @@ Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden S
 
 Alles bewusst **ohne Blöcke/Screens** und ohne Doppeln (DBB-Miniregeln). Jeder Spielzug hat mehrere Varianten (wer hilft, wo steht der Verteidiger), Seite und Positionen sind zufällig.
 
+**Altersklasse:** U10 und U12 spielen auf 2,60 m, U14 auf 3,05 m. Die Auswahl wird im Spielerprofil gespeichert und gilt unabhängig von der Spielform.
+
 **Spielform:** 4 gegen 4 (Miniregeln U10/U12) oder 5 gegen 5 (leistungsorientierte U12 und U14, zusätzlich ein Spieler in der Ecke).
 
 **Lernziele:** Jede Situation gehört zu einer der sieben taktischen Grundfertigkeiten aus dem DBB-Leitfaden Minibasketball (Lücke erkennen, Gegenspieler umspielen, Überzahl nutzen, In den Lauf passen, Zusammenspiel, Anbieten und Orientieren, Ins Ziel treffen, im Spiel als Wurfauswahl „Guter Wurf“) oder zur „Mann-Mann-Verteidigung“. Die Spielerkarte zeigt den Stand je Lernziel. Inhalte aus dem FIBA Coaching Manual Mini-Basketball: Flash-Cut, Ball umkehren, beim Pass mitgehen, im Umschalten erst Korb, dann Ball.
@@ -39,7 +41,7 @@ Alles bewusst **ohne Blöcke/Screens** und ohne Doppeln (DBB-Miniregeln). Jeder 
 **Mädchen-Version:** Beim ersten Start (und später in der Spielerkarte unter „Anpassen“) wählt man „Mädchen“ oder „Jungen“. In der Mädchen-Version sind alle Figuren Mädchen (Mitspielerinnen und Gegnerinnen, mit Zopf, Flechtzopf, Zöpfen, offenen Haaren oder Dutt), und alle Texte sprechen von Mitspielerin, Verteidigerin, Gegenspielerin usw. Spielzüge, Regeln und Altersstufen sind gleich, denn die DBB-Miniregeln gelten für Mädchen und Jungen. Die eigene Frisur ist frei wählbar. Trainer können im Aufgaben-Link „Mädchen“ vorwählen (`&g=w`), dann ist das bei neuen Spielerinnen schon eingestellt.
 
 **Bedienung:** Für einen Pass tippt man direkt auf das lila Schild über dem Mitspieler (am Computer auch Tasten 1–5). Unten sind nur noch zwei Tasten: blau „Zum Korb“ bzw. „Backdoor-Cut“, orange „Werfen“ bzw. „Ball fordern“.
-Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` weiter.
+Tastatur: `1`–`4` Pass, `↑` blaue Taste, `Leertaste` orange Taste, `Enter` weiter. Bei Rückfragen auf der Taktiktafel mit den Pfeiltasten einen Spieler markieren und mit `Enter` bestätigen.
 
 ## Auf GitHub Pages veröffentlichen
 
