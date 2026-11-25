@@ -242,7 +242,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .swap .mine{display:inline-flex;align-items:center;gap:6px;color:#aab7d6}.swap .mine .i{width:15px;height:15px}
 .swap .arr{color:#6f80a8;font-size:18px;line-height:1}
 .swap .best{display:inline-flex;align-items:center;gap:7px;background:rgba(46,204,113,.13);border:1.5px solid rgba(70,220,130,.55);border-radius:999px;padding:5px 13px 5px 9px;min-width:0}
-.swap small{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#7ff0ad}.swap .best .i{width:15px;height:15px;color:#7ff0ad;stroke-width:3}
+.swap small{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#7ff0ad;white-space:nowrap;flex:0 0 auto}.swap .best{border-radius:14px}.swap .best b{min-width:0;text-align:left}.swap .best .i{width:15px;height:15px;color:#7ff0ad;stroke-width:3}
 @media (max-width:560px){.swap{font-size:13.5px;gap:6px}.swap .arr,.swap .mine .i{display:none}.swap .mine:before{content:'Deine Wahl:';font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase}}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #fff}
 .legend .ln{display:inline-block;width:16px;height:0;border-top:3px solid #16c060;margin-right:4px;vertical-align:3px}
@@ -753,7 +753,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div id="fbAns" class="swap"></div>
       <div class="fbgrid">
         <div class="mapbox"><canvas id="mini" width="640" height="480"></canvas></div>
-        <div class="lgwrap"><button class="lgbtn" id="lgBtn">Was bedeuten die Farben?</button><div class="legend" id="lgd"><span><i style="background:#ffd23d"></i>Du</span><span><i style="background:#2f6fe4"></i><b id="lgO">Mitspieler</b></span><span><i style="background:#e2453b"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div></div>
+        <div class="lgwrap"><button class="lgbtn" id="lgBtn">Was bedeuten die Farben?</button><div class="legend" id="lgd"><span><i style="background:#ffd23d"></i>Du</span><span><i id="lgOc"></i><b id="lgO">Mitspieler</b></span><span><i id="lgDc"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div></div>
         <div class="fbtext">
           <div id="fbQ" class="fbq hidden"><svg class="i" id="fbQi"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
           <p id="fbWhy"></p>
@@ -3252,6 +3252,8 @@ function showFeedback(){
   fa.innerHTML=(ok||!ch?'':`<span class="mine">${svgI('ball')}<b></b></span><span class="arr">→</span>`)+best;
   const bs=fa.querySelectorAll('b');if(ok||!ch)bs[0].textContent=choiceName(sc.ans);else{bs[0].textContent=choiceName(ch);bs[1].textContent=choiceName(sc.ans);}
   $('fbWhy').textContent=sc.why;$('fbWhy').classList.toggle('hidden',ok);$('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
+  // Legende in den Trikotfarben wie auf der Karte (drawMini: eigenes Team home, Gegner away)
+  $('lgOc').style.background=TEAM[sc.def?'away':'home'].jersey;$('lgDc').style.background=TEAM[sc.def?'home':'away'].jersey;
   let wn=ok?'':wrongNote(sc,ch);if(!ok&&sc.fake)wn+=' Achtung: Ein Verteidiger hat nur so getan, als würde er helfen.';
   const more=ok?sc.why:wn,mo=$('fbMore');mo.open=false;mo.classList.toggle('hidden',!more);
   $('fbMoreT').textContent=ok?'Warum?':`Warum nicht „${choiceName(ch)}“?`;$('fbMoreP').textContent=more;
