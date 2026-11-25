@@ -95,12 +95,13 @@ async def run(a):
                 ans = random.choice([o for o in opts if o != sc[2]] or opts)  # bewusst falsch: Frage in der Auswertung testen
             await pg.click(f'#bottom [data-c="{ans}"], #tags [data-c="{ans}"]')
             await pg.wait_for_function('window.__G.phase==="feedback"', timeout=300000)
+            assert await pg.evaluate('window.__snd.mixer().court.gain.value === 0'), 'Feedback muss stumm sein'
             await pg.screenshot(path=f'{a.out}/feedback{i}.png')
             if await pg.evaluate('!!window.__G.quiz'):  # falsche Wahl: erst die Frage beantworten
-                await pg.wait_for_function('window.__snd.voice.playing()', timeout=8000)  # Frage wird vorgelesen
-                vt = await pg.evaluate('[window.__G.quiz.t, window.__snd.voice.file(window.__G.quiz.t), window.__snd.voice.duck()]')
+                await pg.wait_for_function('window.__snd.voice.playing()', timeout=8000)  # Frage wird vorgelesen, obwohl das Feld stumm ist
+                vt = await pg.evaluate('[window.__G.quiz.t, window.__snd.voice.file(window.__G.quiz.t)]')
                 assert vt[1], f'Keine Sprachdatei für die Frage: {vt[0]}'
-                print('Sprache:', vt[1], '·', vt[0], '· Effekte abgesenkt auf', round(vt[2] or 0, 2))
+                print('Sprache:', vt[1], '·', vt[0])
                 await pg.click('#nextBtn')
                 assert await pg.is_visible('#feedback'), 'Weiter darf vor der Antwort nicht gehen'
                 await pg.wait_for_timeout(500)
@@ -108,8 +109,21 @@ async def run(a):
                 xy = await pg.evaluate(QUIZ_XY)
                 await pg.mouse.click(xy[0], xy[1])
                 assert not await pg.evaluate('!!window.__G.quiz'), 'Antippen auf der Karte hat die Frage nicht beantwortet'
+                want = await pg.evaluate('g=>g?window.__snd.voice.fem(window.__G.sc.rule):window.__G.sc.rule', bool(a.girl))  # Mädchen-Version: fem() stellt um
+                assert await pg.inner_text('#fbRule') == want, 'Merksatz fehlt'
+                rf = await pg.evaluate('[window.__G.sc.rule, window.__snd.voice.file(window.__G.sc.rule)]')
+                assert rf[1], f'Keine Sprachdatei für den Merksatz (in VOICE ergänzen): {rf[0]}'
+                await pg.wait_for_function('window.__snd.voice.playing()', timeout=8000)  # Merksatz wird vorgelesen
+                print('Merksatz:', rf[1])
+                assert await pg.evaluate('window.__snd.mixer().court.gain.value === 0'), 'Feld muss in der Auflösung stumm sein'
                 await pg.wait_for_timeout(300)
                 await pg.screenshot(path=f'{a.out}/feedback{i}_antwort.png')
+                # Offen bleibt nur der Merksatz, die Erklärung steckt unter „Warum?“
+                await pg.click('#fbMore summary')
+                await pg.wait_for_timeout(300)
+                mt = await pg.evaluate('g=>[document.getElementById("fbMoreP").innerText, g?window.__snd.voice.fem(window.__G.sc.why):window.__G.sc.why]', bool(a.girl))
+                assert mt[1] in mt[0] and 'Warum nicht „“' not in mt[0], f'„Warum?“ unvollständig: {mt[0]}'
+                await pg.screenshot(path=f'{a.out}/feedback{i}_warum.png')
             await pg.click('#nextBtn')
         await pg.wait_for_selector('#summary:not(.hidden)', timeout=30000)
         await pg.wait_for_timeout(1300)

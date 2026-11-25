@@ -226,43 +226,47 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 #fbPlay{font-size:12.5px;font-weight:800;color:#a9b6d6;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pts{font-family:'Bebas Neue',Impact,sans-serif;font-size:30px;letter-spacing:1px;color:#1d1500;background:linear-gradient(180deg,#ffd45e,#f2b01c);border-radius:14px;padding:4px 10px 1px;box-shadow:0 6px 16px rgba(255,190,40,.3);animation:pop .5s .15s cubic-bezier(.2,1.6,.4,1) both}
 .card.fb>.body{padding-top:4px}
-.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:0 0 auto}
-.choices.one{grid-template-columns:1fr}
-.chc{border-radius:13px;padding:7px 10px;background:rgba(143,180,255,.1);border:1.5px solid rgba(143,180,255,.4);min-width:0}
-.chc.good{background:rgba(46,204,113,.13);border-color:rgba(70,220,130,.55)}
-.chc small{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#aab7d6}
-.chc.good small{color:#7ff0ad}
-.chc small .i{width:13px;height:13px;stroke-width:3}
-.chc b{display:block;font-size:14.5px;line-height:1.15;margin-top:1px}
 .fbgrid{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.mapbox{position:relative;flex:1 1 0;min-height:120px}
+/* Hochformat: Kasten so hoch wie die Karte (--ar setzt drawMini), sonst bleibt über und unter der flachen Karte leerer Raum */
+.mapbox{position:relative;flex:0 1 auto;aspect-ratio:var(--ar,4/3);min-height:120px}
 #mini{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
 .legend b{font-weight:800}
-.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11.5px;color:#9fb0d4;font-weight:800;flex:0 0 auto}
+.lgwrap{flex:0 0 auto;display:flex;flex-direction:column;align-items:center}
+.legend{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:11.5px;color:#9fb0d4;font-weight:800;padding:2px 0}
+.lgbtn,.more summary{min-height:44px;display:flex;align-items:center;gap:6px;cursor:pointer;background:none;border:0;padding:0 8px;color:#8fb4ff;font:900 13px Nunito,system-ui,sans-serif}
+.more summary{padding:0;list-style:none}.more summary::-webkit-details-marker{display:none}
+.more summary:before{content:'›';font-size:20px;line-height:1;transition:transform .2s}.more[open] summary:before{transform:rotate(90deg)}
+.more p{margin:0 0 6px;font-size:14px;line-height:1.35;color:#c9d3ea}.more p b{display:block;color:#e3e9f7}
+/* Wahl-Zeile: eigene Wahl klein und neutral, daneben die Lösung als grüner Chip */
+.swap{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;flex:0 0 auto;font-weight:800;font-size:14.5px}
+.swap .mine{display:inline-flex;align-items:center;gap:6px;color:#aab7d6}.swap .mine .i{width:15px;height:15px}
+.swap .arr{color:#6f80a8;font-size:18px;line-height:1}
+.swap .best{display:inline-flex;align-items:center;gap:7px;background:rgba(46,204,113,.13);border:1.5px solid rgba(70,220,130,.55);border-radius:999px;padding:5px 13px 5px 9px;min-width:0}
+.swap small{font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#7ff0ad;white-space:nowrap;flex:0 0 auto}.swap .best{border-radius:14px}.swap .best b{min-width:0;text-align:left}.swap .best .i{width:15px;height:15px;color:#7ff0ad;stroke-width:3}
+@media (max-width:560px){.swap{font-size:13.5px;gap:6px}.swap .arr,.swap .mine .i{display:none}.swap .mine:before{content:'Deine Wahl:';font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase}}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px;border:1.5px solid #fff}
 .legend .ln{display:inline-block;width:16px;height:0;border-top:3px solid #16c060;margin-right:4px;vertical-align:3px}
 .legend .ln.d{border-top:3px dashed #ff4d4d}
 .fbtext{flex:0 0 auto}
-#fbWhy{font-size:14.5px;margin:2px 0 4px}
-#fbWrong{font-size:13.5px;margin:0 0 4px;color:#ffd9a0}
 .fbq{display:flex;gap:10px;align-items:center;background:rgba(111,165,255,.12);border:1px solid rgba(111,165,255,.35);border-radius:13px;padding:9px 11px;margin:2px 0 4px}
 .fbq>.i{width:26px;height:26px;color:#8fb4ff;flex:0 0 auto}.fbq>div{flex:1}.fbq b{display:block;font-size:16px;color:#fff}.fbq span{font-size:12.5px;color:#aab7d6;font-weight:700}
 .fbq .vbtn{flex:0 0 auto;width:34px;height:34px;border-radius:999px;border:1px solid rgba(143,180,255,.4);background:rgba(8,12,24,.35);color:#8fb4ff;display:grid;place-items:center;cursor:pointer;padding:0}
 .fbq .vbtn .i{width:18px;height:18px}.fbq .vbtn.off,#voiceBtn.off{opacity:.55}
 .fbq.ok{background:rgba(46,204,113,.14);border-color:rgba(46,204,113,.45)}.fbq.no{background:rgba(255,200,61,.1);border-color:rgba(255,200,61,.35)}
+/* Nach dem Antippen nur noch eine Zeile („Richtig erkannt!“ / „Guter Versuch!“), der Platz gehört Erklärung und Merksatz */
+.fbq.ok,.fbq.no{padding:5px 8px 5px 11px}.fbq.ok #fbQs,.fbq.no #fbQs{display:none}.fbq.ok b,.fbq.no b{font-size:15px}.fbq.ok>.i,.fbq.no>.i{width:22px;height:22px}.fbq.ok>.i{color:#7ff0ad}
 .lnk{cursor:pointer;background:none;border:0;color:#8fb4ff;font:900 12.5px Nunito,system-ui,sans-serif;text-decoration:underline;padding:4px;flex:0 0 auto}
-.quiz #mini{cursor:pointer}.quiz .choices,.quiz #fbWhy,.quiz #fbWrong,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
+.quiz #mini{cursor:pointer}.quiz .swap,.quiz .more,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
 /* Frage muss erst beantwortet werden: Weiter/Nochmal sehen gesperrt aus, Antippen rüttelt an der Frage */
 .quiz #nextBtn,.quiz #replayBtn{opacity:.4;filter:saturate(.3)}.quiz .mapbox{box-shadow:0 0 0 2px rgba(111,165,255,.55);border-radius:12px}
 .fbq.nudge{animation:nudge .45s;border-color:#ffd23d;background:rgba(255,210,61,.16)}@keyframes nudge{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
-.rule{display:flex;gap:9px;align-items:flex-start;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.25);border-radius:13px;padding:8px 11px;margin:6px 0 2px;font-weight:800;font-size:14px;line-height:1.3;color:#ffe39a}
-.rule .i{color:var(--gold);width:18px;height:18px;margin-top:1px}
+.rule{display:flex;gap:10px;align-items:flex-start;background:rgba(255,200,61,.1);border:1px solid rgba(255,200,61,.25);border-radius:13px;padding:10px 13px;margin:6px 0 2px;font-weight:800;font-size:16.5px;line-height:1.3;color:#ffe39a}
+.rule .i{color:var(--gold);width:22px;height:22px;margin-top:1px;flex:0 0 auto}.rule small{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#d9b34a;font-weight:900;margin-bottom:1px}
 @media (max-width:560px) and (orientation:portrait){
   /* Platz für die Karte, solange die Frage auf einen Tipp wartet. */
-  .quiz .choices,.quiz #fbWhy,.quiz #fbWrong,.quiz .rule,.quiz .legend .lnl{display:none}
-  .quiz .mapbox{flex:0 1 auto;aspect-ratio:var(--map-aspect,4/3);overflow:hidden}
+  .quiz .swap,.quiz .more,.quiz .rule,.quiz .legend .lnl{display:none}
 }
-@media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.1fr 1fr;grid-template-rows:1fr auto;gap:8px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px}.legend{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}#fbWhy{font-size:16px}}
+@media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr auto;gap:4px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px;aspect-ratio:auto}.lgwrap{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}}
 /* Handy quer (flach): Karte links über die ganze Höhe, rechts Kopf, Wahl, Text (scrollt) und Tasten */
 @media (max-height:500px) and (orientation:landscape){
   #feedback.overlay{padding:6px max(6px,env(safe-area-inset-right)) 6px max(6px,env(safe-area-inset-left))}
@@ -270,11 +274,13 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
   .card.fb>.body,.card.fb .fbgrid{display:contents}
   .card.fb .fbhead{grid-column:2;grid-row:1;padding:10px 14px 6px}
   .card.fb #fbAns{grid-column:2;grid-row:2;margin:0 14px}
-  .card.fb .mapbox{grid-column:1;grid-row:1/4;min-height:0;margin:10px 0 2px 10px}
-  .card.fb .legend{grid-column:1;grid-row:4;padding:2px 0 10px 10px;align-self:start}
-  .card.fb .fbtext{grid-column:2;grid-row:3;min-height:0;overflow:auto;padding:6px 14px 2px;display:block}
+  .card.fb .mapbox{grid-column:1;grid-row:1/4;min-height:0;aspect-ratio:auto;margin:10px 0 2px 10px}
+  .card.fb .lgwrap{grid-column:1;grid-row:4;padding:0 0 4px 10px;align-self:start}
+  .card.fb .rule{font-size:15px}
+  .card.fb .fbtext{grid-column:2;grid-row:3;min-height:0;overflow:auto;padding:6px 14px 2px;display:flex;flex-direction:column}
+  /* wenig Höhe: Merksatz vor die Erklärung, damit er ohne Scrollen sichtbar ist */
+  .card.fb .rule{order:1;margin-top:0}.card.fb .more{order:2}.card.fb .swap{gap:4px 8px}
   .card.fb>.foot{grid-column:2;grid-row:4;padding:6px 14px 10px}
-  .card.fb #fbWhy{font-size:14px}
 }
 /* Handy quer: Steuerung unten kompakt, damit mehr Platz für das Spielfeld bleibt */
 @media (max-height:500px) and (orientation:landscape){
@@ -742,15 +748,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="pts" id="fbPts"></div>
     </div>
     <div class="body">
-      <div id="fbAns" class="choices"></div>
+      <div id="fbAns" class="swap"></div>
       <div class="fbgrid">
         <div class="mapbox"><canvas id="mini" width="640" height="480"></canvas></div>
-        <div class="legend"><span><i style="background:#ffd23d"></i>Du</span><span><i style="background:#2f6fe4"></i><b id="lgO">Mitspieler</b></span><span><i style="background:#e2453b"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div>
+        <div class="lgwrap"><button class="lgbtn" id="lgBtn">Was bedeuten die Farben?</button><div class="legend" id="lgd"><span><i style="background:#ffd23d"></i>Du</span><span><i id="lgOc"></i><b id="lgO">Mitspieler</b></span><span><i id="lgDc"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div></div>
         <div class="fbtext">
-          <div id="fbQ" class="fbq hidden"><svg class="i"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
-          <p id="fbWhy"></p>
-          <p id="fbWrong"></p>
-          <div class="rule"><svg class="i"><use href="#i-bulb"/></svg><span id="fbRule"></span></div>
+          <div id="fbQ" class="fbq hidden"><svg class="i" id="fbQi"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
+          <div class="rule"><svg class="i"><use href="#i-bulb"/></svg><div><small>Merk dir</small><span id="fbRule"></span></div></div>
+          <details class="more" id="fbMore"><summary>Warum?</summary><div id="fbMoreP"></div></details>
         </div>
       </div>
     </div>
@@ -1713,9 +1718,10 @@ const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,spin:0};
 
 // ================= Sound =================
 // Aufnahmen in sfx/: erstellt mit ElevenLabs Sound Effects (Free Plan: Namensnennung Pflicht, siehe lizenzen.html und INFO_HTML;
-// kommerzielle Nutzung eingeschränkt). Band-Stopp, Hupe, Publikum, Applaus, Passgeräusch und Signaltöne sind synthetisch (Web Audio).
+// kommerzielle Nutzung eingeschränkt). Hallengemurmel, Hupe, Signaltöne und Ersatzgeräusche entstehen mit Web Audio.
 // Alles läuft über ein Mischpult (mix): Hallraum einer Sporthalle (Faltungshall mit berechneter Impulsantwort), Panorama nach
 // Bildschirmposition, ferne Geräusche leiser/dumpfer/halliger (spat), am Ende ein Kompressor als Begrenzer gegen Übersteuern.
+const TAPE_STOP=.85;
 let AC=null,muted=store.get('pgt_mute')==='1';
 function ac(){if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});if(AC){mix();loadSmp();vPreload();}return AC;}
 // Echte Geräusche aus sfx/ (ElevenLabs, tools/make_sfx.mjs + tools/trim_sfx.sh): SMP_N = Anzahl Varianten je Geräusch.
@@ -1743,43 +1749,31 @@ function gymIR(a){const sr=a.sampleRate,n=sr*1.7|0,b=a.createBuffer(2,n,sr);
     [[.017,.55],[.026,.4],[.039,.32],[.054,.25],[.071,.2],[.093,.15]].forEach(([t,g],j)=>{const q=(t+(c?.0035*(j%3):.002*(j%2)))*sr|0;d[q]+=g*((j+c)%2?-1:1);});}
   return b;}
 function mix(){const a=AC;if(MIX||!a)return MIX;
-  try{const inp=a.createGain(),duck=a.createGain(),vin=a.createGain(),comp=a.createDynamicsCompressor();
+  // vin: Spracheingang, läuft unabhängig vom Feldton (court).
+  const inp=a.createGain(),court=a.createGain(),vin=a.createGain();court.gain.value=G.phase==='feedback'||G.phase==='decide'?0:1;
+  court.connect(a.destination);vin.connect(a.destination);MIX={inp,court,vin,rev:null,filter:null};
+  try{const filter=a.createBiquadFilter(),comp=a.createDynamicsCompressor();
+    filter.type='lowpass';filter.frequency.value=a.sampleRate/2;
     comp.threshold.value=-3;comp.knee.value=2;comp.ratio.value=20;comp.attack.value=.001;comp.release.value=.12;  // nur Begrenzer (tiefe Schwelle hebt in Chrome alles per Make-up-Gain an)
-    const court=a.createGain();inp.connect(court).connect(duck).connect(comp).connect(a.destination);vin.connect(comp);  // duck: senkt Effekte und Publikum während der Sprache (say)
+    inp.connect(filter).connect(comp).connect(court);
     const hp=a.createBiquadFilter(),cv=a.createConvolver(),wg=a.createGain();hp.type='highpass';hp.frequency.value=200;cv.buffer=gymIR(a);wg.gain.value=.55;
-    hp.connect(cv).connect(wg).connect(inp);MIX={inp,court,rev:hp,duck,vin};}
-  catch(e){MIX={inp:a.destination,rev:null,duck:null,vin:a.destination};}
+    hp.connect(cv).connect(wg).connect(inp);Object.assign(MIX,{rev:hp,filter});}
+  catch(e){inp.disconnect();inp.connect(court);}
   return MIX;}
-// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall, bus 'v' = Spracheingang (wird nicht abgesenkt)
+// Knoten ans Mischpult hängen: pan -1..1, wet = Anteil in den Hall, bus 'v' = Spracheingang (am stummen court vorbei, ohne Hall)
 function route(n,pan,wet,bus){const a=AC,M=mix();let o=n;
   if(pan&&a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=clamp(pan,-1,1);o.connect(P);o=P;}
-  o.connect(bus==='v'?M.vin:M.inp);if(M.rev&&wet>0){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
+  o.connect(bus==='v'?M.vin:M.inp);if(M.rev&&wet>0&&bus!=='v'){const g=a.createGain();g.gain.value=wet;o.connect(g).connect(M.rev);}}
 // Raum: Lautstärke nach Abstand zur Kamera, Panorama nach Bildschirmposition, Hall- und Höhenverlust mit der Entfernung
 const SPV=new T3.Vector3();
 function spat(p){if(!p||!cam)return{v:1,pan:0,wet:.14,d:0};const d=Math.hypot(cam.position.x-p.x,cam.position.y-1,cam.position.z+p.z);
   SPV.set(p.x,1,-p.z).project(cam);return{v:clamp(1.25-d/22,.2,1),pan:SPV.z<1?clamp(SPV.x*.5,-.7,.7):0,wet:clamp(.1+d/45,.1,.5),d};}
-// Jubelaufnahmen und ihre Ersatzklänge beim Feedback gemeinsam ausblenden.
-const activeCheers=new Map();
-function startEffect(source,gain,time,cheer){
-  source.start(time);
-  if(cheer){activeCheers.set(source,gain.gain);source.onended=()=>activeCheers.delete(source);}
-}
-function fadeCheers(){
-  if(!AC)return;
-  const t=AC.currentTime,end=t+.7;
-  activeCheers.forEach((gain,source)=>{
-    gain.setValueAtTime(gain.value,t);
-    gain.linearRampToValueAtTime(0,end);
-    source.stop(end);
-  });
-  activeCheers.clear();
-}
 function smp(k,v,pv,p,o){const a=AC,L=SMP[k];if(!a||!L||!L.length)return false;if(muted)return true;
   try{let i=Math.random()*L.length|0;if(L.length>1&&i===SMP_L[k])i=(i+1)%L.length;SMP_L[k]=i;const S=spat(p),b=L[i];
-    const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=1+(Math.random()*2-1)*(pv||.06);
+    const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=k==='tape'?b.duration/TAPE_STOP:1+(Math.random()*2-1)*(pv||.06);
     g.gain.value=v*(b.ng||1)*S.v*(.85+Math.random()*.3);let n=s.connect(g);
     if(S.d>7){const f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=clamp(17000-S.d*420,3500,17000);n=g.connect(f);}
-    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));startEffect(s,g,a.currentTime+(o&&o.at||0),k==='cheer');}catch(e){}return true;}
+    route(n,S.pan,S.wet*(o&&o.wet!=null?o.wet:1));s.start(a.currentTime+(o&&o.at||0));}catch(e){}return true;}
 // Vorberechnete Publikumsgeräusche (einmal beim ersten ac()): Applaus (viele kurze Klatscher, Stereo) und ein „Oooh“
 // (Stimmen mit Vokal-Formanten, Ton fällt am Ende ab). Fehlen sie noch, bleibt das alte Rauschen.
 const PRE={};
@@ -1799,7 +1793,7 @@ function prerender(){const a=AC;if(!a||PRE.on)return;PRE.on=1;
       [[330+Math.random()*60,5,1],[720+Math.random()*120,7,.5],[2600,6,.08]].forEach(([fq,q,gg])=>{const f=o.createBiquadFilter(),h=o.createGain();f.type='bandpass';f.frequency.value=fq;f.Q.value=q;h.gain.value=gg*3;nd.connect(f).connect(h).connect(bus);});
       os.start(st);os.stop(1.55);}
     const pr=o.startRendering(),done=b=>{PRE.ooh=b;};if(pr&&pr.then)pr.then(done).catch(()=>{});else o.oncomplete=e=>done(e.renderedBuffer);}catch(e){}}
-function playBuf(b,v,rate,wet,cheer){const a=AC;if(!a||muted||!b)return false;try{const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=rate||1;g.gain.value=v;s.connect(g);route(g,0,wet);startEffect(s,g,a.currentTime,cheer);}catch(e){}return true;}
+function playBuf(b,v,rate,wet){const a=AC;if(!a||muted||!b)return false;try{const s=a.createBufferSource(),g=a.createGain();s.buffer=b;s.playbackRate.value=rate||1;g.gain.value=v;s.connect(g);route(g,0,wet);s.start();}catch(e){}return true;}
 // ================= Sprachausgabe =================
 // Feste Ansagen im Dialog nach einer falschen Entscheidung (Frage auf der Karte, Hinweise, Auflösung), gesprochen mit
 // ElevenLabs (Stimme „Chris“, tools/make_voice.mjs liest genau diese Liste zwischen VOICE-START und VOICE-END).
@@ -1811,11 +1805,60 @@ const VOICE={
   look:'Schau noch mal genau hin.',time:'Die Zeit ist um.',
   q_free:'Wer war frei?',q_help:'Wer hat ausgeholfen?',q_def:'Wo stand dein Verteidiger?',q_opp:'Wo stand dein Gegenspieler?',
   q_opp2:'Wo war dein Gegenspieler?',q_ball:'Wo war der Ball?',q_bh:'Wo war der Ballführer?',q_had:'Wer hatte den Ball?',
+  q_thedef:'Wo stand der Verteidiger?',q_dow:'Wo stand der Verteidiger vom Flügel gegenüber?',
   q_thru:'Wer war durch?',q_pass:'Wohin ging der Pass?',q_safe:'Wer sicherte schon euren Korb?',
   tap:'Tippe auf der Karte auf den richtigen Punkt.',nudge:'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.',
   nudge2:'Tippe direkt auf einen Spieler.',
   hit:'Richtig erkannt!',hit2:'Genau darauf kommt es an. Jetzt die ganze Lösung:',
-  miss:'Guter Versuch! Schau auf den Ring.',sol:'Hier ist die Lösung:'
+  miss:'Guter Versuch! Schau auf den Ring.',sol:'Hier ist die Lösung:',
+  // Merksätze (sc.rule), vorgelesen nach dem Antippen der Lösung (quizReveal). Text muss genau dem Merksatz im Builder entsprechen.
+  r_top_drive:'Freie Bahn? Dann geh zum Korb!',
+  r_top_helpl:'Wer hilft, lässt jemanden frei. Schau, woher die Hilfe kommt!',
+  r_top_sag:'Viel Platz, und keiner ist frei? Nimm den Wurf!',
+  r_break_drive:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, pass zum freien Läufer.',
+  r_wing_helptop:'Wer dir entgegenkommt, lässt jemanden frei. Finde ihn!',
+  r_give_cut:'Pass und geh: Schaut dein Verteidiger zum Ball, schneide zum Korb!',
+  r_give_stay:'Pass und raus: Bleibt dein Verteidiger zwischen dir und dem Korb, mach Platz für deinen Mitspieler!',
+  r_backdoor_cut:'Steht der Verteidiger im Passweg, schneidet dein Mitspieler hinten rum. Spiel ihm den Ball in den Lauf!',
+  r_backdoor_gap:'Wer hilft, lässt jemanden frei. Manchmal bist du das selbst: Ist der Weg frei, geh zum Korb!',
+  r_backdoor_helpc:'Wer hilft, lässt jemanden frei.',
+  r_wcatch_shot:'Ist dein Verteidiger beim Fangen weit weg? Dann wirf!',
+  r_wcatch_drive:'Steht dein Verteidiger neben dir statt vor dir? Ab zum Korb!',
+  r_wcut_deny:'Steht dein Verteidiger im Passweg, lauf hinter seinem Rücken zum Korb!',
+  r_wcut_sag:'Steht dein Verteidiger weit weg, fordere den Ball. Du bist frei!',
+  r_wcut_dribble:'Dribbelt der Ballführer auf dich zu, mach ihm Platz: Schneide zum Korb!',
+  r_wbreak_drive:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, ist ein anderer frei!',
+  r_xpass_open:'Bleibt dein Verteidiger weg? Fangen und werfen!',
+  r_xpass_close:'Frei ist gut, noch freier ist besser: Kommt dein Verteidiger zu dir, spiel den Extra-Pass!',
+  r_xpass_fly:'Kommt dein Verteidiger angerannt und keiner ist frei? Zieh an ihm vorbei!',
+  r_two_toyou:'Einer kann nicht zwei decken. Schau, wen er nimmt, und spiel den anderen!',
+  r_two_middle:'Bleibt der Verteidiger tief zwischen euch, hast du Platz zum Werfen.',
+  r_cpost_drive:'Allein mit deinem Verteidiger am Brett? Dreh dich und geh zum Korb!',
+  r_cpost_helpw:'Hilft beim Zug zum Korb ein zweiter Verteidiger aus, ist einer deiner Mitspieler frei. Pass raus!',
+  r_chigh_shot:'Viel Platz an der Freiwurflinie? Nimm den Wurf!',
+  r_chigh_drive:'Steht dein Verteidiger neben dir, geh zum Korb!',
+  r_chigh_backdoor:'Läuft ein Mitspieler backdoor, spiel ihm den Ball in den Lauf!',
+  r_cdive_help:'Hilft dein Verteidiger aus, lauf zum Korb und zeig die Hände!',
+  r_cdive_stay:'Bleibt dein Verteidiger bei dir, lass dem Ballführer die Zone frei.',
+  r_cdive_helpw:'Schau auf deinen eigenen Verteidiger! Bleibt er bei dir, lass die Zone frei, auch wenn ein anderer aushilft.',
+  r_dball_wing:'Am Ball: zwischen Gegenspieler und Korb, eine Armlänge Abstand.',
+  r_dpass_wing:'Ein Pass weg: Ball, du, Gegenspieler. Eine Hand im Passweg, höchstens zwei Schritte weg.',
+  r_dhelp_wing:'Zwei Pässe weg: ab in die Zone, Ball und Gegenspieler im Blick.',
+  r_drot_top:'Ist der Ballführer durch, hilf aus und stell dich in den Weg!',
+  r_dclose_wing:'Ball zu deinem Gegenspieler? Zurück, abstoppen, Hände hoch!',
+  r_djump_away:'Bei jedem Pass mitgehen: Geht der Ball weg, ab in die Zone. Kommt er näher, zurück in den Passweg.',
+  r_dback_first:'Zurück in die Abwehr: erst den Korb sichern, dann den Ball stoppen, dann deinen Gegenspieler finden.',
+  r_rimrun_run:'Ist dein Verteidiger hinter dir, sprinte zum Korb!',
+  r_rimrun_back:'Ist dein Verteidiger schon zurück, bleib hinten und biete dich an.',
+  r_dkick_lay:'Zieh zum Korb. Springt dir keiner in den Weg, mach den Korbleger!',
+  r_dkick_kickl:'Zieh zum Korb. Springt dir einer in den Weg, pass zu dem, den er allein gelassen hat!',
+  r_plong_longl:'Ist ein Läufer allein vorne, wirf sofort den langen Pass!',
+  r_plong_drive:'Sind die Läufer gedeckt, dribbel selbst schnell nach vorne.',
+  r_clong_outlet:'Sind die Läufer gedeckt, spiel den kurzen Pass zum freien Aufbau.',
+  r_swing_swing:'Steht die Abwehr auf einer Seite, spiel den Ball schnell auf die andere Seite!',
+  r_swing_gap:'Läuft ein Mitspieler in die Lücke zwischen zwei Verteidigern, spiel ihm den Ball!',
+  r_cflash_flash:'Ist der Platz zwischen dir und dem Ball frei, lauf ihm entgegen: Flash-Cut!',
+  r_cflash_busy:'Steht dort schon jemand, lauf nicht auch noch hin. Bleib unten und lass Platz.'
 };
 // VOICE-END
 const VOICE_ID={};for(const k in VOICE)VOICE_ID[VOICE[k]]=k;
@@ -1826,19 +1869,19 @@ function vFile(t){const id=VOICE_ID[t];if(!id)return null;return GIRL&&fem(t)!==
 function vLoad(id){if(VBUF[id])return VBUF[id];
   return VBUF[id]=(window.fetch?fetch('voice/'+id+'.mp3'):Promise.reject()).then(r=>r.ok?r.arrayBuffer():Promise.reject())
     .then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);if(pr&&pr.catch)pr.catch(no);})).catch(()=>{VBUF[id]=null;return null;});}
-// alle Ansagen vorab laden (klein, nacheinander), sobald es Ton gibt
-let vPre=false;function vPreload(){if(vPre||!AC||!voiceOn)return;vPre=true;const q=Object.keys(VOICE).map(k=>vFile(VOICE[k]));
+// feste Dialogsätze vorab laden (klein, nacheinander), sobald es Ton gibt. Merksätze (r_…) nicht: Davon braucht ein Spiel
+// nur ein, zwei; vRule() holt den passenden, sobald die Auswertung mit Frage erscheint (spart gut 1,7 MB mobile Daten).
+let vPre=false;function vPreload(){if(vPre||!AC||!voiceOn)return;vPre=true;const q=Object.keys(VOICE).filter(k=>!k.startsWith('r_')).map(k=>vFile(VOICE[k]));
   const next=()=>{const id=q.shift();if(id)Promise.resolve(vLoad(id)).then(next);};next();}
-function vDuck(on){const M=MIX;if(!M||!M.duck||!AC)return;const g=M.duck.gain,t=AC.currentTime;
-  g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.setTargetAtTime(on?.4:1,t,on?.06:.3);}
+function vRule(t){if(!AC||!voiceOn||!t)return;const id=vFile(t);if(id)vLoad(id);}
 // Laufende Ansage abbrechen (neue Ansage, Antippen, Taste, neue Runde)
-function hush(){VSEQ++;if(VQ){try{VQ.stop();}catch(e){}VQ=null;vDuck(false);}}
+function hush(){VSEQ++;if(VQ){try{VQ.stop();}catch(e){}VQ=null;}}
 // Texte nacheinander sprechen (kurze Pause dazwischen); delay = Sekunden bis zum Start
 function say(texts,delay){hush();if(!voiceOn)return;const a=ac();if(!a)return;const my=VSEQ,ids=texts.map(vFile).filter(Boolean);if(!ids.length)return;
   Promise.all(ids.map(vLoad)).then(bufs=>{if(my!==VSEQ)return;bufs=bufs.filter(Boolean);let t0=a.currentTime+(delay||0);
-    const play=i=>{if(my!==VSEQ)return;if(i>=bufs.length){VQ=null;vDuck(false);return;}
+    const play=i=>{if(my!==VSEQ)return;if(i>=bufs.length){VQ=null;return;}
       try{const s=a.createBufferSource(),g=a.createGain();s.buffer=bufs[i];g.gain.value=.9;s.connect(g);route(g,0,.06,'v');
-        s.onended=()=>{if(my===VSEQ)setTimeout(()=>play(i+1),220);};if(!i)vDuck(true);VQ=s;s.start(i?0:t0);}catch(e){VQ=null;vDuck(false);}};
+        s.onended=()=>{if(my===VSEQ)setTimeout(()=>play(i+1),220);};VQ=s;s.start(i?0:t0);}catch(e){VQ=null;}};
     play(0);});}
 addEventListener('pointerdown',()=>{if(VQ)hush();},true);
 // Synthetische Klänge, rund statt piepsig: Band-Stopp, Glockenton für richtig, weiches Abwärts für falsch, Hallenhupe
@@ -1850,7 +1893,7 @@ function noiseBuf(d){const a=AC,b=a.createBuffer(1,a.sampleRate*d|0,a.sampleRate
 const SYN={
   // Band-Stopp: ein Stück Hallengeräusch (Publikum, falls schon berechnet, sonst Rauschen) wird von normalem Tempo auf Stillstand
   // abgebremst, dazu ein tiefer werdendes Brummen und ein sich schließender Tiefpass (Kassette/Video wird angehalten)
-  tape(){const a=AC,t=a.currentTime+.005,d=.5,lp=a.createBiquadFilter(),g=a.createGain();lp.type='lowpass';lp.Q.value=.8;
+  tape(delay){const a=AC,t=a.currentTime+delay,d=TAPE_STOP,lp=a.createBiquadFilter(),g=a.createGain();lp.type='lowpass';lp.Q.value=.8;
     lp.frequency.setValueAtTime(7000,t);lp.frequency.exponentialRampToValueAtTime(160,t+d);
     g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(1,t+.02);g.gain.setValueAtTime(1,t+d*.55);g.gain.linearRampToValueAtTime(0,t+d);lp.connect(g);route(g,0,.12);
     const src=a.createBufferSource(),sg=a.createGain(),B=BED&&(BED.r&&BED.r.buf||BED.g&&BED.g.buf);src.buffer=B||noiseBuf(1);
@@ -1904,36 +1947,43 @@ function bedFinish(st){const a=AC,{sr,n,fd,out}=st;
   [[1,0,-.45],[.94,2.7,.45]].forEach(([r,o,pn])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;let n=s;if(a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=pn;n=s.connect(P);}n.connect(lp);s.start(0,o);g.srcs.push([s,r]);});
   return g;}
 let bedSt=null;
-function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED)return;
-  if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;if(G.phase==='decide')tape(true);}
+function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED||G.phase==='decide'||(G.phase==='approach'&&G.stopElapsed!==null))return;
+  if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;}
   if(!BED.g)return;
-  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;
-  const on=!muted&&G.phase!=='menu',wave=gclock-G.wave>=0&&gclock-G.wave<3.4;
-  const outcome=G.phase==='outcome',ex=on&&outcome?Math.max(G.excite,wave?.75:0):0;
+  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&(G.phase==='approach'||G.phase==='outcome'),wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
   BED.g.gain.setTargetAtTime(on?.05+.03*ex:0,a.currentTime,on?.4:.25);
-  BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,outcome?(ex>BED.ex?.12:.6):.18);BED.ex=ex;}
-// Band-Stopp (wie ein angehaltenes Video): Publikum im Hintergrund wird in 0,5 s langsamer, tiefer und leiser bis zum Stillstand,
-// nach der Entscheidung läuft es in 0,3 s wieder an. Der kurze Tape-Stop liegt auf demselben Hallenausgang.
-function tape(stop){const a=AC;if(!a)return;const t=a.currentTime;
-  const court=mix().court;
-  if(court){const g=court.gain;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(stop?0:1,t+(stop?.42:.045));}
-  try{[BED&&BED.g,BED&&BED.r].forEach(g=>{if(!g||!g.srcs)return;
-    g.srcs.forEach(([s,r])=>{const p=s.playbackRate;p.cancelScheduledValues(t);p.setValueAtTime(Math.max(.01,p.value),t);p.exponentialRampToValueAtTime(stop?r*.05:r,t+(stop?.5:.3));});
-    const q=g.tg.gain;q.cancelScheduledValues(t);q.setValueAtTime(q.value,t);q.linearRampToValueAtTime(stop?0:1,t+(stop?.5:.3));});}catch(e){}}
+  BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,ex>BED.ex?.12:.6);BED.ex=ex;}
+// Blende den vollständigen Mix aus, einschließlich Hall und laufender Publikumsreaktionen.
+function tape(stop,delay=0){const a=AC;if(!a)return;const t=a.currentTime+delay;
+  const {court,filter}=mix(),end=t+(stop?TAPE_STOP:.045),g=court.gain;
+  g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(stop?0:1,end);
+  if(filter){const f=filter.frequency;f.cancelScheduledValues(t);f.setValueAtTime(f.value,t);f.exponentialRampToValueAtTime(stop?220:a.sampleRate/2,end);}
+  [BED?.g,BED?.r].forEach(layer=>layer?.srcs?.forEach(([src,rate])=>{
+    const p=src.playbackRate;p.cancelScheduledValues(t);p.setValueAtTime(p.value,t);
+    p.linearRampToValueAtTime(stop?0:rate,t+(stop?TAPE_STOP:.3));
+  }));
+}
+function quietCourt(fade=0){
+  if(!AC)return;
+  const g=mix().court.gain,t=AC.currentTime;
+  g.cancelScheduledValues(t);
+  g.setValueAtTime(fade?g.value:0,t);
+  if(fade)g.linearRampToValueAtTime(0,t+fade);
+}
 function tone(f,d,type,v,f2,delay){const a=AC;if(!a||muted)return;try{const t=a.currentTime+(delay||0),o=a.createOscillator(),g=a.createGain();o.type=type||'sine';o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(mix().inp);o.start(t);o.stop(t+d+.02);}catch(e){}}
 function noise(d,v,hp){const a=AC;if(!a||muted)return;try{const b=a.createBuffer(1,a.sampleRate*d,a.sampleRate),ch=b.getChannelData(0);for(let i=0;i<ch.length;i++)ch[i]=(Math.random()*2-1)*(1-i/ch.length);const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='highpass';f.frequency.value=hp;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
-function crowdN(d,v,fq,att,cheer){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
+function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleRate*d,b=a.createBuffer(1,n,a.sampleRate),ch=b.getChannelData(0);
   for(let i=0;i<n;i++){const t=i/n,e=t<att?t/att:Math.pow(1-(t-att)/(1-att),1.6);ch[i]=(Math.random()*2-1)*e*(.75+.25*Math.sin(i/a.sampleRate*40));}
-  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);startEffect(s,g,a.currentTime,cheer);}catch(e){}}
-const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.14})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35,true)||crowdN(2.2,.5,1100,.12,true);},
+  const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
+const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.14})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35)||crowdN(2.2,.5,1100,.12);},
   ooh:()=>smp('gasp',.7,.035,null,{wet:.45,at:.09})||playBuf(PRE.ooh,1.1,.92+Math.random()*.16,.4)||crowdN(1.1,.35,520,.3),
   dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:p=>smp('dribble',.32,.1,p,{wet:1.4}),
   squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;return smp('squeak',p===ROLE.H?.12:.08,.1,p);},step:(p,v)=>smp('step',v,.12,p,{wet:.5}),
-  tape:()=>smp('tape',.52,.015,null,{wet:0})||syn('tape'),swish:()=>smp('swish',.85,.05,ball,{wet:1.6})||noise(.35,.25,2500),good:()=>syn('good'),bad:()=>syn('bad'),buzz:()=>syn('buzz'),
+  tape:delay=>smp('tape',.52,0,null,{wet:0,at:delay})||syn('tape',delay),swish:()=>smp('swish',.85,.05,ball,{wet:1.6})||noise(.35,.25,2500),good:()=>syn('good'),bad:()=>syn('bad'),buzz:()=>syn('buzz'),
   rim:()=>smp('rim',.65,.05,ball,{wet:1.8})||tone(330,.2,'triangle',.12,200),release:p=>smp('release',.33,.05,p),pass:p=>sfx.release(p||ball.owner)||syn('pass',p||ball.owner)};
 
 // ================= Spielzustand =================
-const G={ts:1,slowT:0,wave:-9,phase:'menu',pos:'pg',level:1,mode:4,noLimit:false,round:0,rounds:10,score:0,streak:0,bestStreak:0,results:[],sc:null,t:0,dStart:0,win:4,timers:[],replay:false,choice:null,snap:null,bag:[],plays:['top','break','wing','backdoor'],excite:0,saved:false};
+const G={ts:1,stopElapsed:null,slowT:0,wave:-9,phase:'menu',pos:'pg',level:1,mode:4,noLimit:false,round:0,rounds:10,score:0,streak:0,bestStreak:0,results:[],sc:null,t:0,dStart:0,win:4,timers:[],replay:false,choice:null,snap:null,bag:[],plays:['top','break','wing','backdoor'],excite:0,saved:false};
 const WIN=[4,2.5,1.8];
 // Lernziele: Begriffe aus dem DBB-Leitfaden Minibasketball (Kap. 7.2), dazu „Guter Wurf“ (DBB-Spielkonzeption: Wofür spielen wir?)
 // und „Mann-Mann-Verteidigung“ (Miniregeln: MMV-Pflicht). Quellen siehe Info-Seite und docs/TRAINER.md.
@@ -3075,18 +3125,18 @@ function startRound(){hush();
   beginApproach();showBanner(PLAYS[p].name,PLAYS[p].desc);
 }
 function beginApproach(){
-  tape(false);FX.dof=0;
+  tape(false);FX.dof=0;G.stopElapsed=null;
   G.phase='approach';G.t=0;G.timers=[];G.choice=null;endCam();warmGL();G.ts=1;G.slowT=0;shooter=null;players.forEach(p=>p.act=null);
   computeFit();camDir=startDir();updCam(0,true);
   buildButtons();setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
   updateHud();
 }
 function startDecide(){
-  G.phase='decide';G.dStart=performance.now();G.t=0;
+  G.phase='decide';quietCourt();G.dStart=performance.now();G.t=0;
   G.snap=players.map(p=>({role:p.role,team:p.team,x:p.x,z:p.z,num:p.num,sel:p.sel,ball:ball.owner===p}));
   setControls(true);$('prompt').classList.add('on');$('vig').classList.add('on');
   $('timer').classList.toggle('on',!G.noLimit&&!G.replay);$('timerFill').style.transform='scaleX(1)';
-  cam.updateMatrixWorld();updRing();posMe();makeBubbles();sfx.tape();tape(true);
+  cam.updateMatrixWorld();updRing();posMe();makeBubbles();
   if(G.replay){const a=G.sc.ans;const b=document.querySelector(`.cb[data-c="${a}"]`);b&&b.classList.add('hint');
     if(a.startsWith('pass:')||a.startsWith('spot:')){const t=document.querySelector(a.startsWith('spot:')?`.tag[data-c="${a}"]`:`.tag[data-r="${a.slice(5)}"]`);t&&t.classList.add('hint');}
   }
@@ -3183,29 +3233,40 @@ function wrongNote(sc,c){
   if(c.startsWith('pass:')){const p=role(c.slice(5));return`${p&&p.name?p.name:'Dieser Mitspieler'}: noch gedeckt, sein Verteidiger stand direkt bei ihm.`;}
   return'';}
 function showFeedback(){
-  G.phase='feedback';fadeCheers();const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
+  G.phase='feedback';quietCourt(.7);const sc=G.sc,ch=G.choice,ok=ch===sc.ans;
   const r=G.results[G.results.length-1],kind=ok?'ok':ch===null?'slow':'bad';
   $('fbHead').className='fbhead '+kind;$('fbIco').innerHTML=`<use href="#i-${ok?'check':ch===null?'clock':'eye'}"/>`;
   // Kindgerecht (DBB-Leitfaden: Lernen durch Ausprobieren, Fragen statt Lösungen): kein Urteil „falsch“, kein Rot,
   // sondern eine Einladung, noch mal hinzuschauen. Die eigene Wahl war ein Versuch, die Lösung heißt „Noch besser“.
   $('fbTitle').textContent=ok?'Richtig!':ch===null?'Die Zeit ist um':'Schau noch mal hin';
-  $('fbPlay').textContent=PLAYS[sc.play].name+(G.replay?' · Wiederholung':r&&r.rt!=null?` · ${r.rt.toFixed(1).replace('.',',')} s`:'');
+  // Reaktionszeit nur bei richtiger Wahl: Nach einer falschen Wahl hilft sie nicht und verleitet eher zum schnellen Raten.
+  $('fbPlay').textContent=PLAYS[sc.play].name+(G.replay?' · Wiederholung':ok&&r&&r.rt!=null?` · ${r.rt.toFixed(1).replace('.',',')} s`:'');
   const pts=!G.replay&&r&&r.pts;$('fbPts').textContent=pts?'+'+r.pts:'';$('fbPts').classList.toggle('hidden',!pts);
-  const chc=(cls,lab,ic,txt)=>`<div class="chc ${cls}"><small>${svgI(ic)}${lab}</small><b></b></div>`;
-  const fa=$('fbAns');fa.className='choices'+(ok||!ch?' one':'');
-  fa.innerHTML=(ok||!ch?'':chc('','Deine Wahl','ball'))+chc('good',ok?'Deine Wahl':ch?'Noch besser':'Beste Lösung','check');
+  // Weniger ist mehr (DBB: wenig reden, viel spielen): eine Zeile Wahl → Lösung, ein Erklärsatz, der Merksatz.
+  // Alles Weitere steckt unter „Warum?“ (#fbMore), die Legende hinter „Was bedeuten die Farben?“.
+  const fa=$('fbAns'),best=`<span class="best">${svgI('check')}<small>${ok?'Deine Wahl':ch?'Noch besser':'Beste Lösung'}</small><b></b></span>`;
+  fa.innerHTML=(ok||!ch?'':`<span class="mine">${svgI('ball')}<b></b></span><span class="arr">→</span>`)+best;
   const bs=fa.querySelectorAll('b');if(ok||!ch)bs[0].textContent=choiceName(sc.ans);else{bs[0].textContent=choiceName(ch);bs[1].textContent=choiceName(sc.ans);}
-  $('fbWhy').textContent=sc.why;$('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
+  $('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
+  // Legende in den Trikotfarben wie auf der Karte (drawMini: eigenes Team home, Gegner away)
+  $('lgOc').style.background=TEAM[sc.def?'away':'home'].jersey;$('lgDc').style.background=TEAM[sc.def?'home':'away'].jersey;
   let wn=ok?'':wrongNote(sc,ch);if(!ok&&sc.fake)wn+=' Achtung: Ein Verteidiger hat nur so getan, als würde er helfen.';
-  $('fbWrong').textContent=wn;$('fbWrong').classList.toggle('hidden',!wn);
+  // Offen bleibt nur der Merksatz; die Erklärung zur Situation (sc.why) und was die eigene Wahl verhindert hat stehen unter „Warum?“.
+  const mo=$('fbMore'),mp=$('fbMoreP');mo.open=false;mp.textContent='';
+  const para=(h,t)=>{if(!t)return;const e=document.createElement('p');if(h){const b=document.createElement('b');b.textContent=h;e.append(b);}e.append(t);mp.append(e);};
+  para('',sc.why);if(!ok)para(ch===null?'Warum zählt die Zeit?':`Warum nicht „${choiceName(ch)}“?`,wn);
+  mo.classList.toggle('hidden',!mp.childNodes.length);
   $('fbRule').textContent=sc.rule;
+  // Legende nur in den ersten Spielen offen, danach auf Antippen
+  const lg=PROFILE.games<3;$('lgd').classList.toggle('hidden',!lg);$('lgBtn').classList.toggle('hidden',lg);
+  $('fbQi').innerHTML='<use href="#i-help"/>';
   if(ok&&!G.replay)setTimeout(()=>confetti(40),150);
   $('nextBtn').innerHTML=(G.round>=G.rounds?'Ergebnis':'Weiter')+svgI('play','fill');
   // Fragen statt fertiger Lösungen (DBB-Leitfaden Minibasketball: Trainer helfen mit Fragen). Erst suchen lassen, dann erklären.
   const q=!ok&&!G.replay?quizOf(sc):null;G.quiz=q;$('fbQ').className='fbq'+(q?'':' hidden');
   $('feedback').querySelector('.card').classList.toggle('quiz',!!q);
   if(q){$('fbQt').textContent=q.t;$('fbQs').textContent='Tippe auf der Karte auf den richtigen Punkt.';drawMini(ch,{quiz:true});
-    say([ch===null?'Die Zeit ist um.':'Schau noch mal genau hin.',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);}
+    say([ch===null?'Die Zeit ist um.':'Schau noch mal genau hin.',q.t,'Tippe auf der Karte auf den richtigen Punkt.'],.35);vRule(sc.rule);}
   else drawMini(ch);
   $('feedback').classList.remove('hidden');
 }
@@ -3215,33 +3276,31 @@ function quizOf(sc){const has=r=>G.snap.some(p=>p.role===r);let q=sc.q;
     else q={t:'Wo stand dein Verteidiger?',r:'dH'};}
   return has(q.r)?q:null;}
 function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
-  $('fbQ').className='fbq '+(hit===true?'ok':hit===false?'no':'');
+  $('fbQ').className='fbq '+(hit===true?'ok':hit===false?'no':'');if(hit===true)$('fbQi').innerHTML='<use href="#i-eye"/>';
   $('fbQt').textContent=hit===true?'Richtig erkannt!':hit===false?'Guter Versuch! Schau auf den Ring.':q.t;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
-  if(hit===true){sfx.good();confetti(18);}
-  say(hit===true?['Richtig erkannt!','Genau darauf kommt es an. Jetzt die ganze Lösung:']:hit===false?['Guter Versuch! Schau auf den Ring.','Hier ist die Lösung:']:['Hier ist die Lösung:'],hit===true?.25:0);}
+  if(hit===true)confetti(18);
+  // Danach der Merksatz: das, was vom Spielzug hängen bleiben soll (Sprachdatei über VOICE, sonst still)
+  say((hit===true?['Richtig erkannt!']:hit===false?['Guter Versuch! Schau auf den Ring.']:['Hier ist die Lösung:']).concat(G.sc.rule||[]),hit===true?.25:0);}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
 function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
-  f.classList.remove('nudge');void f.offsetWidth;f.classList.add('nudge');tone(240,.08,'triangle',.06);}
+  f.classList.remove('nudge');void f.offsetWidth;f.classList.add('nudge');}
 $('mini').addEventListener('pointerdown',e=>{const q=G.quiz;if(!q||G.phase!=='feedback')return;const m=$('mini'),r=m.getBoundingClientRect(),k=Math.min(r.width/m.width,r.height/m.height);
   const x=(e.clientX-r.left-(r.width-m.width*k)/2)/k,y=(e.clientY-r.top-(r.height-m.height*k)/2)/k,M=miniMap();let best=null,bd=1e9;
   G.snap.forEach(p=>{if(p.z<-10.8&&!M.far)return;const d=Math.hypot(M.sx(p.x)-x,M.sz(p.z)-y);if(d<bd){bd=d;best=p;}});
   if(!best||bd>48){quizNudge('Tippe direkt auf einen Spieler.');return;}quizReveal(best.role===q.r);});
-// Langer Pass: schmalere Zeichenfläche für das längliche Ganzfeld.
-function miniMap(){
-  const far=!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel)));
-  const w=far?368:640,h=$('mini').height,zr=(h-34)/(far?28.4:12.2),S=far?zr*1.3:w/15.6;
-  return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far,w};
-}
+// Langer Pass: ganzes Feld auf schmalerer Zeichenfläche (368 px), sonst nur das Halbfeld (640 px)
+function miniFar(){return!!(G.snap&&G.snap.some(p=>p.z<-10.8&&(p.role==='H'||p.sel)));}
+// Halbfeld: Maßstab fest (wie früher bei 12,2 m Tiefe), der Ausschnitt endet aber knapp hinter dem tiefsten Spieler.
+// Die Karte wird dadurch flacher und auf dem Handy breiter, die Spieler größer. Größe setzt drawMini, miniMap liest sie.
+const MINI_ZR=446/12.2;
+function miniDepth(){let d=8.6;(G.snap||[]).forEach(p=>{if(p.z>-10.8)d=Math.max(d,BASE-p.z+1.5);});(G.sc&&G.sc.spots||[]).forEach(sp=>d=Math.max(d,BASE-sp.z+1.3));return Math.min(12.2,d);}
+function miniMap(){const m=$('mini'),far=miniFar(),w=far?368:640,h=m.height,zr=far?(h-34)/28.4:MINI_ZR,S=far?zr*1.3:w/15.6;return{sx:x=>w/2+x*S,sz:z=>26+(BASE-z)*zr,S,zr,far,w};}
 function drawMini(choice,o){o=o||{};
-  const m=$('mini'),h=m.height,{S,zr,sx,sz,far,w}=miniMap();
-  if(m.width!==w){
-    m.width=w;
-    m.parentElement.style.setProperty('--map-aspect',w+'/'+h);
-  }
-  const c=m.getContext('2d');
+  {const m=$('mini'),far=miniFar(),ww=far?368:640,hh=far?480:Math.round(34+miniDepth()*MINI_ZR);if(m.width!==ww)m.width=ww;if(m.height!==hh)m.height=hh;m.parentNode.style.setProperty('--ar',ww+'/'+hh);}
+  const m=$('mini'),c=m.getContext('2d'),w=m.width,h=m.height,{S,zr,sx,sz,far}=miniMap();
   c.fillStyle=far?'#10141f':'#d29b5f';c.fillRect(0,0,w,h);
   if(far){c.fillStyle='#d29b5f';c.fillRect(sx(-HW),sz(BASE),2*HW*S,sz(-26.425)-sz(BASE));c.strokeStyle='#fff';c.lineWidth=3;
     c.beginPath();c.moveTo(sx(-HW),sz(-12.425));c.lineTo(sx(HW),sz(-12.425));c.stroke();c.beginPath();c.ellipse(sx(0),sz(-12.425),1.8*S,1.8*zr,0,0,7);c.stroke();
@@ -3609,7 +3668,7 @@ function vib(p){try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
-$('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;
+$('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;$('lgBtn').onclick=()=>{$('lgd').classList.remove('hidden');$('lgBtn').classList.add('hidden');};
 function toMenu(){hush();if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
   if(G.first){G.first=false;G.rounds=10;}
   tape(false);G.phase='menu';G.timers=[];renderStrip();endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
@@ -3749,7 +3808,16 @@ function feedBall(sc){if(sc.give&&!sc.gave&&G.t>=sc.give.t0){sc.gave=true;const 
   if(!sc.feed||sc.fed||G.t<sc.feed.t0)return;sc.fed=true;
   const f=sc.feed,[x,z]=evalPath(Hd.path,f.t1,Hd.lin),moving=Hd.path[Hd.path.length-1][0]>f.t1+.1;
   act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},f.t1-f.t0,.35,()=>{ball.owner=Hd;ball.hold=!moving;act(Hd,'catch',.25);});}
-function update(rdt){
+// Lineare Bremskurve: In TAPE_STOP Sekunden verstreicht noch eine halbe TAPE_STOP an Spielzeit.
+function approachDt(rdt,raw){const start=G.sc.T-TAPE_STOP/2;
+  if(G.stopElapsed===null&&G.t+rdt<start)return rdt;
+  const lead=G.stopElapsed===null?Math.max(0,start-G.t):0;
+  if(G.stopElapsed===null){G.stopElapsed=0;sfx.tape(lead);tape(true,lead);}
+  G.stopElapsed=Math.min(TAPE_STOP,G.stopElapsed+raw-lead);
+  const u=G.stopElapsed/TAPE_STOP;
+  return Math.max(0,start+TAPE_STOP*u*(1-u/2)-G.t);
+}
+function update(rdt,raw=rdt){
   updBed(rdt);
   if(G.phase==='decide'){
     const elapsed=(performance.now()-G.dStart)/1000;
@@ -3762,11 +3830,10 @@ function update(rdt){
   }
   // Zeitlupe bei Würfen, Blocks und Ballgewinnen
   let tsT=1;if(G.phase==='outcome'){if(ball.fl&&ball.fl.shot&&ball.fl.t/ball.fl.d>.42)tsT=.3;if(G.slowT>0){G.slowT-=rdt;tsT=Math.min(tsT,.32);}}
-  // Band-Stopp im Bild: kurz vor dem Entscheidungsmoment bremst die Szene in ca. 0,5 s bis zum Stillstand ab (Tempo proportional
-  // zur verbleibenden Anlaufzeit, Untergrenze 0,08, damit sie T sicher erreicht); die Stellung bei T bleibt dieselbe
-  const stopT=G.phase==='approach'&&G.sc&&G.t>G.sc.T-.14;if(stopT)G.ts=clamp((G.sc.T-G.t)/.14,.08,1);
-  else G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));const dt=rdt*G.ts;
-  clock+=rdt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
+  G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));
+  const dt=G.phase==='approach'?approachDt(rdt,raw):rdt*G.ts;
+  const sceneDt=G.phase==='approach'&&G.stopElapsed!==null?dt:rdt;
+  clock+=sceneDt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
   const sc=G.sc;if(!sc)return;
   let pdt=dt;
   if(G.phase==='approach'||G.phase==='menu'){G.t+=dt;feedBall(sc);
@@ -3780,8 +3847,8 @@ function update(rdt){
   players.forEach(p=>poseP(p,dt));
   BL.x=ball.x;BL.y=ball.y;BL.z=ball.z;
   updRing();posMe();
-  updNet(dt,gclock);updFans(gclock,G.excite,dt);updTrail(dt);updHall(dt,rdt);updCam(rdt,false);
-  if(G.phase==='approach'&&G.t>=sc.T)startDecide();
+  updNet(dt,gclock);updFans(gclock,G.excite,dt);updTrail(dt);updHall(dt,sceneDt);updCam(sceneDt,false);
+  if(G.phase==='approach'&&G.stopElapsed===TAPE_STOP)startDecide();
   else if(bubbles.length)posBubbles();
 }
 // ================= Bildeffekte =================
@@ -3858,7 +3925,7 @@ function perfAdapt(raw){if(LITE||FX.force||bedSt||!/approach|decide|outcome|feed
   if(FX.on&&(a>.028||L>=6)){FX.on=false;return;}
   if(a>.04&&(sun.castShadow||pr>1)){sun.castShadow=false;warmGL();PR_CAP=1;computeFit();}}
 window.__perf=()=>({pr:renderer.getPixelRatio(),fx:FX.on,bokeh:!!FX.bokeh,shadow:sun.castShadow});
-function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;if(G.phase!=='decide'){perfCheck(raw);perfAdapt(raw);}try{update(dt);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
+function frame(now){const raw=(now-last)/1000,dt=Math.min(.05,raw);last=now;if(G.phase!=='decide'){perfCheck(raw);perfAdapt(raw);}try{update(dt,raw);if(!CARD.on||W>560)draw(dt);cardFrame();}catch(e){console.error(e);}requestAnimationFrame(frame);}
 if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2,-7);scene.updateMatrixWorld(true);
   scene.environment=pm.fromScene(scene,.03,.1,120).texture;scene.position.set(0,0,0);scene.updateMatrixWorld(true);pm.dispose();
   }catch(e){scene.position.set(0,0,0);}}
@@ -3867,7 +3934,7 @@ $('loading').classList.add('hidden');$('menu').classList.remove('hidden');render
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
-window.__snd={voice:{say,hush,fem,VOICE,VBUF,file:vFile,playing:()=>!!VQ,on:()=>voiceOn,duck:()=>MIX&&MIX.duck?MIX.duck.gain.value:null},SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
+window.__snd={voice:{say,hush,fem,VOICE,VBUF,file:vFile,playing:()=>!!VQ,on:()=>voiceOn},SMP,sfx,PRE,mute:v=>{muted=v;},ac,mixer:()=>MIX,sqr:()=>{sqkT=-9;},use:c=>{const o=AC;AC=c;MIX=null;sqkT=-9;for(const k in PRE)delete PRE[k];if(c){mix();prerender();}return o;},bed:()=>BED&&BED.g?[BED.g.gain.value,BED.r&&BED.r.gain?BED.r.gain.value:null]:null}; // nur für Tests: geladene Geräusche
 window.__ff=t=>{for(let i=0;i<Math.ceil(t/.05);i++)update(.05);draw(.05);};window.__fx=FX; // nur für Tests: Spielzeit vorspulen
 window.__G=G;window.__players=()=>players;window.__glb=()=>GLB.ok;window.__scene=scene;window.__card=CARD;window.__net=NET;window.__ball=ball;
 window.__rig=(t,n,l,g)=>{setGirl(g);return (GLB.ok?makeGLBRig:makeRig)(t==='off'?'home':'away',n,l);};window.__setGirl=setGirl;window.__miniMap=miniMap; // nur für Tests (Figuren-Aufstellung, Frage auf der Mini-Karte)

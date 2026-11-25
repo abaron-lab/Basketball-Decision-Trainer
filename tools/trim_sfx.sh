@@ -22,6 +22,7 @@ for f in "$RAW"/*.mp3; do
     tape*)
       ffmpeg -v error -y -i "$f" -af "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.004,atempo=1.8,atrim=end=0.42,afade=t=out:st=0.31:d=0.11" -c:a libmp3lame -b:a 128k "$OUT/$b.mp3"
       continue;;
+    hall*) continue;;  # alte Rohdateien der ersetzten Hallenschleife
     cheer*)
       # Beide Tribünenreaktionen auf dieselbe integrierte Lautheit bringen.
       ffmpeg -v error -y -i "$f" -af "silenceremove=start_periods=1:start_threshold=-42dB:start_silence=0.015,areverse,afade=t=in:d=0.65,areverse,loudnorm=I=-14:TP=-2:LRA=8" -ar 44100 -c:a libmp3lame -b:a 160k "$OUT/$b.mp3"
