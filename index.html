@@ -236,7 +236,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .lgbtn,.more summary{min-height:44px;display:flex;align-items:center;gap:6px;cursor:pointer;background:none;border:0;padding:0 8px;color:#8fb4ff;font:900 13px Nunito,system-ui,sans-serif}
 .more summary{padding:0;list-style:none}.more summary::-webkit-details-marker{display:none}
 .more summary:before{content:'›';font-size:20px;line-height:1;transition:transform .2s}.more[open] summary:before{transform:rotate(90deg)}
-.more p{margin:0 0 6px;font-size:14px;line-height:1.35;color:#c9d3ea}
+.more p{margin:0 0 6px;font-size:14px;line-height:1.35;color:#c9d3ea}.more p b{display:block;color:#e3e9f7}
 /* Wahl-Zeile: eigene Wahl klein und neutral, daneben die Lösung als grüner Chip */
 .swap{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;flex:0 0 auto;font-weight:800;font-size:14.5px}
 .swap .mine{display:inline-flex;align-items:center;gap:6px;color:#aab7d6}.swap .mine .i{width:15px;height:15px}
@@ -248,7 +248,6 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .legend .ln{display:inline-block;width:16px;height:0;border-top:3px solid #16c060;margin-right:4px;vertical-align:3px}
 .legend .ln.d{border-top:3px dashed #ff4d4d}
 .fbtext{flex:0 0 auto}
-#fbWhy{font-size:14.5px;margin:2px 0 4px}
 .fbq{display:flex;gap:10px;align-items:center;background:rgba(111,165,255,.12);border:1px solid rgba(111,165,255,.35);border-radius:13px;padding:9px 11px;margin:2px 0 4px}
 .fbq>.i{width:26px;height:26px;color:#8fb4ff;flex:0 0 auto}.fbq>div{flex:1}.fbq b{display:block;font-size:16px;color:#fff}.fbq span{font-size:12.5px;color:#aab7d6;font-weight:700}
 .fbq .vbtn{flex:0 0 auto;width:34px;height:34px;border-radius:999px;border:1px solid rgba(143,180,255,.4);background:rgba(8,12,24,.35);color:#8fb4ff;display:grid;place-items:center;cursor:pointer;padding:0}
@@ -257,7 +256,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 /* Nach dem Antippen nur noch eine Zeile („Richtig erkannt!“ / „Guter Versuch!“), der Platz gehört Erklärung und Merksatz */
 .fbq.ok,.fbq.no{padding:5px 8px 5px 11px}.fbq.ok #fbQs,.fbq.no #fbQs{display:none}.fbq.ok b,.fbq.no b{font-size:15px}.fbq.ok>.i,.fbq.no>.i{width:22px;height:22px}.fbq.ok>.i{color:#7ff0ad}
 .lnk{cursor:pointer;background:none;border:0;color:#8fb4ff;font:900 12.5px Nunito,system-ui,sans-serif;text-decoration:underline;padding:4px;flex:0 0 auto}
-.quiz #mini{cursor:pointer}.quiz .swap,.quiz #fbWhy,.quiz .more,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
+.quiz #mini{cursor:pointer}.quiz .swap,.quiz .more,.quiz .rule,.quiz .legend .lnl{visibility:hidden}
 /* Frage muss erst beantwortet werden: Weiter/Nochmal sehen gesperrt aus, Antippen rüttelt an der Frage */
 .quiz #nextBtn,.quiz #replayBtn{opacity:.4;filter:saturate(.3)}.quiz .mapbox{box-shadow:0 0 0 2px rgba(111,165,255,.55);border-radius:12px}
 .fbq.nudge{animation:nudge .45s;border-color:#ffd23d;background:rgba(255,210,61,.16)}@keyframes nudge{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
@@ -265,9 +264,9 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .rule .i{color:var(--gold);width:22px;height:22px;margin-top:1px;flex:0 0 auto}.rule small{display:block;font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:#d9b34a;font-weight:900;margin-bottom:1px}
 @media (max-width:560px) and (orientation:portrait){
   /* Platz für die Karte, solange die Frage auf einen Tipp wartet. */
-  .quiz .swap,.quiz #fbWhy,.quiz .more,.quiz .rule,.quiz .legend .lnl{display:none}
+  .quiz .swap,.quiz .more,.quiz .rule,.quiz .legend .lnl{display:none}
 }
-@media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr auto;gap:4px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px;aspect-ratio:auto}.lgwrap{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}#fbWhy{font-size:16px}}
+@media (min-width:760px) and (min-aspect-ratio:1/1){.fbgrid{display:grid;grid-template-columns:1.3fr 1fr;grid-template-rows:1fr auto;gap:4px 18px}.mapbox{grid-column:1;grid-row:1;min-height:300px;aspect-ratio:auto}.lgwrap{grid-column:1;grid-row:2}.fbtext{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;justify-content:center}}
 /* Handy quer (flach): Karte links über die ganze Höhe, rechts Kopf, Wahl, Text (scrollt) und Tasten */
 @media (max-height:500px) and (orientation:landscape){
   #feedback.overlay{padding:6px max(6px,env(safe-area-inset-right)) 6px max(6px,env(safe-area-inset-left))}
@@ -280,9 +279,8 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
   .card.fb .rule{font-size:15px}
   .card.fb .fbtext{grid-column:2;grid-row:3;min-height:0;overflow:auto;padding:6px 14px 2px;display:flex;flex-direction:column}
   /* wenig Höhe: Merksatz vor die Erklärung, damit er ohne Scrollen sichtbar ist */
-  .card.fb .rule{order:1;margin-top:0}.card.fb #fbWhy{order:2}.card.fb .more{order:3}.card.fb .swap{gap:4px 8px}
+  .card.fb .rule{order:1;margin-top:0}.card.fb .more{order:2}.card.fb .swap{gap:4px 8px}
   .card.fb>.foot{grid-column:2;grid-row:4;padding:6px 14px 10px}
-  .card.fb #fbWhy{font-size:14px}
 }
 /* Handy quer: Steuerung unten kompakt, damit mehr Platz für das Spielfeld bleibt */
 @media (max-height:500px) and (orientation:landscape){
@@ -756,9 +754,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <div class="lgwrap"><button class="lgbtn" id="lgBtn">Was bedeuten die Farben?</button><div class="legend" id="lgd"><span><i style="background:#ffd23d"></i>Du</span><span><i id="lgOc"></i><b id="lgO">Mitspieler</b></span><span><i id="lgDc"></i><b id="lgD">Verteidiger</b></span><span class="lnl"><span class="ln"></span>beste Lösung</span></div></div>
         <div class="fbtext">
           <div id="fbQ" class="fbq hidden"><svg class="i" id="fbQi"><use href="#i-help"/></svg><div><b id="fbQt"></b><span id="fbQs">Tippe auf der Karte auf den richtigen Punkt.</span></div><button class="vbtn" id="fbVoice" title="Vorlesen an/aus" aria-label="Vorlesen an/aus"></button></div>
-          <p id="fbWhy"></p>
           <div class="rule"><svg class="i"><use href="#i-bulb"/></svg><div><small>Merk dir</small><span id="fbRule"></span></div></div>
-          <details class="more" id="fbMore"><summary id="fbMoreT"></summary><p id="fbMoreP"></p></details>
+          <details class="more" id="fbMore"><summary>Warum?</summary><div id="fbMoreP"></div></details>
         </div>
       </div>
     </div>
@@ -3253,12 +3250,15 @@ function showFeedback(){
   const fa=$('fbAns'),best=`<span class="best">${svgI('check')}<small>${ok?'Deine Wahl':ch?'Noch besser':'Beste Lösung'}</small><b></b></span>`;
   fa.innerHTML=(ok||!ch?'':`<span class="mine">${svgI('ball')}<b></b></span><span class="arr">→</span>`)+best;
   const bs=fa.querySelectorAll('b');if(ok||!ch)bs[0].textContent=choiceName(sc.ans);else{bs[0].textContent=choiceName(ch);bs[1].textContent=choiceName(sc.ans);}
-  $('fbWhy').textContent=sc.why;$('fbWhy').classList.toggle('hidden',ok);$('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
+  $('lgO').textContent=sc.def?'Angreifer':'Mitspieler';$('lgD').textContent=sc.def?'deine Mitspieler':'Verteidiger';
   // Legende in den Trikotfarben wie auf der Karte (drawMini: eigenes Team home, Gegner away)
   $('lgOc').style.background=TEAM[sc.def?'away':'home'].jersey;$('lgDc').style.background=TEAM[sc.def?'home':'away'].jersey;
   let wn=ok?'':wrongNote(sc,ch);if(!ok&&sc.fake)wn+=' Achtung: Ein Verteidiger hat nur so getan, als würde er helfen.';
-  const more=ok?sc.why:wn,mo=$('fbMore');mo.open=false;mo.classList.toggle('hidden',!more);
-  $('fbMoreT').textContent=ok?'Warum?':`Warum nicht „${choiceName(ch)}“?`;$('fbMoreP').textContent=more;
+  // Offen bleibt nur der Merksatz; die Erklärung zur Situation (sc.why) und was die eigene Wahl verhindert hat stehen unter „Warum?“.
+  const mo=$('fbMore'),mp=$('fbMoreP');mo.open=false;mp.textContent='';
+  const para=(h,t)=>{if(!t)return;const e=document.createElement('p');if(h){const b=document.createElement('b');b.textContent=h;e.append(b);}e.append(t);mp.append(e);};
+  para('',sc.why);if(!ok)para(ch===null?'Warum zählt die Zeit?':`Warum nicht „${choiceName(ch)}“?`,wn);
+  mo.classList.toggle('hidden',!mp.childNodes.length);
   $('fbRule').textContent=sc.rule;
   // Legende nur in den ersten Spielen offen, danach auf Antippen
   const lg=PROFILE.games<3;$('lgd').classList.toggle('hidden',!lg);$('lgBtn').classList.toggle('hidden',lg);
