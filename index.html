@@ -38,6 +38,8 @@ canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height
 }
 #hudStats,#hudActions{display:flex;align-items:center;gap:var(--hud-gap)}
 #hudStats{flex-wrap:wrap}
+#kickSwitch{cursor:pointer;pointer-events:auto;color:var(--gold);font-family:inherit;min-height:36px}
+#hud.comparing #hScore,#hud.comparing #hStreak{display:none}
 #hudActions{margin-left:auto}
 .pill{background:rgba(8,12,24,.88);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;white-space:nowrap}
 .pill b{color:var(--gold)}
@@ -195,10 +197,10 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .best .i{width:15px;height:15px;color:var(--gold)}
 .mfoot{flex-direction:column;gap:6px}
 #installBtn{align-self:center;flex:none;padding:10px 14px;font-size:14px}
-#installHelp{position:fixed;inset:0;margin:auto;width:min(400px,calc(100% - 32px));height:fit-content;max-height:calc(100% - 32px);padding:0;color:#fff;border-radius:20px}
-#installHelp:not([open]){display:none}
-#installHelp::backdrop{background:rgba(3,5,12,.75)}
-#installHelp .body{padding:16px 18px}
+#installHelp,#kickCompare{position:fixed;inset:0;margin:auto;width:min(400px,calc(100% - 32px));height:fit-content;max-height:calc(100% - 32px);padding:0;color:#fff;border-radius:20px}
+#installHelp:not([open]),#kickCompare:not([open]){display:none}
+#installHelp::backdrop,#kickCompare::backdrop{background:rgba(3,5,12,.75)}
+#installHelp .body,#kickCompare .body{padding:16px 18px}
 #installHelp ol{margin:6px 0 14px;padding-left:22px}
 /* Tipps */
 .tpane{display:none;margin-top:6px}.tpane.on{display:block;animation:fadeIn .25s}
@@ -605,6 +607,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="pill">Punkte <b id="hScore">0</b></div>
       <div class="pill" id="hStreak"><svg class="i fill"><use href="#i-flame"/></svg> 0</div>
     </div>
+    <button type="button" class="pill hidden" id="kickSwitch"></button>
     <div id="hudActions">
       <button class="ibtn" id="voiceBtn" title="Sprache an/aus" aria-label="Sprache an/aus"><svg class="i"><use href="#i-voice"/></svg></button>
       <button class="ibtn" id="muteBtn" title="Ton an/aus" aria-label="Ton an/aus"><svg class="i"><use href="#i-sound"/></svg></button>
@@ -682,6 +685,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
   </div>
 </div>
 
+<dialog class="card" id="kickCompare" aria-labelledby="kickTitle">
+  <div class="body info">
+    <div class="bhead"><h2 id="kickTitle">Durchbruch &amp; Kick-out</h2><form method="dialog"><button class="rbtn" aria-label="Schließen">×</button></form></div>
+    <p>Zwei Angriffe, dieselbe Aufstellung in beiden Fassungen. Spiele ohne Zeitlimit.</p>
+    <div class="seg">
+      <button class="lvb" id="kickBefore"><b>Vorher spielen</b></button>
+      <button class="lvb sel" id="kickAfter"><b>Nachher spielen</b></button>
+    </div>
+  </div>
+</dialog>
 <dialog class="card" id="installHelp" aria-labelledby="installTitle">
   <div class="body info">
     <div class="bhead"><h2 id="installTitle">App installieren</h2><form method="dialog"><button class="rbtn" aria-label="Schließen" autofocus><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></form></div>
@@ -1671,6 +1684,7 @@ function poseGLB(p,dt){
     else{T[sb>0?1:0]=loc(sb*.14,2.25+jy,.38);T[sb>0?0:1]=loc(-sb*.22,1.85+jy,.25);}}
   else if(A&&A.k==='layup'){T[sb>0?1:0]=ball.owner===p?(track=true,[ball.x,ball.y-.1,ball.z]):loc(sb*.14,2.3+jy,.3);}
   else if(A&&A.k==='pass'&&ball.owner!==p){T[0]=loc(-.16,1.3,.62);T[1]=loc(.16,1.3,.62);}
+  else if(p.targetLook&&ball.fl&&!A){T[0]=loc(-.22,1.32,.52);T[1]=loc(.22,1.32,.52);}
   else if(A&&A.k==='catch'){T[0]=loc(-.15,1.22,.45);T[1]=loc(.15,1.22,.45);}
   else if(A&&(A.k==='cheer'||A.k==='sad')){}
   else if(ball.owner===p&&ball.hold){track=true;T[0]=onBall(-1);T[1]=onBall(1);}
@@ -2097,6 +2111,7 @@ function updP(p,dt){
 // Richtungswechsel oder harter Bremsung bei hohem Tempo (aus der Wegpunktliste,
 // nicht aus der geglätteten Geschwindigkeit). Schritte nur für den eigenen Spieler und den Ballführer, leise.
 function footSfx(p,dt){const P=p.path,t0=p.pt,t1=p.pt+dt;
+  if(G.phase==='approach'&&p.plantTime>t0&&p.plantTime<=t1)sfx.step(p,.38);
   for(let i=1;i<P.length;i++){const b=P[i];if(b[0]<=t0)continue;if(b[0]>t1)break;
     const a=P[i-1],c=P[i+1],da=b[0]-a[0];if(da<=.05)continue;
     const v1x=(b[1]-a[1])/da,v1z=(b[2]-a[2])/da,s1=Math.hypot(v1x,v1z);
@@ -2114,6 +2129,7 @@ function faceP(p,dt){
   else if(p.team==='def')ta=angTo(ball.x-p.x,ball.z-p.z);
   else ta=p.spd>2.2?angTo(p.vx,p.vz):angTo(ball.x-p.x,ball.z-p.z);
   if(p.team==='off'&&p.armsUp>0)ta=angTo(-p.x,-p.z);
+  if(p.targetLook&&(p.act?.k==='pass'||p.act?.k==='catch'))ta=angTo(p.targetLook.x-p.x,p.targetLook.z-p.z);
   p.ang+=wrapA(ta-p.ang)*Math.min(1,dt*9);
   r.root.position.set(p.x,0,-p.z);r.root.rotation.y=p.ang;
   r.root.visible=Math.hypot(cam.position.x-p.x,cam.position.z+p.z)>2.6&&!(p.trail&&Hd&&p.z<Hd.z-2.2);
@@ -2537,7 +2553,9 @@ function buildCDive(v,T,L,M){
 
 // ================= DURCHBRUCH & KICK-OUT =================
 // Du ziehst zum Korb. Entschieden wird erst in der Zone: Springt dir einer in den Weg, ist sein Mitspieler frei.
+let kickComparison=null;
 function buildDKick(v,T,L,M,from){
+  const featured=from==='top'&&kickComparison?.version!=='before';
   const s=R()<.5?-1:1,wing=from==='wing';
   const H=addP('H','off',wing?(s<0?3:2):1);
   let hS,hE,mates;
@@ -2566,7 +2584,13 @@ function buildDKick(v,T,L,M,from){
     setPath(m,[[0,st.x,st.z],[T*.75,e.x,e.z]]);
     const h=r==='C'?pt(e.x+s*.55,e.z-.45):homeOf(e,.85,hE);homes[D.role]=h;
     const ds=r==='C'?pt(e.x+s*.3,e.z-.9):homeOf(st,.9,hS);
-    if(helper===D.role){const sp=spotOf(r);setPath(D,[[0,ds.x,ds.z],[T*.5,h.x,h.z],[T*.96,sp.x,sp.z]]);}
+    if(helper===D.role){const sp=spotOf(r);
+      if(featured){
+        const plant=pt(lerp(h.x,sp.x,.12),lerp(h.z,sp.z,.12));
+        D.plantTime=T*.57;
+        setPath(D,[[0,ds.x,ds.z],[T*.43,h.x,h.z],[D.plantTime,plant.x,plant.z],[T*.84,sp.x,sp.z]]);
+      }else setPath(D,[[0,ds.x,ds.z],[T*.5,h.x,h.z],[T*.96,sp.x,sp.z]]);
+    }
     else setPath(D,[[0,ds.x,ds.z],[T*.7,h.x,h.z]]);});
   const cand=mates.filter(([r])=>'d'+r!==helper).map(([r])=>[defs[r],spotOf(r)]);
   const fake=maybeFake(L,cand,homes,T);
@@ -2579,10 +2603,10 @@ function buildDKick(v,T,L,M,from){
     kickOW:'Der Verteidiger vom Flügel gegenüber ist in die Zone gerückt, um dich zu stoppen. Dadurch stand dein Mitspieler auf der anderen Seite frei. Pass raus!',
     kickK:'Der Verteidiger aus der Ecke ist dir in den Weg gesprungen. Dadurch stand dein Mitspieler in der Ecke frei für den Wurf. Pass raus!'};
   const why=WHY[v];
-  return{ans,helper,fake,camSide:s,why,labels:{drive:LBL_DEF.drive,shot:null},camFix:{x:cf.x,z:cf.z,dx:cd.x,dz:cd.z},
+  return{ans,helper,fake,featured,camSide:s,why,labels:{drive:LBL_DEF.drive,shot:null},camFix:{x:cf.x,z:cf.z,dx:cd.x,dz:cd.z},
     rule:v==='lay'?'Zieh zum Korb. Springt dir keiner in den Weg, mach den Korbleger!':'Zieh zum Korb. Springt dir einer in den Weg, pass zu dem, den er allein gelassen hat!',
     driveNote:'Ein Verteidiger ist dir in den Weg gesprungen. Da wärst du direkt hineingelaufen.',
-    prompt:'Du ziehst zum Korb. Was machst du?'};
+    prompt:featured?'Lies die Hilfe in der Zone.':'Du ziehst zum Korb. Was machst du?'};
 }
 
 // ================= LANGER PASS =================
@@ -3091,8 +3115,16 @@ function buildScenario(seed,play,variant){
 // ================= Kamera =================
 const CP={h:4,back:6,look:6,lookY:.9,side:.9};
 let camDir={x:0,z:1},camPos=null,fit={f:600,px:0,py:0};
-function camPose(hx,hz,dx,dz){const cs=G.sc&&G.sc.camSide||1,rx=dz*cs,rz=-dx*cs;hz=Math.min(hz,-5.2);
-  return{pos:[hx-dx*CP.back+rx*CP.side,CP.h,hz-dz*CP.back+rz*CP.side],look:[hx+dx*CP.look+rx*CP.side*.4,CP.lookY,hz+dz*CP.look+rz*CP.side*.4]};}
+function camPose(hx,hz,dx,dz){
+  const cs=G.sc?.camSide||1,rx=dz*cs,rz=-dx*cs;
+  hz=Math.min(hz,-5.2);
+  const featured=G.sc?.featured;
+  // Beim Kick-out knapp neben der Schulter bleiben, damit die Hilfe nicht hinter der Spielfigur verschwindet.
+  const side=featured?CP.side+.4:CP.side;
+  const height=featured?CP.h-.35:CP.h;
+  return{pos:[hx-dx*CP.back+rx*side,height,hz-dz*CP.back+rz*side],
+    look:[hx+dx*CP.look+rx*side*.4,CP.lookY,hz+dz*CP.look+rz*side*.4]};
+}
 const tmpCam=new T3.PerspectiveCamera(50,1,.1,200);
 function computeFit(){
   W=innerWidth;H=cv.clientHeight||innerHeight;fitPR();renderer.setSize(W,H,false);fxSize();
@@ -3109,7 +3141,7 @@ function computeFit(){
     sc.fitPts.forEach(p=>{v.copy(V(p[0],p[1],p[2])).applyMatrix4(tmpCam.matrixWorldInverse);const d=-v.z;if(d<1)return;const nx=v.x/d,ny=v.y/d;mnx=Math.min(mnx,nx);mxx=Math.max(mxx,nx);mny=Math.min(mny,ny);mxy=Math.max(mxy,ny);});
     f=Math.min(rw/(mxx-mnx),rh/(mxy-mny))*.93;f=Math.min(f,H*1.5);
   }
-  let px=left+rw/2-f*(mnx+mxx)/2,py=top+rh/2+f*(mny+mxy)/2;const slack=rh-f*(mxy-mny);if(slack>0)py+=slack*.42;
+  let px=left+rw/2-f*(mnx+mxx)/2,py=top+rh/2+f*(mny+mxy)/2;const slack=rh-f*(mxy-mny);if(slack>0)py+=slack*(sc.featured?.06:.42);
   fit={f,px,py};applyFit();
 }
 function applyFit(){const{f,px,py}=fit;const Fw=2*Math.max(px,W-px),Fh=2*Math.max(py,H-py);
@@ -3136,6 +3168,7 @@ function updCam(dt,snap){
 
 // ================= Ablauf =================
 function makeBag(){
+  if(kickComparison)return [['dkick','lay'],['dkick','kickL']];
   if(window.__bag)return window.__bag.slice(); // nur für Tests
   const plays=G.plays.slice();for(let i=plays.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[plays[i],plays[j]]=[plays[j],plays[i]];}
   const bag=[],last={};
@@ -3144,7 +3177,7 @@ function makeBag(){
   return bag;}
 function startRound(){hush();
   G.round++;G.replay=false;
-  const[p,v]=G.bag[G.round-1];G.sc=buildScenario((Math.random()*1e9)|0,p,v);
+  const[p,v]=G.bag[G.round-1];G.sc=buildScenario(kickComparison?4173:(Math.random()*1e9)|0,p,v);
   beginApproach();showBanner(PLAYS[p].name,PLAYS[p].desc);
 }
 function beginApproach(){
@@ -3152,6 +3185,7 @@ function beginApproach(){
   G.phase='approach';G.t=0;G.timers=[];G.choice=null;endCam();warmGL();G.ts=1;G.slowT=0;shooter=null;players.forEach(p=>p.act=null);
   computeFit();camDir=startDir();updCam(0,true);
   buildButtons();setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
+  $('kickSwitch').classList.add('hidden');
   updateHud();
 }
 function startDecide(){
@@ -3159,6 +3193,11 @@ function startDecide(){
   G.snap=players.map(p=>({role:p.role,team:p.team,x:p.x,z:p.z,num:p.num,sel:p.sel,ball:ball.owner===p}));
   setControls(true);$('prompt').classList.add('on');$('vig').classList.add('on');
   $('timer').classList.toggle('on',!G.noLimit&&!G.replay);$('timerFill').style.transform='scaleX(1)';
+  if(kickComparison&&!G.replay){
+    const button=$('kickSwitch');
+    button.textContent=kickComparison.version==='before'?'Nachher ansehen':'Vorher ansehen';
+    button.classList.remove('hidden');
+  }
   cam.updateMatrixWorld();updRing();posMe();makeBubbles();
   if(G.replay){const a=G.sc.ans;const b=document.querySelector(`.cb[data-c="${a}"]`);b&&b.classList.add('hint');
     if(a.startsWith('pass:')||a.startsWith('spot:')){const t=document.querySelector(a.startsWith('spot:')?`.tag[data-c="${a}"]`:`.tag[data-r="${a.slice(5)}"]`);t&&t.classList.add('hint');}
@@ -3167,6 +3206,7 @@ function startDecide(){
 function resolve(choice){
   if(G.phase!=='decide')return;
   const sc=G.sc,ok=choice===sc.ans,rt=(performance.now()-G.dStart)/1000;
+  $('kickSwitch').classList.add('hidden');
   tape(false);G.phase='outcome';G.t=0;G.timers=[];G.choice=choice;
   setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
   document.querySelectorAll('.hint').forEach(b=>b.classList.remove('hint'));
@@ -3181,7 +3221,7 @@ function resolve(choice){
 function nearestDef(x,z,excl){let b=null,bd=1e9;players.forEach(p=>{if(p.team!=='def'||p===excl)return;const d=Math.hypot(p.x-x,p.z-z);if(d<bd){bd=d;b=p;}});return b;}
 function blocker(){const sc=G.sc;if(sc.helper&&role(sc.helper))return role(sc.helper);
   let b=null,bd=1e9;players.forEach(p=>{if(p.team!=='def')return;const ax=-Hd.x,az=-Hd.z,L=Math.hypot(ax,az),t=((p.x-Hd.x)*ax+(p.z-Hd.z)*az)/(L*L);if(t<.05||t>1)return;const qx=Hd.x+ax*t,qz=Hd.z+az*t,d=Math.hypot(p.x-qx,p.z-qz);if(d<bd){bd=d;b=p;}});return b||nearestDef(Hd.x,Hd.z);}
-function act(p,k,d,o){if(p)p.act=Object.assign({k,t:0,d},o||{});if(p&&k==='catch')sfx.catch(p);if(p&&k==='pass')sfx.pass(p);}
+function act(p,k,d,o){if(p)p.act=Object.assign({k,t:0,d},o||{});if(p&&k==='catch')sfx.catch(p);if(p&&k==='pass'&&!o?.soundAtRelease)sfx.pass(p);}
 let shooter=null;
 function score(after){sfx.swish();netKick(ball.x*3,ball.z*3);G.excite=1;G.slowT=Math.max(G.slowT,.5);sfx.crowd();camFlash();
   if(G.phase==='outcome'&&!G.replay&&G.streak>=3)G.wave=gclock;
@@ -3204,13 +3244,29 @@ function rimCam(S){if(G.phase!=='outcome')return;const d=Math.hypot(S.x,S.z)||1,
     camMode={pos:[qx/qn*Rw,2.9,Math.min(-.6,qz/qn*Rw)],look:[S.x*.38,rimHeight()-1.05,S.z*.38],t:0,snap:true};}
   else{const Rr=Math.max(d<2.5?3.6:2.8,Math.min(5,1.5+d*.5));camMode={pos:[px*Rr+ux*.9,2.3,Math.min(-.6,pz*Rr+uz*.9)],look:[ux*.55,rimHeight()-.25,uz*.55],t:0,snap:true,track:true};}document.body.classList.add('cinema');}
 function endCam(){camMode=null;document.body.classList.remove('cinema');}
-function passOk(Wp,finish){ball.y=Math.max(1,ball.y);act(ball.owner,'pass',.4);
+function passOk(Wp,finish){ball.y=Math.max(1,ball.y);
+  const passer=ball.owner,featured=G.sc.featured&&Wp.finish!=='layup';
+  if(featured)passer.targetLook=Wp;
+  act(passer,'pass',.4,{soundAtRelease:featured});
   const tf=.25+Math.hypot(Wp.x-ball.x,Wp.z-ball.z)/15;
   if(Wp.finish==='layup'){const sx=Math.sign(Wp.x)||1,tx=sx*.6,tz=-.9,d=Math.hypot(Wp.x-tx,Wp.z-tz),du=Math.max(.5,d/6.5);goTo(Wp,[[du,tx,tz]],true);
     const[x,z]=evalPath(Wp.path,tf,true);
     fly({x,y:1.2,z},tf,.3,()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);later(Math.max(.05,du-tf),()=>layShot(Wp,()=>{flash('Korbleger!','#7ff0ad');sfx.good();finish(.7);}));});}
   else{const[x,z]=Wp.path?evalPath(Wp.path,Wp.pt+tf,Wp.lin):[Wp.x,Wp.z];
-    fly({x,y:1.2,z},tf,.35,()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);later(.18,()=>shootFrom(Wp,true,()=>{flash('Treffer!','#7ff0ad');sfx.good();finish(.7);}));});}
+    const deliver=()=>{
+      if(featured)sfx.pass(passer);
+      fly({x,y:1.2,z},tf,.35,()=>{
+        ball.owner=Wp;ball.hold=true;act(Wp,'catch',featured?.38:.25);
+        if(featured){
+          // Erst den Pass sichern, dann mit dem zweiten Schritt zum Korb ausrichten.
+          flash(Wp.role==='K'?'Freie Ecke gefunden!':'Freien Flügel gefunden!','#7ff0ad');
+          goTo(Wp,[[.28,x*.97,z*.97]],true);
+          later(.20,()=>{Wp.targetLook=null;sfx.step(Wp,.22);});
+        }
+        later(featured?.38:.18,()=>shootFrom(Wp,true,()=>{flash('Treffer!','#7ff0ad');sfx.good();finish(.7);}));
+      });
+    };
+    if(featured){ball.hold=true;Wp.targetLook=passer;later(.14,deliver);}else deliver();}
   const D=GUARD[Wp.role];if(D)goTo(D,[[1.3,lerp(D.x,Wp.x,.75),lerp(D.z,Wp.z,.75)]]);}
 function passBad(Wp,finish,D){ball.y=Math.max(1,ball.y);act(ball.owner,'pass',.4);
   const[tx,tz]=Wp.path?evalPath(Wp.path,Wp.pt+.4,Wp.lin):[Wp.x,Wp.z];
@@ -3279,12 +3335,12 @@ function showFeedback(){
   const para=(h,t)=>{if(!t)return;const e=document.createElement('p');if(h){const b=document.createElement('b');b.textContent=h;e.append(b);}e.append(t);mp.append(e);};
   para('',sc.why);if(!ok)para(ch===null?'Warum zählt die Zeit?':`Warum nicht „${choiceName(ch)}“?`,wn);
   mo.classList.toggle('hidden',!mp.childNodes.length);
-  $('fbRule').textContent=sc.rule;
+  $('fbRule').textContent=sc.featured&&ok&&sc.ans.startsWith('pass:')?'Du hast die Hilfe gesehen und den freien Mitspieler gefunden.':sc.rule;
   // Legende nur in den ersten Spielen offen, danach auf Antippen
   const lg=PROFILE.games<3;$('lgd').classList.toggle('hidden',!lg);$('lgBtn').classList.toggle('hidden',lg);
   $('fbQi').innerHTML='<use href="#i-help"/>';
   if(ok&&!G.replay)setTimeout(()=>confetti(40),150);
-  $('nextBtn').innerHTML=(G.round>=G.rounds?'Ergebnis':'Weiter')+svgI('play','fill');
+  $('nextBtn').innerHTML=(G.round>=G.rounds?(kickComparison?'Zum Vergleich':'Ergebnis'):'Weiter')+svgI('play','fill');
   // Fragen statt fertiger Lösungen (DBB-Leitfaden Minibasketball: Trainer helfen mit Fragen). Erst suchen lassen, dann erklären.
   const q=!ok&&!G.replay?quizOf(sc):null;G.quiz=q;$('fbQ').className='fbq'+(q?'':' hidden');
   $('feedback').querySelector('.card').classList.toggle('quiz',!!q);
@@ -3304,8 +3360,23 @@ function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
   if(hit===true)confetti(18);
+  if(G.sc.featured)replayKickRead();
   // Danach der Merksatz: das, was vom Spielzug hängen bleiben soll (Sprachdatei über VOICE, sonst still)
   say((hit===true?['Richtig erkannt!']:hit===false?['Guter Versuch! Schau auf den Ring.']:['Hier ist die Lösung:']).concat(G.sc.rule||[]),hit===true?.25:0);}
+// Nur den letzten Teil des Anlaufs zeigen. Antwort, Karte und Wertung bleiben erhalten.
+function replayKickRead(){
+  const sc=G.sc;
+  G.sc=buildScenario(sc.seed,sc.play,sc.variant);
+  G.phase='readback';G.t=sc.T*.43;G.ts=1;G.timers=[];
+  for(const p of players){
+    p.pt=G.t;[p.x,p.z]=evalPath(p.path,G.t,p.lin);
+  }
+  endCam();computeFit();camDir=startDir();updCam(0,true);quietCourt();
+  $('feedback').classList.add('hidden');
+  $('prompt').querySelector('.a').textContent='Wiederholung';
+  $('promptB').textContent=sc.helper?'Achte auf den ersten Schritt der Hilfe.':'Achte auf den Weg zum Korb.';
+  $('prompt').classList.add('on');
+}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
 function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
@@ -3658,6 +3729,7 @@ const ICO={
 '↗':'<path d="M6 18 18 6M9 6h9v9"/>'};
 const icoSvg=c=>`<svg viewBox="0 0 24 24">${ICO[c]||ICO['▲']}</svg>`;
 function buildButtons(){const sc=G.sc,np=passers().length;
+  $('prompt').querySelector('.a').textContent='Was machst du?';
   const lb=sc.labels;document.querySelectorAll('#actRow .cb').forEach(b=>{const l=lb[b.dataset.c];b.classList.toggle('hidden',!l);if(l){b.querySelector('.ar').innerHTML=icoSvg(l[0]);b.querySelector('.lb').textContent=l[1];}});
   $('promptB').textContent=sc.prompt||(np?'Passen? Tippe auf das lila Schild über dem Mitspieler.':'Entscheide dich!');}
 function setControls(on){const cont=$('controls');cont.classList.toggle('live',on&&!G.replay);cont.querySelectorAll('.cb').forEach(b=>{b.disabled=!on||G.replay;b.classList.remove('hint');});}
@@ -3701,11 +3773,33 @@ function vib(p){try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
+$('kickSwitch').onclick=()=>{
+  if(!kickComparison||G.phase!=='decide'||G.replay)return;
+  const {seed,play,variant}=G.sc;
+  kickComparison.version=kickComparison.version==='before'?'after':'before';
+  G.sc=buildScenario(seed,play,variant);
+  beginApproach();
+};
+function startKickComparison(version){
+  const saved={};
+  for(const key of ['level','mode','rounds','pos','noLimit'])saved[key]=G[key];
+  kickComparison={version,saved};
+  $('hud').classList.add('comparing');
+  Object.assign(G,{level:1,mode:4,rounds:2,pos:'pg',noLimit:true});
+  $('kickCompare').close();newGame();
+}
+$('kickBefore').onclick=()=>startKickComparison('before');
+$('kickAfter').onclick=()=>startKickComparison('after');
 $('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;$('lgBtn').onclick=()=>{$('lgd').classList.remove('hidden');$('lgBtn').classList.add('hidden');};
-function toMenu(){hush();if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
+function toMenu(){hush();
+  if(kickComparison){
+    Object.assign(G,kickComparison.saved);kickComparison=null;
+    $('hud').classList.remove('comparing');$('kickCompare').showModal();
+  }
+  if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
   if(G.first){G.first=false;G.rounds=10;}
   tape(false);G.phase='menu';G.timers=[];renderStrip();endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
-$('nextBtn').onclick=()=>{if(G.quiz)return quizNudge();$('feedback').classList.add('hidden');if(G.round>=G.rounds)showSummary();else startRound();};
+$('nextBtn').onclick=()=>{if(G.quiz)return quizNudge();$('feedback').classList.add('hidden');if(G.round<G.rounds)startRound();else if(kickComparison)toMenu();else showSummary();};
 $('replayBtn').onclick=()=>{if(G.quiz)return quizNudge();$('feedback').classList.add('hidden');const sc=G.sc;G.sc=buildScenario(sc.seed,sc.play,sc.variant);G.replay=true;beginApproach();showBanner('Wiederholung','Achte auf die Verteidiger');};
 const mb=$('muteBtn'),mbI=()=>mb.innerHTML=svgI(muted?'mute':'sound');mbI();mb.onclick=()=>{muted=!muted;store.set('pgt_mute',muted?'1':'0');mbI();ac();};
 // Sprache an/aus: in der Kopfzeile und im Fragekasten der Auswertung (auf dem Handy verdeckt die Auswertung die Kopfzeile)
@@ -3882,11 +3976,17 @@ function update(rdt,raw=rdt){
   // Zeitlupe bei Würfen, Blocks und Ballgewinnen
   let tsT=1;if(G.phase==='outcome'){if(ball.fl&&ball.fl.shot&&ball.fl.t/ball.fl.d>.42)tsT=.3;if(G.slowT>0){G.slowT-=rdt;tsT=Math.min(tsT,.32);}}
   G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));
-  const dt=G.phase==='approach'?approachDt(rdt,raw):rdt*G.ts;
+  const dt=G.phase==='approach'?approachDt(rdt,raw):G.phase==='readback'?rdt*.85:rdt*G.ts;
   const sceneDt=G.phase==='approach'&&G.stopElapsed!==null?dt:rdt;
   clock+=sceneDt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
   const sc=G.sc;if(!sc)return;
   let pdt=dt;
+  if(G.phase==='readback'){
+    G.t+=dt;
+    if(G.t>=sc.T+.18){
+      G.phase='feedback';$('prompt').classList.remove('on');$('feedback').classList.remove('hidden');$('nextBtn').focus({preventScroll:true});
+    }
+  }
   if(G.phase==='approach'||G.phase==='menu'){G.t+=dt;feedBall(sc);
     if(Hd.cross){const s=clamp((G.t-sc.T*.5)/(sc.T*.1),0,1);Hd.dside=lerp(-Hd.cross,Hd.cross,s);}
     if(G.phase==='menu'&&G.t>sc.T+1.4)demo();}
@@ -3981,7 +4081,8 @@ if(!LITE){try{const pm=new T3.PMREMGenerator(renderer);scene.position.set(0,-2.2
   scene.environment=pm.fromScene(scene,.03,.1,120).texture;scene.position.set(0,0,0);scene.updateMatrixWorld(true);pm.dispose();
   }catch(e){scene.position.set(0,0,0);}}
 demo();drawBoard();refreshBest();computeFit();
-$('loading').classList.add('hidden');$('menu').classList.remove('hidden');renderStrip();startFlow();
+$('loading').classList.add('hidden');$('menu').classList.remove('hidden');renderStrip();
+if(new URLSearchParams(location.search).get('kickout')==='vergleich')$('kickCompare').showModal();else startFlow();
 try{if('serviceWorker'in navigator&&location.protocol==='https:'&&window.top===window&&!/claude/.test(location.hostname))navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}
 requestAnimationFrame(frame);
 if(onlineOn())flushPending().catch(()=>{});
