@@ -10,7 +10,7 @@ mkdir -p "$OUT"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 
 maxlen() { case "$1" in
-  dribble*) echo 0.15;; catch*) echo 0.26;; step*) echo 0.06;; squeak*) echo 0.45;; swish*|rim*) echo 0.8;; *) echo 0.5;; esac; }
+  dribble*) echo 0.24;; catch*) echo 0.26;; step*) echo 0.14;; squeak*) echo 0.45;; swish*|rim*) echo 0.8;; release*) echo 0.22;; *) echo 0.5;; esac; }
 
 # Vorlauf vor dem lautesten Punkt (Quietschen und Netz bauen sich auf)
 prer() { case "$1" in squeak*) echo 0.12;; swish*|rim*) echo 0.06;; *) echo 0.015;; esac; }
@@ -18,6 +18,22 @@ prer() { case "$1" in squeak*) echo 0.12;; swish*|rim*) echo 0.06;; *) echo 0.01
 shopt -s nullglob
 for f in "$RAW"/*.mp3; do
   b="$(basename "$f" .mp3)"; L="$(maxlen "$b")"
+  case "$b" in
+    tape*)
+      ffmpeg -v error -y -i "$f" -af "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.004,atempo=1.8,atrim=end=0.42,afade=t=out:st=0.31:d=0.11" -c:a libmp3lame -b:a 128k "$OUT/$b.mp3"
+      continue;;
+    hall*)
+      # Überblende das Ende in den Anfang. Die Schleife beginnt nach der überblendeten Passage.
+      ffmpeg -v error -y -i "$f" -filter_complex "[0:a]asplit=2[head][body];[head]atrim=end=0.5[h];[body]atrim=start=0.5,asetpts=PTS-STARTPTS[a];[a][h]acrossfade=d=0.5" -c:a libmp3lame -b:a 128k "$OUT/$b.mp3"
+      continue;;
+    cheer*)
+      # Beide Tribünenreaktionen auf dieselbe integrierte Lautheit bringen.
+      ffmpeg -v error -y -i "$f" -af "silenceremove=start_periods=1:start_threshold=-42dB:start_silence=0.015,areverse,afade=t=in:d=0.65,areverse,loudnorm=I=-14:TP=-2:LRA=8" -ar 44100 -c:a libmp3lame -b:a 160k "$OUT/$b.mp3"
+      continue;;
+    gasp*)
+      ffmpeg -v error -y -i "$f" -af "silenceremove=start_periods=1:start_threshold=-48dB:start_silence=0.025,volume=-4dB,areverse,afade=t=in:d=0.15,areverse" -c:a libmp3lame -b:a 128k "$OUT/$b.mp3"
+      continue;;
+  esac
   # Start am lautesten Punkt (5-ms-Fenster) minus Vorlauf: bei mehreren Aufprallen zählt der stärkste
   PK="$(ffmpeg -v error -i "$f" -ac 1 -af "asetnsamples=220,astats=metadata=1:reset=1,ametadata=print:key=lavfi.astats.Overall.Peak_level:file=-" -f null - 2>/dev/null \
     | awk -F'[ =:]+' '/pts_time/{for(i=1;i<=NF;i++)if($i=="pts_time")t=$(i+1)} /Peak_level/{v=$NF; if(v=="-inf")v=-999; if(v+0>m||m==""){m=v+0;bt=t}} END{print bt+0}')"
@@ -37,7 +53,7 @@ for f in "$RAW"/*.mp3; do
   ST="$(awk -v d="$D" -v f="$FD" 'BEGIN{printf "%.3f", d-f}')"
   MAX="$(ffmpeg -v info -i "$TMP/a.wav" -af volumedetect -f null - 2>&1 | sed -n 's/.*max_volume: \(-*[0-9.]*\) dB.*/\1/p')"
   G="$(awk -v m="${MAX:-0}" 'BEGIN{printf "%.2f", -1-m}')"
-  ffmpeg -v error -y -i "$TMP/a.wav" -af "afade=t=in:d=0.003,afade=t=out:st=$ST:d=$FD,volume=${G}dB" -ac 1 -ar 44100 -c:a libmp3lame -b:a 64k "$OUT/$b.mp3"
+  ffmpeg -v error -y -i "$TMP/a.wav" -af "atrim=end=$D,afade=t=in:d=0.003,afade=t=out:st=$ST:d=$FD,volume=${G}dB" -ac 1 -ar 44100 -c:a libmp3lame -b:a 64k "$OUT/$b.mp3"
   printf '%-12s %5.2f s  %+6.1f dB  %s\n' "$b" "$D" "$G" "$(du -h "$OUT/$b.mp3" | cut -f1)"
 done
 du -ch "$OUT"/*.mp3 | tail -1
