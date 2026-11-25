@@ -11,7 +11,7 @@ Man schaut dem eigenen Spieler in 3D über die Schulter. An der entscheidenden S
 
 `index.html` über einen Webserver öffnen (z. B. GitHub Pages). Es gibt keinen Build-Schritt. Aus dem Netz kommt nur three.js (jsDelivr), die Schriften liegen in `fonts/`.
 
-Im Menü öffnet **Kick-out vergleichen** zwei spielbare Fassungen desselben Angriffs. Beide starten im 4-gegen-4 mit identischer Aufstellung, zuerst mit freiem Weg zum Korb und dann mit Hilfe vom linken Flügel. In der neuen Fassung zeigt die Kamera den Hilfsschritt nach einer beantworteten Rückfrage noch einmal. Der Vergleich ist auch über `?kickout=vergleich` erreichbar und zählt nicht zur Spielerstatistik.
+Der Testlink mit `?kickout=vergleich` öffnet zwei spielbare Fassungen desselben Angriffs. Beim Entscheidungsstopp startet **Vorher ansehen** oder **Nachher ansehen** denselben Angriff in der anderen Fassung. Beide starten im 4-gegen-4 mit identischer Aufstellung, zuerst mit freiem Weg zum Korb und dann mit Hilfe vom linken Flügel. In der neuen Fassung zeigt die Kamera den Hilfsschritt nach einer beantworteten Rückfrage noch einmal. Die Vergleichsrunden zählen nicht zur Spielerstatistik.
 
 ## Inhalte
 

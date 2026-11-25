@@ -38,6 +38,8 @@ canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height
 }
 #hudStats,#hudActions{display:flex;align-items:center;gap:var(--hud-gap)}
 #hudStats{flex-wrap:wrap}
+#kickSwitch{cursor:pointer;pointer-events:auto;color:var(--gold);font-family:inherit;min-height:36px}
+#hud.comparing #hScore,#hud.comparing #hStreak{display:none}
 #hudActions{margin-left:auto}
 .pill{background:rgba(8,12,24,.88);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;white-space:nowrap}
 .pill b{color:var(--gold)}
@@ -605,6 +607,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="pill">Punkte <b id="hScore">0</b></div>
       <div class="pill" id="hStreak"><svg class="i fill"><use href="#i-flame"/></svg> 0</div>
     </div>
+    <button type="button" class="pill hidden" id="kickSwitch"></button>
     <div id="hudActions">
       <button class="ibtn" id="voiceBtn" title="Sprache an/aus" aria-label="Sprache an/aus"><svg class="i"><use href="#i-voice"/></svg></button>
       <button class="ibtn" id="muteBtn" title="Ton an/aus" aria-label="Ton an/aus"><svg class="i"><use href="#i-sound"/></svg></button>
@@ -676,7 +679,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
     </div>
     <div class="foot mfoot">
       <button class="btn big" id="startBtn"><svg class="i fill"><use href="#i-play"/></svg>SPIELEN</button>
-      <button type="button" class="lnk" id="kickOpen">Kick-out vergleichen</button>
       <div class="best" id="bestTxt"></div>
       <button type="button" class="btn sec hidden" id="installBtn" aria-haspopup="dialog"><svg class="i" aria-hidden="true"><use href="#i-device"/></svg>App installieren</button>
     </div>
@@ -3114,9 +3116,9 @@ function buildScenario(seed,play,variant){
 const CP={h:4,back:6,look:6,lookY:.9,side:.9};
 let camDir={x:0,z:1},camPos=null,fit={f:600,px:0,py:0};
 function camPose(hx,hz,dx,dz){const cs=G.sc&&G.sc.camSide||1;
-  if(G.sc?.featured&&W<H){
+  if(G.sc?.featured){
     // Blick von der Seitenlinie: beide Flügel staffeln sich in der Tiefe.
-    return{pos:[-cs*10.8,5.4,-9.2],look:[0,1,-3.8]};
+    return{pos:[-cs*10.8,W<H?5.4:4.3,-9.2],look:[0,1,-3.8]};
   }
   const rx=dz*cs,rz=-dx*cs;hz=Math.min(hz,-5.2);
   return{pos:[hx-dx*CP.back+rx*CP.side,CP.h,hz-dz*CP.back+rz*CP.side],look:[hx+dx*CP.look+rx*CP.side*.4,CP.lookY,hz+dz*CP.look+rz*CP.side*.4]};}
@@ -3180,6 +3182,7 @@ function beginApproach(){
   G.phase='approach';G.t=0;G.timers=[];G.choice=null;endCam();warmGL();G.ts=1;G.slowT=0;shooter=null;players.forEach(p=>p.act=null);
   computeFit();camDir=startDir();updCam(0,true);
   buildButtons();setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
+  $('kickSwitch').classList.add('hidden');
   updateHud();
 }
 function startDecide(){
@@ -3187,6 +3190,11 @@ function startDecide(){
   G.snap=players.map(p=>({role:p.role,team:p.team,x:p.x,z:p.z,num:p.num,sel:p.sel,ball:ball.owner===p}));
   setControls(true);$('prompt').classList.add('on');$('vig').classList.add('on');
   $('timer').classList.toggle('on',!G.noLimit&&!G.replay);$('timerFill').style.transform='scaleX(1)';
+  if(kickComparison&&!G.replay){
+    const button=$('kickSwitch');
+    button.textContent=kickComparison.version==='before'?'Nachher ansehen':'Vorher ansehen';
+    button.classList.remove('hidden');
+  }
   cam.updateMatrixWorld();updRing();posMe();makeBubbles();
   if(G.replay){const a=G.sc.ans;const b=document.querySelector(`.cb[data-c="${a}"]`);b&&b.classList.add('hint');
     if(a.startsWith('pass:')||a.startsWith('spot:')){const t=document.querySelector(a.startsWith('spot:')?`.tag[data-c="${a}"]`:`.tag[data-r="${a.slice(5)}"]`);t&&t.classList.add('hint');}
@@ -3195,6 +3203,7 @@ function startDecide(){
 function resolve(choice){
   if(G.phase!=='decide')return;
   const sc=G.sc,ok=choice===sc.ans,rt=(performance.now()-G.dStart)/1000;
+  $('kickSwitch').classList.add('hidden');
   tape(false);G.phase='outcome';G.t=0;G.timers=[];G.choice=choice;
   setControls(false);$('prompt').classList.remove('on');$('timer').classList.remove('on');$('vig').classList.remove('on');clearBubbles();
   document.querySelectorAll('.hint').forEach(b=>b.classList.remove('hint'));
@@ -3761,11 +3770,18 @@ function vib(p){try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
 function ptsPop(t){const e=$('ptsPop');e.textContent=t;e.classList.remove('go');void e.offsetWidth;e.classList.add('go');}
 function newGame(){ac();G.round=0;G.score=0;G.streak=0;G.bestStreak=0;G.results=[];G.win=WIN[G.level-1];G.bag=makeBag();
   $('menu').classList.add('hidden');$('summary').classList.add('hidden');$('hud').classList.remove('hidden');$('bottom').classList.remove('hidden');setControls(false);startRound();}
-$('kickOpen').onclick=()=>$('kickCompare').showModal();
+$('kickSwitch').onclick=()=>{
+  if(!kickComparison||G.phase!=='decide'||G.replay)return;
+  const {seed,play,variant}=G.sc;
+  kickComparison.version=kickComparison.version==='before'?'after':'before';
+  G.sc=buildScenario(seed,play,variant);
+  beginApproach();
+};
 function startKickComparison(version){
   const saved={};
   for(const key of ['level','mode','rounds','pos','noLimit'])saved[key]=G[key];
   kickComparison={version,saved};
+  $('hud').classList.add('comparing');
   Object.assign(G,{level:1,mode:4,rounds:2,pos:'pg',noLimit:true});
   $('kickCompare').close();newGame();
 }
@@ -3773,7 +3789,10 @@ $('kickBefore').onclick=()=>startKickComparison('before');
 $('kickAfter').onclick=()=>startKickComparison('after');
 $('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;$('lgBtn').onclick=()=>{$('lgd').classList.remove('hidden');$('lgBtn').classList.add('hidden');};
 function toMenu(){hush();
-  if(kickComparison){Object.assign(G,kickComparison.saved);kickComparison=null;$('kickCompare').showModal();}
+  if(kickComparison){
+    Object.assign(G,kickComparison.saved);kickComparison=null;
+    $('hud').classList.remove('comparing');$('kickCompare').showModal();
+  }
   if(G.theme){G.theme=null;G.rounds=10;const sp=store.get('pgt_pos');G.pos=sp&&POS[sp]&&sp!=='mix'?sp:'pg';markSel('pos','v',G.pos);renderPlayChips();}
   if(G.first){G.first=false;G.rounds=10;}
   tape(false);G.phase='menu';G.timers=[];renderStrip();endCam();G.ts=1;G.slowT=0;['summary','feedback','hud','bottom'].forEach(i=>$(i).classList.add('hidden'));$('menu').classList.remove('hidden');clearBubbles();$('vig').classList.remove('on');refreshBest();demo();drawBoard();}
