@@ -1312,7 +1312,7 @@ let rimG=null;
 // ================= Spieler-Modell =================
 const GEO={thigh:new T3.CapsuleGeometry(.068,.3,4,10),shin:new T3.CapsuleGeometry(.056,.28,4,10),uarm:new T3.CapsuleGeometry(.05,.2,4,8),farm:new T3.CapsuleGeometry(.043,.19,4,8),hand:new T3.SphereGeometry(.053,10,8),
   chest:new T3.CylinderGeometry(.24,.2,.58,18),shorts:new T3.CylinderGeometry(.21,.25,.38,18),neck:new T3.CylinderGeometry(.055,.062,.12,10),head:new T3.SphereGeometry(.118,20,16),
-  hair:new T3.SphereGeometry(.124,20,10,0,Math.PI*2,0,Math.PI*.5),afro:new T3.SphereGeometry(.158,16,12),pony:new T3.CapsuleGeometry(.038,.13,4,8),bun:new T3.SphereGeometry(.062,12,10),
+  hair:new T3.SphereGeometry(.124,20,10,0,Math.PI*2,0,Math.PI*.5),afro:new T3.SphereGeometry(.158,20,12,0,Math.PI*2,0,Math.PI*.54),pony:new T3.CapsuleGeometry(.038,.13,4,8),bun:new T3.SphereGeometry(.062,12,10),
   long:new T3.SphereGeometry(.125,20,12,Math.PI,Math.PI,0,Math.PI*.78),plait:new T3.CapsuleGeometry(.03,.12,4,8),
   shoe:new T3.CapsuleGeometry(.062,.17,4,10),sole:new T3.BoxGeometry(.13,.035,.3),sock:new T3.CylinderGeometry(.06,.06,.13,10),num:new T3.PlaneGeometry(.26,.26),
   eye:new T3.SphereGeometry(.014,6,6),ear:new T3.SphereGeometry(.028,8,6),nose:new T3.SphereGeometry(.019,8,6),brow:new T3.BoxGeometry(.046,.011,.012),
@@ -1341,16 +1341,16 @@ function addHair(M,head,hs,hm,tm,cs,hsc,tie){
     if(wide)M(GEO.curtain,hm,pv,0,-len*.5,0).scale.set(wide,len/.22,.5);
     else for(let i=0;i<n;i++){const u=i/(n-1),r=r0+(r1-r0)*u,b=M(GEO.bun,hm,pv,0,-.03-u*len,0);b.scale.set(r/.062,(braid?.75:1.6)*len/n/.062,r/.062*.9);}
     sw.push({pv,th,side});return pv;};
-  if(hs===1){const a=M(GEO.afro,hm,head,0,.045,-.02);a.scale.set(1,.92,1);return sw;}
-  const hr=M(GEO.hair,hm,head,0,.015,-.004);hr.rotation.x=-.25;if(cs)hr.scale.setScalar(cs);
+  if(hs===1){const a=M(GEO.afro,hm,head,0,.048,-.018);a.rotation.x=-.42;a.scale.set(1,.92,1);return sw;}
+  const hr=M(GEO.hair,hm,head,0,.02,-.004);hr.rotation.x=-.43;if(cs)hr.scale.setScalar(cs);
   // Zopf: hoch am Hinterkopf, bis zwischen die Schultern
   if(hs===2){M(GEO.bun,hm,head,0,.06,-.105).scale.setScalar(.7);tail(0,.07,-.13,.24,.042,.022,6,.55,0);}
   if(hs===3){M(GEO.bun,hm,head,0,.15,-.05).scale.setScalar(1.25);if(tie){const t=M(GEO.tie,tie,head,0,.115,-.04);t.rotation.x=-.4;}}
-  if(hs===4){const b=M(GEO.hband,tm,head,0,.05,-.005);b.rotation.x=-.12;}
+  if(hs===4){const b=M(GEO.hband,tm,head,0,.045,-.005);b.rotation.x=-.39;}
   // Zöpfe: zwei Zöpfe links und rechts hinter den Ohren
   if(hs===5)for(const s of[-1,1]){M(GEO.bun,hm,head,s*.1,.02,-.06).scale.setScalar(.5);tail(s*.105,0,-.07,.17,.03,.018,5,.25,s,true);}
   // offen: lange Haare bis auf die Schultern
-  if(hs===6){const l=M(GEO.long,hm,head,0,-.045,-.012);l.scale.set(1.08,1.45,1.05);tail(0,-.02,-.095,.2,0,0,0,.12,0,false,2.1);}
+  if(hs===6){const l=M(GEO.long,hm,head,0,-.033,-.022);l.scale.set(1.04,1.4,1.05);tail(0,-.02,-.095,.2,0,0,0,.12,0,false,2.1);}
   // Flechtzopf: tief am Hinterkopf, lang und geflochten
   if(hs===7){M(GEO.bun,hm,head,0,.0,-.118).scale.setScalar(.62);tail(0,-.02,-.125,.3,.038,.02,8,.3,0,true);}
   return sw;}

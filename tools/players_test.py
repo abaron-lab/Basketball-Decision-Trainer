@@ -27,7 +27,7 @@ async def main():
             await pg.route('**/config.js',lambda r:r.abort()); return pg
         async def ready(pg): await pg.wait_for_selector('#loading.hidden',state='attached',timeout=90000); await pg.wait_for_timeout(700)
         ctx=await b.new_context(viewport={'width':390,'height':664})
-        pg=await page(ctx); await pg.goto(base); await ready(pg)
+        pg=await page(ctx); await pg.goto(base, wait_until='domcontentloaded', timeout=120000); await ready(pg)
         await pg.fill('#wName','Mia'); await pg.click('#wPos .lvb[data-v="wing"]'); await pg.click('#wSkip')
         for i in range(2):
             await pg.evaluate(SIM); await pg.wait_for_timeout(1500)
@@ -35,7 +35,7 @@ async def main():
         await pg.screenshot(path=f'{OUT}/1_summary.png')
         await pg.click('#sSave'); await pg.wait_for_timeout(2500)
         await pg.screenshot(path=f'{OUT}/2_save.png')
-        link=await pg.input_value('#svLink'); print('link len',len(link), link[:90])
+        link=await pg.inner_text('#svLink'); print('link len',len(link), link[:90])
         await pg.click('#svClose'); await pg.click('#menuBtn'); await pg.wait_for_timeout(500)
         await pg.click('#cardBtn'); await pg.wait_for_timeout(400); await pg.screenshot(path=f'{OUT}/3_card.png')
         await pg.click('#pcWho'); await pg.wait_for_timeout(300); await pg.screenshot(path=f'{OUT}/4_who.png')
@@ -44,7 +44,7 @@ async def main():
         print('welcome for new:', await pg.is_visible('#welcome'))
         await pg.fill('#wName','Ben'); await pg.click('#wSkip'); await pg.wait_for_timeout(400)
         await pg.screenshot(path=f'{OUT}/5_menu_ben.png')
-        pg2=await page(ctx); await pg2.goto(base); await ready(pg2)
+        pg2=await page(ctx); await pg2.goto(base, wait_until='domcontentloaded', timeout=120000); await ready(pg2)
         print('picker on new session:', await pg2.is_visible('#who'))
         await pg2.screenshot(path=f'{OUT}/6_picker.png')
         async with pg2.expect_navigation(wait_until='domcontentloaded',timeout=120000): await pg2.click('#whoList .wp:first-child')
@@ -52,7 +52,7 @@ async def main():
         print('after pick:', await pg2.inner_text('#psName'), '|', await pg2.inner_text('#psLv'))
         # anderes Gerät
         ctx2=await b.new_context(viewport={'width':390,'height':664})
-        pg3=await page(ctx2); await pg3.goto(link.replace('index.html#','index.html?lite&rig=alt#')); await ready(pg3)
+        pg3=await page(ctx2); await pg3.goto(link.replace('index.html#','index.html?lite&rig=alt#'), wait_until='domcontentloaded', timeout=120000); await ready(pg3)
         print('restore visible:', await pg3.is_visible('#restore'), 'welcome:', await pg3.is_visible('#welcome'))
         await pg3.screenshot(path=f'{OUT}/7_restore.png')
         async with pg3.expect_navigation(wait_until='domcontentloaded',timeout=120000): await pg3.click('#rsYes')
@@ -66,7 +66,7 @@ async def main():
         assert (await pg2.evaluate("JSON.parse(localStorage.pgt_players).length"))==1
         print('after delete:', await pg2.inner_text('#psName'), await pg2.evaluate("JSON.parse(localStorage.pgt_players).map(x=>x.name)"))
         # Querformat Sichern
-        pg4=await page(ctx2); await pg4.set_viewport_size({'width':844,'height':390}); await pg4.goto(base); await ready(pg4)
+        pg4=await page(ctx2); await pg4.set_viewport_size({'width':844,'height':390}); await pg4.goto(base, wait_until='domcontentloaded', timeout=120000); await ready(pg4)
         await pg4.click('#cardBtn'); await pg4.click('#pcSave'); await pg4.wait_for_timeout(2000); await pg4.screenshot(path=f'{OUT}/8_save_land.png')
         print('errs',errs)
         await b.close()
