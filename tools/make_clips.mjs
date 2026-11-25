@@ -48,6 +48,16 @@ const STAND = {
 const HOLD = { Lb: 1, Rb: 1, LN: [-1, 0, .05], RN: [1, 0, .05], LF: [0, .55, .85], RF: [0, .55, .85], LE: [1, -.7, -.2], RE: [-1, -.7, -.2] };
 
 export const CLIPS = {
+  // Abwehrschritt nach links (+x), gespiegelt nach rechts. Je halber Zyklus
+  // bewegt sich das Standbein relativ zur Hüfte um 32 cm entgegen der Laufrichtung.
+  slide: { d: .8, mirror: true, keys: [
+    { t: 0, hy: .19, hp: .16, sp: .09, np: -.14, LP: [.49, 1.04, .22], RP: [-.49, 1.04, .22],
+      Lf: [.15, .104, .04], Rf: [-.15, .104, -.04] },
+    { t: .2, hy: .16, Lf: [.31, .16, .04], Rf: [-.31, .104, -.04] },
+    { t: .4, hy: .19, Lf: [.47, .104, .04], Rf: [-.47, .104, -.04] },
+    { t: .6, hy: .16, Lf: [.31, .104, .04], Rf: [-.31, .16, -.04] },
+    { t: .8, hy: .19, Lf: [.15, .104, .04], Rf: [-.15, .104, -.04] },
+  ] },
   // Sprungwurf, rechte Hand. Im Spiel 1,0 s; Absprung bei 0,14 s, Abwurf bei 0,24 s (shootFrom), Landung bei 0,62 s.
   shot: { d: 1.0, keys: [
     { t: 0, ...HOLD, B: [-.02, 1.15, .32], hy: .06, Rf: [-.15, .104, .08], Lf: [.13, .104, -.02] },
