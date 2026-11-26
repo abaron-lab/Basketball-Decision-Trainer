@@ -1649,7 +1649,7 @@ const YOUTH_F={...GIRL_F,shoulder:['upper_arm',.77],upper_arm:['forearm',.8],for
   spine003:['neck',.9],spine002:['spine003',.94],hips:['spine001',1],thigh:['shin',.95]};
 // Comic-Kopf: Mitte in der Ruhepose (Welt), Kopfknochen-Faktor (?look=stil) und Form wie headGeo, als Abstand zur Oberfläche
 // (ungefähr Meter, > 0 = außen). Für den Übergang Hals → Kopf in youthGeo.
-const HEADC={y:1.70,z:.005,s:1.16,r:.118};
+const HEADC={y:1.70,z:.005,s:1.16,r:.118},NECKR={rx:.043,rz:.047,z:-.03,y0:1.505,y1:1.56};
 function headDist(p,C){const R=HEADC.r,S=HEADC.s,x=(p.x-C.x)/S,y=(p.y-C.y)/S,z=(p.z-C.z)/S,lo=y<0,t=Math.min(1,Math.abs(y)/(lo?R*1.06:R)),a=Math.pow(t,1.5);
   const sx=R*(lo?1-.24*a:1.04),sy=R*(lo?1.06:1),sz=R*(lo?1-.12*a:1.03)*(z>0?.95:1);return(Math.hypot(x/sx,y/sy,z/sz)-1)*R*S;}
 // ?look=stil: Der Mannequin-Kopf fällt weg (partIdx). Der obere Rand des Halses endete dann 2–5 cm unter dem Comic-Kopf
@@ -1665,6 +1665,14 @@ function neckBlend(g,o,hi,NF){const pos=g.attributes.position,si=g.attributes.sk
   for(let i=0;i<n;i++){if(!use[i])continue;k3.fromBufferAttribute(pos,i);const k=Math.round(k3.x*2e3)+','+Math.round(k3.y*2e3)+','+Math.round(k3.z*2e3);
     if(!key.has(k))key.set(k,i);R[i]=key.get(k);}
   const top=new Uint8Array(n); // vom Kopfknochen dominiert: gehört in den Kopf
+  // Hals schlanker: Der Mannequin-Hals wird oben (Kieferansatz) 15 cm breit und 16 cm tief, unter dem Comic-Kopf wirkte
+  // er wie eine Halskrause. Über dem Kragen weich auf eine Ellipse um die Halsachse (NECKR) ziehen; der Kragen bleibt.
+  const ni=o.skeleton.bones.findIndex(b=>b.name.replace('DEF-','')==='neck'),q0=new T3.Vector3();
+  for(let i=0;i<n;i++){if(R[i]!==i)continue;let nh=0;for(let k=0;k<4;k++){const b=si[GC[k]](i);if(b===hi||b===ni)nh+=sw[GC[k]](i);}if(nh<=0)continue;
+    q0.fromBufferAttribute(pos,i).applyMatrix4(B).applyMatrix4(NF.M);const ram=smooth(clamp((q0.y-NECKR.y0)/(NECKR.y1-NECKR.y0),0,1))*smooth(clamp(nh/.6,0,1));if(ram<=0)continue;
+    const dx=q0.x/NECKR.rx,dz=(q0.z-NECKR.z)/NECKR.rz,e=Math.hypot(dx,dz);if(e<=.75)continue;
+    const e2=.75+.25*Math.tanh((e-.75)/.25),f=1+(e2/e-1)*ram;q0.x*=f;q0.z=NECKR.z+(q0.z-NECKR.z)*f;
+    q0.applyMatrix4(NF.Mi).applyMatrix4(Bi);for(let j=0;j<n;j++)if(R[j]===i)pos.setXYZ(j,q0.x,q0.y,q0.z);}
   for(let i=0;i<n;i++){if(R[i]!==i)continue;let mw=0,mb=-1;for(let k=0;k<4;k++){const w=sw[GC[k]](i),b=si[GC[k]](i);if(b===hi)W[i]+=w;if(w>mw){mw=w;mb=b;}}top[i]=mb===hi;
     if(W[i]>0){p[i]=new T3.Vector3().fromBufferAttribute(pos,i).applyMatrix4(B).applyMatrix4(NF.M);D[i]=new T3.Vector3();nb.set(i,new Set());}}
   for(let t=0;t<I.count;t+=3){const a=[R[I.getX(t)],R[I.getX(t+1)],R[I.getX(t+2)]];for(const x of a)if(nb.has(x))for(const y of a)if(y!==x)nb.get(x).add(y);}
