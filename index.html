@@ -414,8 +414,11 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .bdesc{flex:0 0 auto;margin-top:8px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05);font-weight:800;font-size:13.5px;color:#cfd8ee;min-height:58px;display:flex;align-items:center;gap:10px}
 .bdesc b{color:#fff}
 #bCount{font-size:11px;opacity:.75}
-.edit{display:grid;grid-template-columns:minmax(96px,34%) 1fr;gap:12px;flex:1 1 auto;min-height:0}
-.pv{border-radius:18px;background:radial-gradient(80% 60% at 50% 40%,#2b3d75,#141c33);border:1px solid rgba(255,255,255,.08);min-height:0;overflow:hidden}
+/* Anpassen: Vorschau neben Name/Gruppe/Nummer, darunter Aussehen über die ganze Breite (passt so auf das Handy ohne Scrollen) */
+.edit{display:grid;grid-template-columns:minmax(96px,34%) 1fr;grid-template-rows:auto auto;align-content:start;gap:4px 12px;flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+.elook{grid-column:1/-1}
+.elook label:first-child{margin-top:8px}
+.pv{min-height:150px;border-radius:18px;background:radial-gradient(80% 60% at 50% 40%,#2b3d75,#141c33);border:1px solid rgba(255,255,255,.08);min-height:0;overflow:hidden}
 .pv canvas{width:100%;height:100%;display:block}
 .ectl{display:flex;flex-direction:column;min-width:0}
 .ectl label{font-size:13px;font-weight:900;letter-spacing:.2px;color:#8fa0c6;margin:8px 0 5px}
@@ -424,10 +427,18 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .ectl input:focus{outline:none;border-color:var(--gold)}
 .numsel{display:flex;align-items:center;gap:10px}.numsel .rbtn{width:40px;height:38px;font:900 22px/1 Nunito,system-ui,sans-serif}
 .numsel b{font-family:'Bebas Neue',Impact,sans-serif;font-size:34px;min-width:44px;text-align:center;line-height:1;color:var(--gold)}
-.sw{display:flex;flex-wrap:wrap;gap:7px}
-.sw button{cursor:pointer;width:30px;height:30px;border-radius:50%;border:2px solid rgba(255,255,255,.15);padding:0}
+.sw{display:flex;flex-wrap:wrap;gap:8px}
+.sw button{cursor:pointer;width:40px;height:40px;box-sizing:border-box;border-radius:50%;border:2px solid rgba(255,255,255,.15);padding:0;flex:0 0 auto}
 .sw button.sel{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,200,61,.35)}
-#hairSel .chip{padding:5px 10px;font-size:12.5px}
+#hairSel{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+#hairSel .chip{justify-content:center;min-height:40px;padding:4px 4px;font-size:12.5px}
+@media (max-height:700px){.ectl label{margin:6px 0 4px}.elook label:first-child{margin-top:6px}.sw button{width:36px;height:36px}#hairSel .chip{min-height:36px}}
+@media (max-height:500px) and (orientation:landscape){#pcard.overlay{padding:8px max(8px,env(safe-area-inset-right)) 8px max(8px,env(safe-area-inset-left))}
+  #pcard .card{width:min(860px,100%);height:100%;max-height:none}#pcard .card>.body{padding:10px 16px 2px}#pcard .pcp{margin-top:6px}#pcard .bhead h2{font-size:26px}#pcard .bhead .rbtn{width:38px;height:38px}#pcard .seg .lvb{padding:6px 4px}
+  #pcard .card>.foot{padding:6px 16px 8px}#pcard .foot .btn{padding-top:9px;padding-bottom:9px}
+  .edit{grid-template-columns:minmax(90px,18%) minmax(0,1fr) minmax(0,1.25fr);grid-template-rows:auto}.elook{grid-column:auto}
+  .ectl label{margin:4px 0 3px}.ectl label:first-child,.elook label:first-child{margin-top:0}.sw button{width:34px;height:34px}#hairSel .chip{min-height:33px}
+  #pcard .bgrid{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}#pcard .bcell{padding:4px 2px}#pcard .bcell .medal{width:40px;height:40px}#pcard .bdesc{min-height:0;padding:6px 10px;margin-top:6px}}
 .xprow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;font-weight:900;font-size:12.5px;margin:2px 0 0;flex:0 0 auto}
 .xprow .lvn{color:#cfd8ee}.xprow b{color:var(--gold)}
 .xprow i{background:rgba(255,255,255,.08)}
@@ -840,6 +851,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
             <label>Name</label><input id="pName" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done">
             <label>Ich spiele bei den</label><div class="seg gseg" id="pG"><button class="lvb" data-v="w"><b>Mädchen</b></button><button class="lvb" data-v="m"><b>Jungen</b></button></div>
             <label>Trikotnummer</label><div class="numsel"><button class="rbtn" id="numM" aria-label="kleiner">−</button><b id="numV">7</b><button class="rbtn" id="numP" aria-label="größer">+</button></div>
+          </div>
+          <div class="ectl elook">
             <label>Hautfarbe</label><div class="sw" id="swSkin"></div>
             <label>Frisur</label><div class="chips" id="hairSel"></div>
             <label>Haarfarbe</label><div class="sw" id="swHair"></div>
