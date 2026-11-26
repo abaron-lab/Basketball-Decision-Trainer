@@ -112,15 +112,16 @@ export const CLIPS = {
   layup: { d: .85, mirror: true, keys: [
     { t: 0, ...HOLD, hy: .12, hp: .22, sp: .08, np: -.1, B: [-.08, 1.2, .3],
       Lf: [.1, .104, .06], Rf: [-.1, .22, -.28], Rfp: .5, Rt: 0, Lt: 1 },
-    // Die Wurfhand dreht sich beim Hochführen hinter den Ball (in zwei Schritten, sonst verdreht sie sich),
+    // Wie ein Wurf von oben: Der Ellbogen zeigt beim Hochführen nach vorn unter den Ball (nicht seitlich weg),
+    // die Wurfhand dreht sich beim Hochführen hinter den Ball (in zwei Schritten, sonst verdreht sie sich),
     // Handfläche zum Korb, Finger nach oben. Kein „Tablett“: Mit der Handfläche nach oben und senkrechtem Arm
     // wäre das Handgelenk um 90° nach hinten abgeknickt.
-    { t: .06, only: true, RN: [.8, -.2, .56], RF: [0, .95, .3] },
+    { t: .06, only: true, RN: [.8, -.2, .56], RF: [0, .95, .3], RE: [-.8, -.6, .2] },
     { t: .12, hy: -.02, hp: .05, sp: -.02, np: -.2, Lf: [.1, .1, -.12], Lfp: .75, Lt: 0, Rf: [-.11, .44, .22], Rfp: .3,
-      B: [-.12, 1.65, .3], RN: [.4, .4, .82], RF: [0, .9, -.44], RE: [-1, -.5, -.25], LP: [.18, 1.55, .28], Rsh: .1 },
+      B: [-.12, 1.65, .3], RN: [.4, .4, .82], RF: [0, .9, -.44], RE: [-.35, -.6, .7], LP: [.18, 1.55, .28], Rsh: .1 },
     { t: .2, only: true, B: [-.14, 2.0, .33], RN: [.15, .35, .92], RF: [0, .93, -.36] },
     // Abwurf bei gestrecktem Arm über dem Kopf; die Stützhand löst sich und sinkt in einem Bogen ab.
-    { t: .28, B: [-.16, 2.32, .36], RN: [.05, .3, .95], RF: [0, .95, -.3], Rsh: .2, Lb: 0, LP: [.26, 1.66, .31], RP: [-.16, 2.17, .29], LN: [-1, 0, .2], LF: [0, .9, .4],
+    { t: .28, B: [-.16, 2.32, .36], RN: [.05, .3, .95], RF: [0, .95, -.3], Rsh: .2, RE: [-.3, -.3, .9], Lb: 0, LP: [.26, 1.66, .31], RP: [-.16, 2.17, .29], LN: [-1, 0, .2], LF: [0, .9, .4],
       Lf: [.1, .2, -.12], Rf: [-.11, .5, .26] },
     // Nachführen: Das Handgelenk klappt weich nach vorn (je Schlüssel höchstens ca. 30°), die Finger zeigen zum Brett.
     { t: .32, only: true, Rb: 0, Lb: 0, RP: [-.16, 2.20, .32], RN: [.05, -.15, .99], RF: [.03, .99, .15] },
@@ -129,7 +130,7 @@ export const CLIPS = {
       Rf: [-.12, .36, .16], Lf: [.11, .18, -.06], Lfp: .5, Rfp: .45, np: -.12 },
     // Beim Landen sinkt der Arm, das Handgelenk lockert sich.
     { t: .62, RP: [-.21, 1.86, .36], RN: [.6, -.7, .35], RF: [0, .3, .95], Rsh: .1, Lf: [.13, .104, -.02], Rf: [-.13, .104, .06], Lfp: 0, Rfp: 0, Lt: 1, Rt: 1, hy: .08, hp: .12 },
-    { t: .7, hy: .16, hp: .2, sp: .08, RP: [-.25, 1.5, .3], LP: [.25, 1.3, .25], RN: [.9, -.35, .1], RF: [0, -.1, 1], Rsh: 0, np: 0 },
+    { t: .7, hy: .16, hp: .2, sp: .08, RP: [-.25, 1.5, .3], LP: [.25, 1.3, .25], RN: [.9, -.35, .1], RF: [0, -.1, 1], RE: [-.7, -.7, .1], Rsh: 0, np: 0 },
     // Arme hängen locker neben dem Körper (Ellbogen nach hinten unten, sonst stehen die Hände wie in die Hüften gestemmt)
     { t: .85, hy: .06, hp: .06, sp: .04, RP: [-.21, .96, .1], LP: [.21, .95, .09], RN: [1, 0, .1], RF: [0, -.6, .8], LN: [-1, 0, .1], LF: [0, -.6, .8],
       RE: [-.35, -1, -.45], LE: [.35, -1, -.45] },
