@@ -1612,7 +1612,7 @@ function makeGLBRig(team,num,look){
   // Anker an einem Knochen, ausgerichtet wie die ganze Figur (für Haare, Gesicht, Nummer)
   const anchor=(bone,x,y,z)=>{const a=new T3.Group();bone.add(a);a.quaternion.copy(bone.getWorldQuaternion(_q1).invert());a.position.copy(bone.worldToLocal(_v1.set(x,y,z)));return a;};
   const M=(g,m,parent,x=0,y=0,z=0)=>{const o=new T3.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o;};
-  const head=anchor(B.head,0,1.70,.005);let sway;
+  const head=anchor(B.head,0,HEADC.y,HEADC.z);let sway;
   if(STIL&&partIdx()){
     // ?look=stil/comic/lowpoly: eigener runder Comic-Kopf statt des langen Mannequin-Kopfs (dessen Dreiecke blendet partIdx
     // aus): großer Hinterkopf, schmales Kinn, Ohren. Frisuren und Gesicht wie bei den alten Figuren (Kugelkopf, r .118).
@@ -1629,7 +1629,7 @@ function makeGLBRig(team,num,look){
     const nf=new T3.Mesh(GEO.num,numMat(team,num));nf.position.set(0,0,.14+cz);nf.scale.setScalar(.72);chest.add(nf);
     const nb=new T3.Mesh(GEO.num,numMat(team,num));nb.position.set(0,.02,-.175-cz);nb.rotation.y=Math.PI;nb.scale.setScalar(.8);chest.add(nb);}
   // ?look=stil: Kinder-Proportionen, größerer Kopf (nach dem Setzen der Anker, damit Gesicht und Haare mitwachsen)
-  if(STIL){B.head.scale.setScalar(1.16);B.neck&&B.neck.scale.set(.96,1,.96);}
+  if(STIL){B.head.scale.setScalar(HEADC.s);B.neck&&B.neck.scale.set(.96,1,.96);}
   const mx=new T3.AnimationMixer(body),A={};
   for(const k in GLB.clips){const a=mx.clipAction(GLB.clips[k]);a.play();a.timeScale=0;a.setEffectiveWeight(0);A[k]=a;}
   const arm=s=>{const k=s>0?'L':'R';return{s,up:B['upper_arm'+k],lo:B['forearm'+k],hand:B['hand'+k]};};
@@ -1647,6 +1647,49 @@ const GIRL_F={shoulder:['upper_arm',.55],upper_arm:['forearm',.66],forearm:['han
 const GC=['getX','getY','getZ','getW'];
 const YOUTH_F={...GIRL_F,shoulder:['upper_arm',.77],upper_arm:['forearm',.8],forearm:['hand',.86],
   spine003:['neck',.9],spine002:['spine003',.94],hips:['spine001',1],thigh:['shin',.95]};
+// Comic-Kopf: Mitte in der Ruhepose (Welt), Kopfknochen-Faktor (?look=stil) und Form wie headGeo, als Abstand zur Oberfläche
+// (ungefähr Meter, > 0 = außen). Für den Übergang Hals → Kopf in youthGeo.
+const HEADC={y:1.70,z:.005,s:1.16,r:.118},NECKR={rx:.043,rz:.047,z:-.03,y0:1.505,y1:1.56};
+function headDist(p,C){const R=HEADC.r,S=HEADC.s,x=(p.x-C.x)/S,y=(p.y-C.y)/S,z=(p.z-C.z)/S,lo=y<0,t=Math.min(1,Math.abs(y)/(lo?R*1.06:R)),a=Math.pow(t,1.5);
+  const sx=R*(lo?1-.24*a:1.04),sy=R*(lo?1.06:1),sz=R*(lo?1-.12*a:1.03)*(z>0?.95:1);return(Math.hypot(x/sx,y/sy,z/sz)-1)*R*S;}
+// ?look=stil: Der Mannequin-Kopf fällt weg (partIdx). Der obere Rand des Halses endete dann 2–5 cm unter dem Comic-Kopf
+// (Nacken, unter dem Kinn), der Kopf saß wie auf einem Stab. Hier wandern die Punkte am Rand (viel Kopf-Gewicht) nach oben
+// bis in den Kopf und hängen danach nur noch am Kopf (bleiben auch beim Drehen drin). Die Punkte darunter folgen weich
+// (Verschiebung über die Nachbarn ausgeglichen, Punkte ohne Kopf-Gewicht bleiben): Der Hals bleibt so dick, läuft aber ohne
+// Zacken in den Kopf.
+function neckBlend(g,o,hi,NF){const pos=g.attributes.position,si=g.attributes.skinIndex,sw=g.attributes.skinWeight,I=g.index,n=pos.count;
+  const W=new Float32Array(n),use=new Uint8Array(n),p=[],D=[],nb=new Map(),B=o.bindMatrix,Bi=o.bindMatrixInverse;
+  for(let t=0;t<I.count;t++)use[I.getX(t)]=1;
+  // Punkte an Nähten (gleiche Lage, eigene Normale/UV) zusammenfassen, sonst reißt der Hals dort auf
+  const R=new Int32Array(n).fill(-1),key=new Map(),k3=new T3.Vector3();
+  for(let i=0;i<n;i++){if(!use[i])continue;k3.fromBufferAttribute(pos,i);const k=Math.round(k3.x*2e3)+','+Math.round(k3.y*2e3)+','+Math.round(k3.z*2e3);
+    if(!key.has(k))key.set(k,i);R[i]=key.get(k);}
+  const top=new Uint8Array(n); // vom Kopfknochen dominiert: gehört in den Kopf
+  // Hals schlanker: Der Mannequin-Hals wird oben (Kieferansatz) 15 cm breit und 16 cm tief, unter dem Comic-Kopf wirkte
+  // er wie eine Halskrause. Über dem Kragen weich auf eine Ellipse um die Halsachse (NECKR) ziehen; der Kragen bleibt.
+  const ni=o.skeleton.bones.findIndex(b=>b.name.replace('DEF-','')==='neck'),q0=new T3.Vector3();
+  for(let i=0;i<n;i++){if(R[i]!==i)continue;let nh=0;for(let k=0;k<4;k++){const b=si[GC[k]](i);if(b===hi||b===ni)nh+=sw[GC[k]](i);}if(nh<=0)continue;
+    q0.fromBufferAttribute(pos,i).applyMatrix4(B).applyMatrix4(NF.M);const ram=smooth(clamp((q0.y-NECKR.y0)/(NECKR.y1-NECKR.y0),0,1))*smooth(clamp(nh/.6,0,1));if(ram<=0)continue;
+    const dx=q0.x/NECKR.rx,dz=(q0.z-NECKR.z)/NECKR.rz,e=Math.hypot(dx,dz);if(e<=.75)continue;
+    const e2=.75+.25*Math.tanh((e-.75)/.25),f=1+(e2/e-1)*ram;q0.x*=f;q0.z=NECKR.z+(q0.z-NECKR.z)*f;
+    q0.applyMatrix4(NF.Mi).applyMatrix4(Bi);for(let j=0;j<n;j++)if(R[j]===i)pos.setXYZ(j,q0.x,q0.y,q0.z);}
+  for(let i=0;i<n;i++){if(R[i]!==i)continue;let mw=0,mb=-1;for(let k=0;k<4;k++){const w=sw[GC[k]](i),b=si[GC[k]](i);if(b===hi)W[i]+=w;if(w>mw){mw=w;mb=b;}}top[i]=mb===hi;
+    if(W[i]>0){p[i]=new T3.Vector3().fromBufferAttribute(pos,i).applyMatrix4(B).applyMatrix4(NF.M);D[i]=new T3.Vector3();nb.set(i,new Set());}}
+  for(let t=0;t<I.count;t+=3){const a=[R[I.getX(t)],R[I.getX(t+1)],R[I.getX(t+2)]];for(const x of a)if(nb.has(x))for(const y of a)if(y!==x)nb.get(x).add(y);}
+  const T=new T3.Vector3(NF.C.x,NF.C.y-.05,NF.C.z),dv=new T3.Vector3(),q=new T3.Vector3(),e=new T3.Vector3(),fix=new Set();
+  const up=new T3.Vector3(0,1,0);
+  for(const [i] of nb){if(W[i]<.5&&!top[i])continue;fix.add(i);const w=W[i];
+    // Abstand zur Kopfoberfläche (16 mm Rand), wenn der Punkt um u in Richtung dir läge; der Kopfknochen wächst um HEADC.s
+    const out=(dir,u)=>{q.copy(p[i]).addScaledVector(dir,u);q.addScaledVector(e.copy(q).sub(NF.Ph),w*(HEADC.s-1));return headDist(q,NF.C)+.016;};
+    // erst senkrecht nach oben (der Hals trifft dann steil auf den Kopf, die Kante bleibt glatt), sonst Richtung T
+    const enter=(dir,max,st)=>{if(out(dir,0)<=0)return 0;for(let u=st;u<=max;u+=st)if(out(dir,u)<=0){let lo=u-st,h=u;for(let it=0;it<10;it++){const m=(lo+h)/2;if(out(dir,m)>0)lo=m;else h=m;}return h;}return -1;};
+    let u=enter(up,.16,.004);if(u>=0)D[i].copy(up).multiplyScalar(u);
+    else{dv.subVectors(T,p[i]);u=enter(dv,1,.02);D[i].copy(dv).multiplyScalar(u<0?1:u);}}
+  // unten (wenig Kopf-Gewicht, Halsausschnitt) bleibt alles, wo es ist, sonst klafft der Kragen
+  const pin=i=>W[i]<.2||p[i].y<NF.Pn.y+.03;
+  for(let it=0;it<80;it++)for(const [i,N] of nb){if(fix.has(i)||pin(i))continue;e.set(0,0,0);for(const j of N)if(D[j])e.add(D[j]);D[i].copy(e).divideScalar(N.size);}
+  for(let i=0;i<n;i++){const r=R[i];if(r<0||!nb.has(r))continue;q.copy(p[r]).add(D[r]).applyMatrix4(NF.Mi).applyMatrix4(Bi);pos.setXYZ(i,q.x,q.y,q.z);
+    if(fix.has(r)){si.setXYZW(i,hi,0,0,0);sw.setXYZW(i,1,0,0,0);}}}
 function youthGeo(girl){
   const key=(girl?'girlGeometry':'boyGeometry')+(STIL?'S':''), factors=girl?GIRL_F:YOUTH_F;
   if(GLB[key])return GLB[key];
@@ -1667,6 +1710,9 @@ function youthGeo(girl){
     const by=n=>{const k=nm.indexOf(n);return k<0?0:P[k].y;},hipY=by('hips'),chestY=by('spine002');
     const legs=['L','R'].map(k=>({a:P[nm.indexOf('thigh'+k)],b:P[nm.indexOf('shin'+k)],k})).filter(l=>l.a&&l.b),shins=['L','R'].map(k=>({a:P[nm.indexOf('shin'+k)],b:P[nm.indexOf('foot'+k)]})).filter(l=>l.a&&l.b),cz=(P[nm.indexOf('spine001')]||new T3.Vector3()).z;
     let edge=null,near=null;
+    // ?look=stil: Übergang Hals → Comic-Kopf (neckBlend)
+    const hi=PI_&&part==='skin'?nm.indexOf('head'):-1,NF=hi>=0&&{M:sk.bones[hi].matrixWorld.clone().multiply(sk.boneInverses[hi])};
+    if(NF){NF.Mi=NF.M.clone().invert();NF.Ph=P[hi].clone().applyMatrix4(NF.M);NF.Pn=P[nm.indexOf('neck')].clone().applyMatrix4(NF.M);NF.C=new T3.Vector3(0,HEADC.y,HEADC.z).sub(NF.Ph).multiplyScalar(HEADC.s).add(NF.Ph);}
     if(PI_&&PI_[part])g.setIndex(PI_[part].clone());
     if(PI_&&PI_.cut[part])g.setAttribute('cut',new T3.BufferAttribute(PI_.cut[part],1));
     // Trikot liegt an Hals und Armausschnitt an (Abstand zum Schnitt, hug), sonst steht es als weiter Stoff ab
@@ -1693,6 +1739,7 @@ function youthGeo(girl){
       if(hemU)hemU[i]=leg>=0?clamp(legT/PI_.hemT[leg],0,1.3):0;
       v.add(d).applyMatrix4(inv);pos.setXYZ(i,v.x,v.y,v.z);}
     if(hemU)g.setAttribute('hemU',new T3.BufferAttribute(hemU,1));
+    if(NF)neckBlend(g,o,hi,NF);
     pos.needsUpdate=true;g.computeBoundingSphere();gg[o.geometry.uuid]=g;});
   return gg;}
 // ?look=stil: Hose, Trikot und Haut sauber neu aufteilen. Die Teilung nach Knochen-Gewicht (build_player.mjs) folgt den
