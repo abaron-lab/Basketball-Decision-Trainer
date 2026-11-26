@@ -56,15 +56,6 @@ canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height
 #banner .s{display:inline-block;margin-top:6px;font-weight:900;font-size:15px;background:rgba(8,12,24,.75);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
 #flash{position:fixed;left:0;right:0;top:28%;text-align:center;font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(46px,12vw,100px);letter-spacing:2px;pointer-events:none;z-index:7;opacity:0;text-shadow:0 6px 30px rgba(0,0,0,.6)}
 #flash.go{animation:fl 1.3s ease-out forwards}
-/* ?look=comic: Lautwörter als Comic-Explosion (gelb bei Erfolg, hellblau sonst; kein Rot, siehe kindgerechte Rückmeldung) */
-html.comic #flash{text-shadow:none;top:24%}
-html.comic #flash span{display:inline-block;position:relative;isolation:isolate;padding:.34em .9em .26em;font-size:.8em;letter-spacing:3px;color:#ff3d2e;
-  -webkit-text-stroke:.07em #140b22;paint-order:stroke fill;text-shadow:.06em .06em 0 #140b22;transform:rotate(-5deg) skewX(-7deg)}
-html.comic #flash span::before,html.comic #flash span::after{content:'';position:absolute;z-index:-1;clip-path:polygon(50% 4%,58% 16%,72% 9%,76% 20%,89% 21%,84% 35%,99% 40%,92% 50%,99% 60%,84% 65%,89% 79%,76% 80%,72% 91%,58% 84%,50% 96%,41% 88%,28% 91%,26% 77%,11% 79%,12% 67%,1% 60%,12% 50%,1% 40%,12% 33%,11% 21%,26% 23%,28% 9%,41% 12%)}
-html.comic #flash span::before{inset:-.42em -.62em;background:#140b22}
-html.comic #flash span::after{inset:-.32em -.5em;background:radial-gradient(circle,#fff6a8 0 18%,#ffd23f 19% 60%,#ffb01f 61%)}
-html.comic #flash span.bad{color:#fff}
-html.comic #flash span.bad::after{background:radial-gradient(circle,#d6eeff 0 18%,#7cc4ff 19% 60%,#58a8f0 61%)}
 @keyframes fl{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}30%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
 #tags{position:fixed;inset:0;z-index:4;pointer-events:none}
 #meTag{position:fixed;left:0;top:0;z-index:4;pointer-events:none;will-change:transform}
@@ -1147,7 +1138,6 @@ const LITE=/[?&]lite\b/.test(location.search);
 // Prototyp Figuren-Look (nur per Link): ?look=stil = Figuren mit weiter Kleidung, Kinder-Proportionen, Stoff/Haut-Material;
 // ?look=comic = dazu Comic-Darstellung (Toon-Licht, Tuschelinien, Rasterpunkte, Druckversatz im Hintergrund). Ohne Parameter wie bisher.
 const LOOK=(new URLSearchParams(location.search).get('look')||'').toLowerCase(),COMIC=LOOK==='comic',STIL=COMIC||LOOK==='stil';
-document.documentElement.classList.toggle('comic',COMIC);
 // Handy/Tablet: weniger Pixel (DPR höchstens 1,5), kleinere Schattenkarte, keine Tiefenunschärfe
 const MOBILE=(()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(e){return false;}})();
 const renderer=new T3.WebGLRenderer({canvas:cv,antialias:!LITE,powerPreference:'high-performance'});
@@ -1445,11 +1435,12 @@ function swayHair(p,dt){const r=p.rig,H=r.sway;if(!H||!H.length||!r.root.visible
     h.pv.quaternion.copy(_q2.invert().multiply(_q1).multiply(_sq));}}
 const numMats={};
 function numMat(team,n){const k=team+n;if(numMats[k])return numMats[k];const t=canvasTex(128,128,(g,w)=>{g.fillStyle=TEAM[team].number;g.font=`900 ${String(n).length>1?78:96}px Arial,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(n,w/2,w/2+6);});
-  return numMats[k]=new T3.MeshStandardMaterial({map:t,transparent:true,roughness:.6});}
+  // Comic: keine Tiefe schreiben, sonst zeichnet die Linien-Erkennung den Rand der durchsichtigen Fläche als Rechteck
+  return numMats[k]=new T3.MeshStandardMaterial({map:t,transparent:true,roughness:.6,depthWrite:!COMIC});}
 function randLook(){const r=Math.random,si=(r()*SKINC.length)|0;return{skin:si,hair:randHair(r),hairC:(si<1||si===4)?(r()<.7?0:1):(r()*HAIRC.length)|0,wrist:r()<.35};}
-// ?look=comic: alle Standard-Materialien als Toon-Material (drei harte Lichtstufen, keine Spiegelungen, billiger als PBR).
+// ?look=comic: alle Standard-Materialien als Toon-Material (wenige weiche Lichtstufen, keine Spiegelungen, billiger als PBR).
 // Farbe, Textur, Leuchten und eigene Shader-Teile (Trikotstreifen) bleiben; Deckkraft/Leuchtstärke folgen dem Original.
-const TOON_G=(()=>{const t=new T3.DataTexture(new Uint8Array([80,80,165,228,228]),5,1,T3.RedFormat);t.minFilter=t.magFilter=T3.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();
+const TOON_G=(()=>{const t=new T3.DataTexture(new Uint8Array([128,150,196,232,246]),5,1,T3.RedFormat);t.minFilter=t.magFilter=T3.NearestFilter;t.generateMipmaps=false;t.needsUpdate=true;return t;})();
 const toonC=new Map();
 function toonMat(m){if(!m||!m.isMeshStandardMaterial)return m;let t=toonC.get(m);if(t)return t;
   t=new T3.MeshToonMaterial({gradientMap:TOON_G,map:m.map,emissiveMap:m.emissiveMap,alphaMap:m.alphaMap,transparent:m.transparent,alphaTest:m.alphaTest,
@@ -1459,7 +1450,8 @@ function toonMat(m){if(!m||!m.isMeshStandardMaterial)return m;let t=toonC.get(m)
   if(m.onBeforeCompile!==T3.Material.prototype.onBeforeCompile)t.onBeforeCompile=m.onBeforeCompile;
   if(m.customProgramCacheKey!==T3.Material.prototype.customProgramCacheKey)t.customProgramCacheKey=m.customProgramCacheKey;
   toonC.set(m,t);return t;}
-function toonify(o){if(!COMIC)return o;o.traverse(x=>{if(x.material)x.material=Array.isArray(x.material)?x.material.map(toonMat):toonMat(x.material);});return o;}
+function toonify(o){
+  if(!COMIC)return o;o.traverse(x=>{if(x.material)x.material=Array.isArray(x.material)?x.material.map(toonMat):toonMat(x.material);});return o;}
 function makeRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
   const jm=matC('j'+team,{color:C.jersey,roughness:.55}),sm=matC('s'+team,{color:C.shorts,roughness:.6}),tm=matC('t',{color:0xffffff,roughness:.5}),trim=matC('trim'+team,{color:C.trim,roughness:.55}),
@@ -1570,11 +1562,20 @@ const teamGear=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>[team,{
     float heel=(1.0-smoothstep(-.085,-.06,kitRest.z))*smoothstep(-.91,-.88,kitRest.y);
     diffuseColor.rgb=mix(mix(diffuseColor.rgb,kitAccent,heel),vec3(.74),sole);`)
 }]));
+// ?look=stil: weite Hose mit Farbstreifen am Saum (Attribut hemU: 0 an der Hüfte, 1 am Saum, aus youthGeo) und an der Seite
+function stilShorts(team){const k='shortsS'+team;if(MAT[k])return MAT[k];const m=matC(k,{color:TEAM[team].shorts,roughness:.82,side:T3.DoubleSide});
+  m.customProgramCacheKey=()=>'stilShorts';
+  m.onBeforeCompile=sh=>{sh.uniforms.kitAccent={value:new T3.Color(TEAM[team].trim)};
+    sh.vertexShader='attribute float hemU;varying float vHem;varying vec3 kitRest;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvHem=hemU;kitRest=position;');
+    sh.fragmentShader='varying float vHem;varying vec3 kitRest;uniform vec3 kitAccent;\n'+sh.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
+      float hem=smoothstep(.885,.9,vHem)*(1.-smoothstep(.945,.96,vHem));
+      float panel=(1.0-smoothstep(.035,.06,abs(kitRest.z+.027)))*smoothstep(.08,.14,abs(kitRest.x))*step(.02,vHem);
+      diffuseColor.rgb=mix(diffuseColor.rgb,kitAccent,max(hem,panel*.85));`);};
+  return m;}
 function makeGLBRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
-  if(STIL)teamGear[team].shorts.side=T3.DoubleSide;
   // ?look=stil: Haut etwas weicher, mit warmem Eigenleuchten (wirkt wie Licht, das in die Haut fällt, statt Plastik)
-  const MT={jersey:glbJerseys[team],shorts:teamGear[team].shorts,skin:STIL?matC('ks'+si,{color:SKINC[si],roughness:.62,emissive:new T3.Color(SKINC[si]).multiplyScalar(COMIC?.02:.09),envMapIntensity:.35}):matC('k'+si,{color:SKINC[si],roughness:.55}),
+  const MT={jersey:glbJerseys[team],shorts:STIL&&partIdx()?stilShorts(team):teamGear[team].shorts,skin:STIL?matC('ks'+si,{color:SKINC[si],roughness:.62,emissive:new T3.Color(SKINC[si]).multiplyScalar(COMIC?.02:.09),envMapIntensity:.35}):matC('k'+si,{color:SKINC[si],roughness:.55}),
     sock:matC('t',{color:0xffffff,roughness:.5}),shoe:teamGear[team].shoe};
   const hm=matC('h'+L.hairC,{color:HAIRC[L.hairC],roughness:.9}),em=matC('eye',{color:0x111111}),bm=matC('b'+L.hairC,{color:new T3.Color(HAIRC[L.hairC]).multiplyScalar(.7),roughness:.9}),tm=MT.sock;
   const root=new T3.Group(),body=GLB.clone(GLB.src);root.add(body);
@@ -1585,24 +1586,21 @@ function makeGLBRig(team,num,look){
   // Anker an einem Knochen, ausgerichtet wie die ganze Figur (für Haare, Gesicht, Nummer)
   const anchor=(bone,x,y,z)=>{const a=new T3.Group();bone.add(a);a.quaternion.copy(bone.getWorldQuaternion(_q1).invert());a.position.copy(bone.worldToLocal(_v1.set(x,y,z)));return a;};
   const M=(g,m,parent,x=0,y=0,z=0)=>{const o=new T3.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o;};
-  const head=anchor(B.head,0,1.70,.005);head.scale.set(.75,1.12,.97);
-  addFace(M,head,MT.skin,em,bm,.112,.11,.118);
-  // Kappe etwas größer, sonst schaut der Mannequin-Kopf oben durch
-  const sway=addHair(M,head,L.hair,hm,tm,1.08,head.scale,matC('tie'+num%TIES.length,{color:TIES[num%TIES.length],roughness:.5}));
+  const head=anchor(B.head,0,1.70,.005);let sway;
+  if(STIL&&partIdx()){
+    // ?look=stil/comic/lowpoly: eigener runder Comic-Kopf statt des langen Mannequin-Kopfs (dessen Dreiecke blendet partIdx
+    // aus): großer Hinterkopf, schmales Kinn, Ohren. Frisuren und Gesicht wie bei den alten Figuren (Kugelkopf, r .118).
+    M(headGeo(),MT.skin,head);for(const sx of[-1,1])M(GEO.ear,MT.skin,head,sx*.112,-.004,-.004).scale.set(.55,.95,.9);
+    addFace(M,head,MT.skin,em,bm,.106,.106,.116);
+    sway=addHair(M,head,L.hair,hm,tm,1.03,null,matC('tie'+num%TIES.length,{color:TIES[num%TIES.length],roughness:.5}));}
+  else{head.scale.set(.75,1.12,.97);
+    addFace(M,head,MT.skin,em,bm,.112,.11,.118);
+    // Kappe etwas größer, sonst schaut der Mannequin-Kopf oben durch
+    sway=addHair(M,head,L.hair,hm,tm,1.08,head.scale,matC('tie'+num%TIES.length,{color:TIES[num%TIES.length],roughness:.5}));}
   const chest=anchor(B.spine003,0,1.30,0);
   const cz=STIL?.026:0; // weites Trikot: Nummer sitzt weiter außen
   const nf=new T3.Mesh(GEO.num,numMat(team,num));nf.position.set(0,0,.14+cz);nf.scale.setScalar(.72);chest.add(nf);
   const nb=new T3.Mesh(GEO.num,numMat(team,num));nb.position.set(0,.02,-.175-cz);nb.rotation.y=Math.PI;nb.scale.setScalar(.8);chest.add(nb);
-  // ?look=stil: Bündchen am Hosenbein (weiter, gerader Saum mit Farbstreifen), deckt den Schnitt zwischen Hose und Bein ab
-  if(STIL&&gg&&gg.cuff)for(const [j,k] of[[0,'L'],[1,'R']]){const cf=gg.cuff[j];if(!cf.a||!B['thigh'+k])continue;
-    // cf.a/cf.b liegen im Bind-Raum der Geometrie; über den Knochen in Weltkoordinaten (wie beim Skinning: Knochen × Inverse)
-    let sm=null;body.traverse(o=>{if(!sm&&o.isSkinnedMesh)sm=o;});const bi=sm.skeleton.bones.indexOf(B['thigh'+k]);if(bi<0)continue;
-    const bw=new T3.Matrix4().multiplyMatrices(B['thigh'+k].matrixWorld,sm.skeleton.boneInverses[bi]),wa=cf.a.clone().applyMatrix4(bw),wb=cf.b.clone().applyMatrix4(bw);
-    const ab=new T3.Vector3().subVectors(wb,wa),t0=SH_CUT-.2,t1=SH_CUT+.05,h=ab.length()*(t1-t0),cp=wa.clone().addScaledVector(ab,(t0+t1)/2);
-    const a=anchor(B['thigh'+k],cp.x,cp.y,cp.z),up=ab.clone().negate().normalize();
-    const g=new T3.Group();g.quaternion.setFromUnitVectors(UPV,up);a.add(g);
-    const r=cf.r*.94,cm=matC('cuff'+team,{color:C.shorts,roughness:.82,side:T3.DoubleSide}),tm2=matC('cuffT'+team,{color:C.trim,roughness:.6,side:T3.DoubleSide});
-    M(new T3.CylinderGeometry(r,r+.012,h,22,1,true),cm,g);M(new T3.CylinderGeometry(r+.0125,r+.0135,.022,22,1,true),tm2,g,0,-h/2+.016,0);}
   // ?look=stil: Kinder-Proportionen, größerer Kopf (nach dem Setzen der Anker, damit Gesicht und Haare mitwachsen)
   if(STIL){B.head.scale.setScalar(1.16);B.neck&&B.neck.scale.set(.96,1,.96);}
   const mx=new T3.AnimationMixer(body),A={};
@@ -1624,9 +1622,9 @@ function youthGeo(girl){
   if(GLB[key])return GLB[key];
   const gg=GLB[key]={};GLB.src.updateMatrixWorld(true);
   // ?look=stil: Punkte, die Trikot und Haut gemeinsam haben (Hals, Armausschnitt): dort liegt das Trikot an, sonst sähe man
-  // die Dreieckskante als Zacken. Neuaufteilung: partIdx; Hosenbeine: dazu das Bündchen (gg.cuff) in makeGLBRig.
+  // die Dreieckskante als Zacken. Neuaufteilung: partIdx; Saumstreifen: Attribut hemU und stilShorts.
   const PI_=STIL?partIdx():null,skinSet=PI_&&PI_.sets.skin;
-  const cuff=STIL?[{r:0},{r:0}]:null;if(cuff)gg.cuff=cuff;
+
   const v=new T3.Vector3(),d=new T3.Vector3(),ab=new T3.Vector3(),pr=new T3.Vector3();
   GLB.src.traverse(o=>{if(!o.isSkinnedMesh||gg[o.geometry.uuid])return;const sk=o.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-',''));
     const P=sk.boneInverses.map(m=>new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
@@ -1643,25 +1641,24 @@ function youthGeo(girl){
     if(part==='jersey'&&skinSet){const own=PI_.sets.jersey;
       edge=[];for(const i of own)if(skinSet.has(i))edge.push(new T3.Vector3().fromBufferAttribute(pos,i).applyMatrix4(o.bindMatrix));
       near=i=>{let m=1e9;for(const e of edge){const dd=e.distanceToSquared(v);if(dd<m)m=dd;}return Math.sqrt(m);};}
-    let leg=-1,legT=0;
+    let leg=-1,legT=0;const hemU=part==='shorts'&&PI_?new Float32Array(pos.count):null; // Saumstreifen im Shader (stilShorts)
     for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i).applyMatrix4(o.bindMatrix);d.set(0,0,0);
       leg=-1;
       if(part==='shorts'&&legs.length){let best=1e9,tt=0;
         for(let j=0;j<legs.length;j++){const l=legs[j];ab.subVectors(l.b,l.a);const u=clamp(pr.subVectors(v,l.a).dot(ab)/ab.lengthSq(),0,1);q.copy(l.a).addScaledVector(ab,u);const dd=v.distanceTo(q);if(dd<best){best=dd;tt=u;leg=j;nv.subVectors(v,q);}}
-        // oben (Hüfte) waagerecht von der Rumpfachse weg, zum Bein hin von der Beinachse weg; zum Schnitt (Knie) hin wieder
-        // anliegend, dort sitzt das Bündchen darüber
+        // oben (Hüfte) waagerecht von der Rumpfachse weg, zum Bein hin von der Beinachse weg, bis zum Saum immer weiter
         const hip=1-smooth(clamp(tt/.25,0,1));nv.normalize().lerp(q.set(v.x,0,v.z-cz).normalize(),hip).normalize();
-        legT=tt;d.addScaledVector(nv,(.018+.05*Math.pow(tt,1.15))*(1-smooth(clamp((tt-SH_CUT+.1)/.1,0,1))));}
+        const ht=PI_?PI_.hemT[leg]:SH_CUT;
+        legT=tt;d.addScaledVector(nv,.018+.05*Math.pow(Math.min(tt,ht),1.15));}
       else if(part==='jersey'){const t=clamp((chestY-v.y)/(chestY-hipY),0,1);nv.set(v.x,0,v.z-cz).normalize();
         const f=near?.04+.96*smooth(clamp(near(i)/.11,0,1)):1;
-        d.addScaledVector(nv,(.024+.03*smooth(t))*f);if(v.y<hipY+.1)d.y-=.05*smooth(clamp((hipY+.1-v.y)/.08,0,1));}
+        d.addScaledVector(nv,(.024+.03*smooth(t))*f);}
       for(let k=0;k<4;k++){const w=sw[GC[k]](i),S=w&&spec[si[GC[k]](i)];if(!S)continue;
         ab.subVectors(S.b,S.a);const t=clamp(pr.subVectors(v,S.a).dot(ab)/ab.lengthSq(),0,1);pr.copy(S.a).addScaledVector(ab,t);
         d.addScaledVector(pr.subVectors(v,pr),w*(S.f-1));}
-      v.add(d);
-      if(leg>=0&&legT>.5&&legT<SH_CUT){const l=legs[leg];ab.subVectors(l.b,l.a);const u=clamp(pr.subVectors(v,l.a).dot(ab)/ab.lengthSq(),0,1);
-        const c=cuff[l.k==='L'?0:1];c.r=Math.max(c.r,v.distanceTo(q.copy(l.a).addScaledVector(ab,u)));c.a=l.a;c.b=l.b;}
-      v.applyMatrix4(inv);pos.setXYZ(i,v.x,v.y,v.z);}
+      if(hemU)hemU[i]=leg>=0?clamp(legT/PI_.hemT[leg],0,1):0;
+      v.add(d).applyMatrix4(inv);pos.setXYZ(i,v.x,v.y,v.z);}
+    if(hemU)g.setAttribute('hemU',new T3.BufferAttribute(hemU,1));
     pos.needsUpdate=true;g.computeBoundingSphere();gg[o.geometry.uuid]=g;});
   return gg;}
 // ?look=stil: Hose, Trikot und Haut sauber neu aufteilen. Die Teilung nach Knochen-Gewicht (build_player.mjs) folgt den
@@ -1669,13 +1666,21 @@ function youthGeo(girl){
 // Bein = Anteil entlang des Oberschenkels (Hüfte 0, Knie 1, Schnitt bei SH_CUT); Rumpf = Armausschnitt vor dem Schultergelenk
 // (Anteil entlang des Oberarms) und Halsausschnitt unter dem Halsansatz. Die Ringe der Glieder stehen quer zum Knochen, der
 // Schnitt folgt deshalb einem Ring. Alle Teile teilen sich dieselben Punkte (gleiche Accessoren); Ergebnis: Index je Teil.
-const SH_CUT=.8; // Hosenlänge: Anteil des Oberschenkels (Hüfte 0, Knie 1)
+// Comic-Kopf: Kugel (r .118 wie GEO.head), unten zum Kinn schmaler, oben etwas breiter, Gesicht leicht flacher.
+function headGeo(){if(GEO.cHead)return GEO.cHead;const g=new T3.SphereGeometry(.118,32,24),p=g.attributes.position;
+  for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);const t=y/.118;
+    if(t<0){const k=1-.24*Math.pow(-t,1.5);x*=k;z*=1-.12*Math.pow(-t,1.5);y*=1.06;}else{x*=1.04;z*=1.03;}
+    if(z>0)z*=.95;p.setXYZ(i,x,y,z);}
+  g.computeVertexNormals();return GEO.cHead=g;}
+const SH_CUT=.97; // Hosenlänge: Anteil des Oberschenkels (Hüfte 0, Knie 1)
 function partIdx(){if(GLB.part!==undefined)return GLB.part;GLB.part=null;
   const ms={};GLB.src.traverse(o=>{if(o.isSkinnedMesh)ms[o.material.name]=o;});const S=ms.shorts,K=ms.skin,J=ms.jersey;
   if(!S||!K||!J)return null;const pos=K.geometry.attributes.position;if(S.geometry.attributes.position!==pos||J.geometry.attributes.position!==pos)return null;
   const sk=K.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-','')),P=sk.boneInverses.map(m=>new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
   const seg=(a,b)=>['L','R'].map(k=>({a:P[nm.indexOf(a+k)],b:P[nm.indexOf(b+k)]}));const legs=seg('thigh','shin'),arms=seg('upper_arm','forearm');
-  const neck=P[nm.indexOf('neck')];if([...legs,...arms].some(l=>!l.a||!l.b)||!neck)return null;
+  const neck=P[nm.indexOf('neck')],hipB=P[nm.indexOf('hips')],sp1=P[nm.indexOf('spine001')];if([...legs,...arms].some(l=>!l.a||!l.b)||!neck||!hipB||!sp1)return null;
+  const hemY=hipB.y+(sp1.y-hipB.y)*.2; // Trikotsaum: gerade, knapp über der Hüfte (fällt über den Hosenbund)
+  const hemT=[0,0]; // tatsächlicher Hosensaum je Bein (größter Anteil am Oberschenkel unter den Hosen-Ecken)
   const si=K.geometry.attributes.skinIndex,sw=K.geometry.attributes.skinWeight;
   const dom=i=>{let b=0,bw=-1;for(let k=0;k<4;k++){const w=sw[GC[k]](i);if(w>bw){bw=w;b=si[GC[k]](i);}}return nm[b];};
   const c=new T3.Vector3(),v=new T3.Vector3(),ab=new T3.Vector3(),out={shorts:[],skin:[],jersey:[]};
@@ -1686,11 +1691,14 @@ function partIdx(){if(GLB.part!==undefined)return GLB.part;GLB.part=null;
       // Stoff nur, wenn alle drei Ecken innerhalb des Schnitts liegen: sonst ragen lange Dreiecke als Zacken heraus
       const all=f=>ids.every(i=>{c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);return f();});
       let to=own;
-      if(ns.every(n=>/^(hips|thigh|shin)/.test(n)))to=all(()=>along(legs)<SH_CUT)?'shorts':'skin';
+      if(ns.every(n=>n==='head'))continue; // eigener Comic-Kopf (headGeo) ersetzt den Mannequin-Kopf
+      if(ns.every(n=>/^(hips|spine)/.test(n))){to=all(()=>c.y>hemY)?(all(()=>c.y<neck.y+.02)?'jersey':'skin'):'shorts';out[to].push(...ids);continue;}
+      if(ns.every(n=>/^(hips|thigh|shin)/.test(n))){to=all(()=>along(legs)<SH_CUT)?'shorts':'skin';
+        if(to==='shorts')for(const i of ids){c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);const t=along(legs),k=c.x>0===legs[0].a.x>0?0:1;if(t>hemT[k])hemT[k]=t;}}
       else if(ns.every(n=>/^(spine|shoulder|upper_arm|neck|breast)/.test(n)))to=all(()=>along(arms)<-.02&&c.y<neck.y+.02)?'jersey':'skin';
       out[to].push(...ids);}}
   const mk=a=>new T3.BufferAttribute(pos.count>65535?new Uint32Array(a):new Uint16Array(a),1);
-  return GLB.part={shorts:mk(out.shorts),skin:mk(out.skin),jersey:mk(out.jersey),sets:Object.fromEntries(Object.entries(out).map(([k,a])=>[k,new Set(a)]))};}
+  return GLB.part={hemT,shorts:mk(out.shorts),skin:mk(out.skin),jersey:mk(out.jersey),sets:Object.fromEntries(Object.entries(out).map(([k,a])=>[k,new Set(a)]))};}
 // Zwei-Knochen-IK: Handgelenk zu T (Welt), Ellbogen Richtung pole, mit Gewicht w über die Clip-Pose geblendet
 function rotWorld(bone,q){const pq=bone.parent.getWorldQuaternion(_q3);bone.quaternion.premultiply(_q2.copy(pq).invert().multiply(q).multiply(pq));bone.updateMatrixWorld(true);}
 // wie rotWorld, aber ohne die Kinder sofort zu aktualisieren (danach einmal updateMatrixWorld)
@@ -3875,8 +3883,7 @@ function setControls(on){const cont=$('controls');cont.classList.toggle('live',o
 function updateHud(){$('hRound').innerHTML=`${posBadge(G.pos)}${G.mode===5?'5:5':'4:4'} · ${Math.min(G.round,G.rounds)}/${G.rounds}`;$('hScore').textContent=G.score;$('hStreak').innerHTML=svgI('flame','fill')+' '+G.streak;drawBoard();}
 let bannerT=null;
 function showBanner(t,s){$('bnT').textContent=t;$('bnS').textContent=s||'';$('bnS').classList.toggle('hidden',!s);const b=$('banner');b.classList.add('show');clearTimeout(bannerT);bannerT=setTimeout(()=>b.classList.remove('show'),1500);}
-function flash(t,col){const f=$('flash');
-  if(COMIC){f.innerHTML='';const sp=document.createElement('span');sp.textContent=t;if(col!=='#7ff0ad')sp.className='bad';f.appendChild(sp);}else{f.textContent=t;f.style.color=col;}f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+function flash(t,col){const f=$('flash');f.textContent=t;f.style.color=col;f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
 function bestKey(){return'pgt4_best_'+G.pos+'_'+G.mode+'_'+G.level+'_'+G.plays.slice().sort().join('')+(G.noLimit?'_l':'');}
 function refreshBest(){const v=+(store.get(bestKey())||0);$('bestTxt').textContent=v?`Dein Rekord mit diesen Einstellungen: ${v} Punkte`:'';}
 function selGroup(id,attr,cb){document.querySelectorAll(`#${id} .lvb`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} .lvb`).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');cb(b.dataset[attr]);refreshBest();});}
@@ -4189,40 +4196,35 @@ window.initFX=function(M){
 // perfCheck/perfAdapt (Schatten aus) die Shader ändern; ist schon alles übersetzt, kostet es kaum etwas.
 function warmGL(){const hid=[];try{scene.traverse(o=>{if(!o.visible){o.visible=true;hid.push(o);}});renderer.compile(scene,cam);}catch(e){}hid.forEach(o=>o.visible=false);}
 function fxSize(){if(!FX.on)return;FX.C.setPixelRatio(renderer.getPixelRatio());FX.C.setSize(W,H);}
-// Comic-Schritt: Linien aus der Tiefe (Laplace von 1/z: auf ebenen Flächen null, an Kanten groß), zusätzlich an starken
-// Farbkanten; Rasterpunkte (gedrehtes Punkteraster) in den dunklen Tönen; ferne Teile (Tribüne) mit Farbversatz wie
-// schlecht passender Druck. Das Spielfeld bleibt ruhig: Punkte erst in dunklen Bereichen, Linien nach hinten dünner.
-const COMIC_FX={uniforms:{tDiffuse:{value:null},tDepth:{value:null},res:{value:new T3.Vector2(1,1)},dpr:{value:1},near:{value:.1},far:{value:200}},
+// Comic-Schritt (dezent, die Entscheidung bleibt im Vordergrund): Linien aus der Tiefe (Laplace von 1/z: auf ebenen Flächen
+// null, an Kanten groß) und an starken Farbkanten, in einer dunklen Fassung der Farbe darunter statt Schwarz. Stärke und Breite
+// nach Bildschirmgröße einer Figur (1,6 m in Pixeln bei dieser Tiefe): kleine Figuren (Handy, weit weg) nur ein Hauch Umriss,
+// sonst wirken sie fast schwarz. Feine Rasterpunkte nur in tiefen Schatten naher Figuren; Halle und Boden bleiben ruhig.
+const COMIC_FX={uniforms:{tDiffuse:{value:null},tDepth:{value:null},res:{value:new T3.Vector2(1,1)},dpr:{value:1},ppm:{value:500},near:{value:.1},far:{value:200}},
   vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader:`uniform sampler2D tDiffuse,tDepth;uniform vec2 res;uniform float dpr,near,far;varying vec2 vUv;
+  fragmentShader:`uniform sampler2D tDiffuse,tDepth;uniform vec2 res;uniform float dpr,near,far,ppm;varying vec2 vUv;
   float vz(vec2 uv){float z=texture2D(tDepth,uv).x*2.-1.;return 2.*near*far/(far+near-z*(far-near));}
   vec3 srgb(vec3 c){c=max(c,0.);return mix(c*12.92,1.055*pow(c,vec3(1./2.4))-.055,step(.0031308,c));}
   float lu(vec2 uv){return dot(srgb(texture2D(tDiffuse,uv).rgb),vec3(.299,.587,.114));}
-  void main(){vec2 px=1./res;float s=max(1.,dpr)*1.4;
+  void main(){vec2 px=1./res;float s=max(1.,dpr)*1.1;
     float c=vz(vUv),ic=1./c;
-    vec2 dx=vec2(px.x*s,0.),dy=vec2(0.,px.y*s);
+    float fig=1.6*ppm/c,big=smoothstep(50.,200.,fig),lw=s*(.6+.4*big),far1=smoothstep(16.,32.,c);
+    vec2 dx=vec2(px.x*lw,0.),dy=vec2(0.,px.y*lw);
     float lap=abs(1./vz(vUv+dx)+1./vz(vUv-dx)+1./vz(vUv+dy)+1./vz(vUv-dy)-4.*ic)/ic;
-    float far1=smoothstep(18.,40.,c);
-    float edge=smoothstep(.015,.05,lap)*(1.-far1*.85);
+    float edge=smoothstep(.02,.06,lap)*(1.-far1)*(.2+.55*big);
     float gx=lu(vUv+dx)-lu(vUv-dx),gy=lu(vUv+dy)-lu(vUv-dy);
-    edge=max(edge,smoothstep(.28,.5,length(vec2(gx,gy)))*.8*(1.-far1));
-    float mis=far1*2.2*s;
-    vec3 col=vec3(texture2D(tDiffuse,vUv+vec2(mis,mis*.4)*px).r,texture2D(tDiffuse,vUv).g,texture2D(tDiffuse,vUv-vec2(mis,mis*.4)*px).b);
-    col=srgb(col);
-    float l=dot(col,vec3(.299,.587,.114));col=clamp(mix(vec3(l),col,1.22),0.,1.);
-    vec2 p=mat2(.7071,.7071,-.7071,.7071)*gl_FragCoord.xy/(3.4*s);
-    float d=length(fract(p)-.5),r=sqrt(clamp((.5-l)/.5,0.,1.))*.62;
-    float dots=1.-smoothstep(r-.09,r+.09,d);
-    col=mix(col,col*vec3(.42,.4,.55),dots*.9);
-    vec2 q=mat2(.966,.259,-.259,.966)*gl_FragCoord.xy/(3.2*s);
-    float hl=smoothstep(.82,.95,l)*(1.-smoothstep(.12,.2,length(fract(q)-.5)));
-    col=mix(col,vec3(1.,.98,.92),hl*.35);
-    col=mix(col,vec3(.07,.05,.1),edge);
+    edge=max(edge,smoothstep(.32,.55,length(vec2(gx,gy)))*.4*(1.-far1)*big);
+    vec3 col=srgb(texture2D(tDiffuse,vUv).rgb);
+    float l=dot(col,vec3(.299,.587,.114));col=clamp(mix(vec3(l),col,1.08),0.,1.);
+    vec2 p=mat2(.7071,.7071,-.7071,.7071)*gl_FragCoord.xy/(3.*s);
+    float r=sqrt(clamp((.3-l)/.3,0.,1.))*.42,dots=1.-smoothstep(r-.08,r+.08,length(fract(p)-.5));
+    col=mix(col,col*.62,dots*.45*big*(1.-far1));
+    col=mix(col,col*vec3(.36,.34,.44),edge);
     gl_FragColor=vec4(col,1.);}`};
 const _fp=new T3.Vector3();
 function draw(rdt){
   if(!FX.on){renderer.render(scene,cam);return;}
-  if(FX.comic){const u=FX.comic.uniforms,pr=renderer.getPixelRatio();u.res.value.set(W*pr,H*pr);u.dpr.value=pr;u.near.value=cam.near;u.far.value=cam.far;FX.C.render(rdt);return;}
+  if(FX.comic){const u=FX.comic.uniforms,pr=renderer.getPixelRatio();u.res.value.set(W*pr,H*pr);u.dpr.value=pr;u.ppm.value=cam.projectionMatrix.elements[5]*H*pr*.5;u.near.value=cam.near;u.far.value=cam.far;FX.C.render(rdt);return;}
   // Tiefenunschärfe: nur in der Wurfkamera einblenden; Fokus auf dem Werfer, solange der Ball in der Hand ist, dann auf dem Ball
   const cine=!!camMode&&(G.phase==='outcome'||G.phase==='feedback');FX.dof=lerp(FX.dof,cine?1:0,1-Math.exp(-(rdt||.016)*(cine?5:12)));
   const bk=FX.bok;bk.enabled=FX.bokeh&&FX.dof>.02;
