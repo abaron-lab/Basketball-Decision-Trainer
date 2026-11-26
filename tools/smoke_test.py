@@ -157,6 +157,8 @@ async def run(a):
                     xy = await pg.evaluate(QUIZ_XY)
                     await pg.mouse.click(xy[0], xy[1])
                 assert not await pg.evaluate('!!window.__G.quiz'), 'Antippen auf der Karte hat die Frage nicht beantwortet'
+                # Nach der Antwort läuft die Wiederholung (mit Tape-Stop am Ende), danach kommt die Auswertung zurück
+                await pg.wait_for_function("window.__G.phase==='feedback'", timeout=300000)
                 want = await pg.evaluate('g=>g?window.__snd.voice.fem(window.__G.sc.rule):window.__G.sc.rule', bool(a.girl))  # Mädchen-Version: fem() stellt um
                 assert await pg.inner_text('#fbRule') == want, 'Merksatz fehlt'
                 rf = await pg.evaluate('[window.__G.sc.rule, window.__snd.voice.file(window.__G.sc.rule)]')
