@@ -1,5 +1,5 @@
 // Baut eigene Basketball-Bewegungen als Keyframe-Clips für das Mannequin in player.glb:
-// Sprungwurf, Korbleger (rechts/links), Brustpass, Überkopfpass, Fangen und Block.
+// Sprungwurf, Korbleger (rechts/links), Brustpass, Überkopfpass, Fangen, Block, Abwehr-Seitschritt und Abwehr rückwärts.
 // In Mixamo gibt es diese Bewegungen nicht, deshalb sind sie hier von Hand beschrieben.
 //
 // Aufruf (im Ordner mit three@0.149.0 und @gltf-transform/{core,extensions,functions} v3):
@@ -47,17 +47,41 @@ const STAND = {
 };
 const HOLD = { Lb: 1, Rb: 1, LN: [-1, 0, .05], RN: [1, 0, .05], LF: [0, .55, .85], RF: [0, .55, .85], LE: [1, -.7, -.2], RE: [-1, -.7, -.2] };
 
+// Abwehr rückwärts: Füße als Funktion der Zyklus-Phase, dicht abgetastet
+function backKeys() {
+  const ST = .55, Z = .22, foot = (u, x) => {
+    if (u < ST) return { f: [x, .104, -Z + 2 * Z * u / ST], p: 0, t: 1 };
+    const w = (u - ST) / (1 - ST), e = w * w * (3 - 2 * w);
+    return { f: [x, .104 + .075 * Math.sin(Math.PI * w), Z - 2 * Z * e], p: .25 * Math.sin(Math.PI * w), t: 0 };
+  };
+  const keys = [];
+  for (let i = 0; i <= 16; i++) {
+    // Phase wie bei jogBack (linkes Standbein um 0,6 zentriert), damit das Überblenden passt
+    const u = i / 16, L = foot((u + .675) % 1, .16), R = foot((u + .175) % 1, -.16);
+    keys.push({ t: u * .8, hy: .2 - .018 * Math.cos(4 * Math.PI * u), hp: .2, sp: .08, np: -.16,
+      LP: [.45, 1.0, .2], RP: [-.45, 1.0, .2], LN: [-.3, -.2, .9], RN: [.3, -.2, .9], LF: [.5, .5, .4], RF: [-.5, .5, .4],
+      Lf: L.f, Rf: R.f, Lfp: L.p, Rfp: R.p, Lt: L.t, Rt: R.t });
+  }
+  return keys;
+}
 export const CLIPS = {
   // Abwehrschritt nach links (+x), gespiegelt nach rechts. Je halber Zyklus
   // bewegt sich das Standbein relativ zur Hüfte um 32 cm entgegen der Laufrichtung.
+  // Der Schwungfuß hebt gleich am Anfang ab und setzt erst am Ende auf (sonst schleift er über den Boden).
   slide: { d: .8, mirror: true, keys: [
     { t: 0, hy: .19, hp: .16, sp: .09, np: -.14, LP: [.49, 1.04, .22], RP: [-.49, 1.04, .22],
       Lf: [.15, .104, .04], Rf: [-.15, .104, -.04] },
-    { t: .2, hy: .16, Lf: [.31, .16, .04], Rf: [-.31, .104, -.04] },
+    { t: .06, Lf: [.18, .14, .04], Rf: [-.198, .104, -.04] },
+    { t: .2, hy: .16, Lf: [.31, .175, .04], Rf: [-.31, .104, -.04] },
+    { t: .34, Lf: [.44, .14, .04], Rf: [-.422, .104, -.04] },
     { t: .4, hy: .19, Lf: [.47, .104, .04], Rf: [-.47, .104, -.04] },
-    { t: .6, hy: .16, Lf: [.31, .104, .04], Rf: [-.31, .16, -.04] },
+    { t: .46, Lf: [.422, .104, .04], Rf: [-.44, .14, -.04] },
+    { t: .6, hy: .16, Lf: [.31, .104, .04], Rf: [-.31, .175, -.04] },
+    { t: .74, Lf: [.198, .104, .04], Rf: [-.18, .14, -.04] },
     { t: .8, hy: .19, Lf: [.15, .104, .04], Rf: [-.15, .104, -.04] },
   ] },
+  // Rückwärts in Abwehrhaltung (tief, Arme seitlich): Standbein 55 % des Zyklus, 0,8 m Weg je Zyklus (STRIDE.backD).
+  backD: { d: .8, keys: backKeys() },
   // Sprungwurf, rechte Hand. Im Spiel 1,0 s; Absprung bei 0,14 s, Abwurf bei 0,24 s (shootFrom), Landung bei 0,62 s.
   shot: { d: 1.0, keys: [
     { t: 0, ...HOLD, B: [-.02, 1.15, .32], hy: .06, Rf: [-.15, .104, .08], Lf: [.13, .104, -.02] },
