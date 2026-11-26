@@ -1135,9 +1135,9 @@ const V=(x,y,z)=>new T3.Vector3(x,y,-z);
 // ================= Renderer, Szene =================
 const cv=$('c');
 const LITE=/[?&]lite\b/.test(location.search);
-// Prototyp Figuren-Look (nur per Link): ?look=stil = Figuren mit weiter Kleidung, Kinder-Proportionen, Stoff/Haut-Material;
-// ?look=comic = dazu Comic-Darstellung (Toon-Licht, Tuschelinien, Rasterpunkte, Druckversatz im Hintergrund). Ohne Parameter wie bisher.
-const LOOK=(new URLSearchParams(location.search).get('look')||'').toLowerCase(),COMIC=LOOK==='comic',STIL=COMIC||LOOK==='stil';
+// Figuren-Look: Standard ist der dezente Comic-Look (neue Figuren + Toon-Licht + feine Linien, COMIC). ?look=stil = nur die neuen
+// Figuren ohne Comic-Darstellung; ?look=klassisch = der alte Look (Mannequin-Figuren, PBR, Bloom).
+const LOOK=(new URLSearchParams(location.search).get('look')||'comic').toLowerCase(),COMIC=LOOK==='comic',STIL=COMIC||LOOK==='stil';
 // Handy/Tablet: weniger Pixel (DPR höchstens 1,5), kleinere Schattenkarte, keine Tiefenunschärfe
 const MOBILE=(()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(e){return false;}})();
 const renderer=new T3.WebGLRenderer({canvas:cv,antialias:!LITE,powerPreference:'high-performance'});
