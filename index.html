@@ -56,6 +56,15 @@ canvas#c{position:fixed;left:0;top:0;display:block;width:100%;height:100%;height
 #banner .s{display:inline-block;margin-top:6px;font-weight:900;font-size:15px;background:rgba(8,12,24,.75);border:1px solid var(--line);border-radius:999px;padding:6px 14px}
 #flash{position:fixed;left:0;right:0;top:28%;text-align:center;font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(46px,12vw,100px);letter-spacing:2px;pointer-events:none;z-index:7;opacity:0;text-shadow:0 6px 30px rgba(0,0,0,.6)}
 #flash.go{animation:fl 1.3s ease-out forwards}
+/* ?look=comic: Lautwörter als Comic-Explosion (gelb bei Erfolg, hellblau sonst; kein Rot, siehe kindgerechte Rückmeldung) */
+html.comic #flash{text-shadow:none;top:24%}
+html.comic #flash span{display:inline-block;position:relative;isolation:isolate;padding:.34em .9em .26em;font-size:.8em;letter-spacing:3px;color:#ff3d2e;
+  -webkit-text-stroke:.07em #140b22;paint-order:stroke fill;text-shadow:.06em .06em 0 #140b22;transform:rotate(-5deg) skewX(-7deg)}
+html.comic #flash span::before,html.comic #flash span::after{content:'';position:absolute;z-index:-1;clip-path:polygon(50% 4%,58% 16%,72% 9%,76% 20%,89% 21%,84% 35%,99% 40%,92% 50%,99% 60%,84% 65%,89% 79%,76% 80%,72% 91%,58% 84%,50% 96%,41% 88%,28% 91%,26% 77%,11% 79%,12% 67%,1% 60%,12% 50%,1% 40%,12% 33%,11% 21%,26% 23%,28% 9%,41% 12%)}
+html.comic #flash span::before{inset:-.42em -.62em;background:#140b22}
+html.comic #flash span::after{inset:-.32em -.5em;background:radial-gradient(circle,#fff6a8 0 18%,#ffd23f 19% 60%,#ffb01f 61%)}
+html.comic #flash span.bad{color:#fff}
+html.comic #flash span.bad::after{background:radial-gradient(circle,#d6eeff 0 18%,#7cc4ff 19% 60%,#58a8f0 61%)}
 @keyframes fl{0%{opacity:0;transform:scale(.6)}15%{opacity:1;transform:scale(1.08)}30%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-30px)}}
 #tags{position:fixed;inset:0;z-index:4;pointer-events:none}
 #meTag{position:fixed;left:0;top:0;z-index:4;pointer-events:none;will-change:transform}
@@ -1138,6 +1147,7 @@ const LITE=/[?&]lite\b/.test(location.search);
 // Prototyp Figuren-Look (nur per Link): ?look=stil = Figuren mit weiter Kleidung, Kinder-Proportionen, Stoff/Haut-Material;
 // ?look=comic = dazu Comic-Darstellung (Toon-Licht, Tuschelinien, Rasterpunkte, Druckversatz im Hintergrund). Ohne Parameter wie bisher.
 const LOOK=(new URLSearchParams(location.search).get('look')||'').toLowerCase(),COMIC=LOOK==='comic',STIL=COMIC||LOOK==='stil';
+document.documentElement.classList.toggle('comic',COMIC);
 // Handy/Tablet: weniger Pixel (DPR höchstens 1,5), kleinere Schattenkarte, keine Tiefenunschärfe
 const MOBILE=(()=>{try{return matchMedia('(pointer:coarse)').matches;}catch(e){return false;}})();
 const renderer=new T3.WebGLRenderer({canvas:cv,antialias:!LITE,powerPreference:'high-performance'});
@@ -1412,7 +1422,9 @@ function addFace(M,head,km,em,bm,ze,zb,zn){
   // ?look=stil: große Augen mit Weiß, Pupille und Lichtpunkt (Gesichter auch auf dem Handy lesbar)
   if(STIL){const wm=matC('eyeW',{color:0xf4f1ea,roughness:.35}),hl=matC('eyeH',{color:0xffffff,emissive:0xffffff,emissiveIntensity:.8});
     for(const s of[-1,1]){M(GEO.eye,wm,head,s*.041,.017,ze-.007).scale.set(1.75,2.05,.75);
-      M(GEO.eye,em,head,s*.04,.014,ze+.002).scale.set(1.05,1.25,.7);M(GEO.eye,hl,head,s*.04+.005,.022,ze+.009).scale.setScalar(.3);}}
+      M(GEO.eye,em,head,s*.04,.014,ze+.002).scale.set(1.05,1.25,.7);M(GEO.eye,hl,head,s*.04+.005,.022,ze+.009).scale.setScalar(.3);}
+    // kleiner Mund (Bogen nach unten offen = Lächeln), sonst wirken die Gesichter leer
+    const mo=M(GEO.mouth||(GEO.mouth=new T3.TorusGeometry(.019,.0042,5,12,Math.PI)),em,head,0,-.046,zn-.003);mo.rotation.z=Math.PI;mo.scale.set(1,.75,1.6);}
   else{M(GEO.eye,em,head,-.04,.015,ze);M(GEO.eye,em,head,.04,.015,ze);}
   if(GIRL){for(const s of[-1,1]){const l=M(GEO.lash,em,head,s*.056,.024,ze-.004);l.rotation.z=s*.55;const b=M(GEO.brow,bm,head,s*.042,.05,zb);b.scale.set(1.05,.7,1);b.rotation.z=-s*.22;}
     M(GEO.nose,km,head,0,-.014,zn-.002).scale.setScalar(.8);}
@@ -1612,8 +1624,8 @@ function youthGeo(girl){
   if(GLB[key])return GLB[key];
   const gg=GLB[key]={};GLB.src.updateMatrixWorld(true);
   // ?look=stil: Punkte, die Trikot und Haut gemeinsam haben (Hals, Armausschnitt): dort liegt das Trikot an, sonst sähe man
-  // die Dreieckskante als Zacken. Hosenbeine: siehe cutShorts und das Bündchen (gg.cuff) in makeGLBRig.
-  let skinSet=null;if(STIL)GLB.src.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='skin'){skinSet=new Set();const I=o.geometry.index;for(let t=0;t<I.count;t++)skinSet.add(I.getX(t));}});
+  // die Dreieckskante als Zacken. Neuaufteilung: partIdx; Hosenbeine: dazu das Bündchen (gg.cuff) in makeGLBRig.
+  const PI_=STIL?partIdx():null,skinSet=PI_&&PI_.sets.skin;
   const cuff=STIL?[{r:0},{r:0}]:null;if(cuff)gg.cuff=cuff;
   const v=new T3.Vector3(),d=new T3.Vector3(),ab=new T3.Vector3(),pr=new T3.Vector3();
   GLB.src.traverse(o=>{if(!o.isSkinnedMesh||gg[o.geometry.uuid])return;const sk=o.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-',''));
@@ -1627,7 +1639,8 @@ function youthGeo(girl){
     const by=n=>{const k=nm.indexOf(n);return k<0?0:P[k].y;},hipY=by('hips'),chestY=by('spine002');
     const legs=['L','R'].map(k=>({a:P[nm.indexOf('thigh'+k)],b:P[nm.indexOf('shin'+k)],k})).filter(l=>l.a&&l.b),cz=(P[nm.indexOf('spine001')]||new T3.Vector3()).z;
     let edge=null,near=null;
-    if(part==='jersey'&&skinSet){const I=o.geometry.index,own=new Set();for(let t=0;t<I.count;t++)own.add(I.getX(t));
+    if(PI_&&PI_[part])g.setIndex(PI_[part].clone());
+    if(part==='jersey'&&skinSet){const own=PI_.sets.jersey;
       edge=[];for(const i of own)if(skinSet.has(i))edge.push(new T3.Vector3().fromBufferAttribute(pos,i).applyMatrix4(o.bindMatrix));
       near=i=>{let m=1e9;for(const e of edge){const dd=e.distanceToSquared(v);if(dd<m)m=dd;}return Math.sqrt(m);};}
     let leg=-1,legT=0;
@@ -1640,7 +1653,7 @@ function youthGeo(girl){
         const hip=1-smooth(clamp(tt/.25,0,1));nv.normalize().lerp(q.set(v.x,0,v.z-cz).normalize(),hip).normalize();
         legT=tt;d.addScaledVector(nv,(.018+.05*Math.pow(tt,1.15))*(1-smooth(clamp((tt-SH_CUT+.1)/.1,0,1))));}
       else if(part==='jersey'){const t=clamp((chestY-v.y)/(chestY-hipY),0,1);nv.set(v.x,0,v.z-cz).normalize();
-        const f=near?.12+.88*smooth(clamp(near(i)/.07,0,1)):1;
+        const f=near?.04+.96*smooth(clamp(near(i)/.11,0,1)):1;
         d.addScaledVector(nv,(.024+.03*smooth(t))*f);if(v.y<hipY+.1)d.y-=.05*smooth(clamp((hipY+.1-v.y)/.08,0,1));}
       for(let k=0;k<4;k++){const w=sw[GC[k]](i),S=w&&spec[si[GC[k]](i)];if(!S)continue;
         ab.subVectors(S.b,S.a);const t=clamp(pr.subVectors(v,S.a).dot(ab)/ab.lengthSq(),0,1);pr.copy(S.a).addScaledVector(ab,t);
@@ -1650,28 +1663,34 @@ function youthGeo(girl){
         const c=cuff[l.k==='L'?0:1];c.r=Math.max(c.r,v.distanceTo(q.copy(l.a).addScaledVector(ab,u)));c.a=l.a;c.b=l.b;}
       v.applyMatrix4(inv);pos.setXYZ(i,v.x,v.y,v.z);}
     pos.needsUpdate=true;g.computeBoundingSphere();gg[o.geometry.uuid]=g;});
-  if(STIL)cutShorts(gg);
   return gg;}
-// ?look=stil: Hose gerade abschneiden. Die Teilung nach Knochen-Gewicht (build_player.mjs) folgt den Dreiecken und gibt am
-// Knie einen ausgefransten Saum; hier entscheidet die Lage entlang des Oberschenkels (Hüfte 0, Knie 1). Die Ringe des Beins
-// stehen quer zum Knochen, der Schnitt folgt deshalb einem Ring. Hose und Haut teilen sich dieselben Punkte (gleiche Accessoren).
+// ?look=stil: Hose, Trikot und Haut sauber neu aufteilen. Die Teilung nach Knochen-Gewicht (build_player.mjs) folgt den
+// Dreiecken und gibt ausgefranste Kanten (Knie, Schulter, Hals), die die Comic-Linien noch betonen. Hier entscheidet die Lage:
+// Bein = Anteil entlang des Oberschenkels (Hüfte 0, Knie 1, Schnitt bei SH_CUT); Rumpf = Armausschnitt vor dem Schultergelenk
+// (Anteil entlang des Oberarms) und Halsausschnitt unter dem Halsansatz. Die Ringe der Glieder stehen quer zum Knochen, der
+// Schnitt folgt deshalb einem Ring. Alle Teile teilen sich dieselben Punkte (gleiche Accessoren); Ergebnis: Index je Teil.
 const SH_CUT=.8; // Hosenlänge: Anteil des Oberschenkels (Hüfte 0, Knie 1)
-function cutShorts(gg){const ms={};GLB.src.traverse(o=>{if(o.isSkinnedMesh)ms[o.material.name]=o;});const S=ms.shorts,K=ms.skin;
-  if(!S||!K||S.geometry.attributes.position!==K.geometry.attributes.position||!gg[S.geometry.uuid]||!gg[K.geometry.uuid])return;
-  const sk=S.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-','')),P=sk.boneInverses.map(m=>new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
-  const legs=['L','R'].map(k=>({a:P[nm.indexOf('thigh'+k)],b:P[nm.indexOf('shin'+k)]}));if(legs.some(l=>!l.a||!l.b))return;
-  const pos=S.geometry.attributes.position,si=S.geometry.attributes.skinIndex,sw=S.geometry.attributes.skinWeight;
-  const isLeg=i=>{let b=0,bw=-1;for(let k=0;k<4;k++){const w=sw[GC[k]](i);if(w>bw){bw=w;b=si[GC[k]](i);}}return /^(hips|thigh|shin)/.test(nm[b]);};
-  const c=new T3.Vector3(),v=new T3.Vector3(),ab=new T3.Vector3(),TC=SH_CUT,outS=[],outK=[];
-  for(const [m,own] of [[S,outS],[K,outK]]){const I=m.geometry.index;
-    for(let t=0;t<I.count;t+=3){const a=I.getX(t),b=I.getX(t+1),d=I.getX(t+2);
-      if(!(isLeg(a)&&isLeg(b)&&isLeg(d))){own.push(a,b,d);continue;}
-      c.set(0,0,0);for(const i of[a,b,d])c.add(v.fromBufferAttribute(pos,i).applyMatrix4(S.bindMatrix));c.multiplyScalar(1/3);
-      let best=1e9,tt=0;for(const l of legs){ab.subVectors(l.b,l.a);const u=v.subVectors(c,l.a).dot(ab)/ab.lengthSq();
-        const q=c.distanceTo(v.copy(l.a).addScaledVector(ab,clamp(u,0,1)));if(q<best){best=q;tt=u;}}
-      (tt<TC?outS:outK).push(a,b,d);}}
+function partIdx(){if(GLB.part!==undefined)return GLB.part;GLB.part=null;
+  const ms={};GLB.src.traverse(o=>{if(o.isSkinnedMesh)ms[o.material.name]=o;});const S=ms.shorts,K=ms.skin,J=ms.jersey;
+  if(!S||!K||!J)return null;const pos=K.geometry.attributes.position;if(S.geometry.attributes.position!==pos||J.geometry.attributes.position!==pos)return null;
+  const sk=K.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-','')),P=sk.boneInverses.map(m=>new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
+  const seg=(a,b)=>['L','R'].map(k=>({a:P[nm.indexOf(a+k)],b:P[nm.indexOf(b+k)]}));const legs=seg('thigh','shin'),arms=seg('upper_arm','forearm');
+  const neck=P[nm.indexOf('neck')];if([...legs,...arms].some(l=>!l.a||!l.b)||!neck)return null;
+  const si=K.geometry.attributes.skinIndex,sw=K.geometry.attributes.skinWeight;
+  const dom=i=>{let b=0,bw=-1;for(let k=0;k<4;k++){const w=sw[GC[k]](i);if(w>bw){bw=w;b=si[GC[k]](i);}}return nm[b];};
+  const c=new T3.Vector3(),v=new T3.Vector3(),ab=new T3.Vector3(),out={shorts:[],skin:[],jersey:[]};
+  const along=(L)=>{let best=1e9,tt=0;for(const l of L){ab.subVectors(l.b,l.a);const u=v.subVectors(c,l.a).dot(ab)/ab.lengthSq();
+    const q=c.distanceTo(v.copy(l.a).addScaledVector(ab,clamp(u,0,1)));if(q<best){best=q;tt=u;}}return tt;};
+  for(const [m,own] of [[S,'shorts'],[K,'skin'],[J,'jersey']]){const I=m.geometry.index;
+    for(let t=0;t<I.count;t+=3){const ids=[I.getX(t),I.getX(t+1),I.getX(t+2)],ns=ids.map(dom);
+      // Stoff nur, wenn alle drei Ecken innerhalb des Schnitts liegen: sonst ragen lange Dreiecke als Zacken heraus
+      const all=f=>ids.every(i=>{c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);return f();});
+      let to=own;
+      if(ns.every(n=>/^(hips|thigh|shin)/.test(n)))to=all(()=>along(legs)<SH_CUT)?'shorts':'skin';
+      else if(ns.every(n=>/^(spine|shoulder|upper_arm|neck|breast)/.test(n)))to=all(()=>along(arms)<-.02&&c.y<neck.y+.02)?'jersey':'skin';
+      out[to].push(...ids);}}
   const mk=a=>new T3.BufferAttribute(pos.count>65535?new Uint32Array(a):new Uint16Array(a),1);
-  gg[S.geometry.uuid].setIndex(mk(outS));gg[K.geometry.uuid].setIndex(mk(outK));}
+  return GLB.part={shorts:mk(out.shorts),skin:mk(out.skin),jersey:mk(out.jersey),sets:Object.fromEntries(Object.entries(out).map(([k,a])=>[k,new Set(a)]))};}
 // Zwei-Knochen-IK: Handgelenk zu T (Welt), Ellbogen Richtung pole, mit Gewicht w über die Clip-Pose geblendet
 function rotWorld(bone,q){const pq=bone.parent.getWorldQuaternion(_q3);bone.quaternion.premultiply(_q2.copy(pq).invert().multiply(q).multiply(pq));bone.updateMatrixWorld(true);}
 // wie rotWorld, aber ohne die Kinder sofort zu aktualisieren (danach einmal updateMatrixWorld)
@@ -3856,7 +3875,8 @@ function setControls(on){const cont=$('controls');cont.classList.toggle('live',o
 function updateHud(){$('hRound').innerHTML=`${posBadge(G.pos)}${G.mode===5?'5:5':'4:4'} · ${Math.min(G.round,G.rounds)}/${G.rounds}`;$('hScore').textContent=G.score;$('hStreak').innerHTML=svgI('flame','fill')+' '+G.streak;drawBoard();}
 let bannerT=null;
 function showBanner(t,s){$('bnT').textContent=t;$('bnS').textContent=s||'';$('bnS').classList.toggle('hidden',!s);const b=$('banner');b.classList.add('show');clearTimeout(bannerT);bannerT=setTimeout(()=>b.classList.remove('show'),1500);}
-function flash(t,col){const f=$('flash');f.textContent=t;f.style.color=col;f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+function flash(t,col){const f=$('flash');
+  if(COMIC){f.innerHTML='';const sp=document.createElement('span');sp.textContent=t;if(col!=='#7ff0ad')sp.className='bad';f.appendChild(sp);}else{f.textContent=t;f.style.color=col;}f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
 function bestKey(){return'pgt4_best_'+G.pos+'_'+G.mode+'_'+G.level+'_'+G.plays.slice().sort().join('')+(G.noLimit?'_l':'');}
 function refreshBest(){const v=+(store.get(bestKey())||0);$('bestTxt').textContent=v?`Dein Rekord mit diesen Einstellungen: ${v} Punkte`:'';}
 function selGroup(id,attr,cb){document.querySelectorAll(`#${id} .lvb`).forEach(b=>b.onclick=()=>{document.querySelectorAll(`#${id} .lvb`).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');cb(b.dataset[attr]);refreshBest();});}
