@@ -1445,7 +1445,7 @@ const toonC=new Map();
 function toonMat(m){if(!m||!m.isMeshStandardMaterial)return m;let t=toonC.get(m);if(t)return t;
   t=new T3.MeshToonMaterial({gradientMap:TOON_G,map:m.map,emissiveMap:m.emissiveMap,alphaMap:m.alphaMap,transparent:m.transparent,alphaTest:m.alphaTest,
     side:m.side,depthWrite:m.depthWrite,toneMapped:m.toneMapped,vertexColors:m.vertexColors,fog:m.fog});
-  t.name=m.name;t.color=m.color;t.emissive=m.emissive;
+  t.name=m.name;t.color=m.color;t.emissive=m.emissive;t.polygonOffset=m.polygonOffset;t.polygonOffsetFactor=m.polygonOffsetFactor;t.polygonOffsetUnits=m.polygonOffsetUnits;
   for(const k of['opacity','emissiveIntensity','visible'])Object.defineProperty(t,k,{get:()=>m[k],set:v=>{m[k]=v;},configurable:true});
   if(m.onBeforeCompile!==T3.Material.prototype.onBeforeCompile)t.onBeforeCompile=m.onBeforeCompile;
   if(m.customProgramCacheKey!==T3.Material.prototype.customProgramCacheKey)t.customProgramCacheKey=m.customProgramCacheKey;
@@ -1502,10 +1502,11 @@ window.initGLB=function(GLTFLoader,skClone){
   new GLTFLoader().load('player.glb',g=>{
     GLB.src=g.scene;GLB.clips={};g.animations.forEach(a=>GLB.clips[a.name]=a);GLB.clone=skClone;GLB.ok=true;
     // Oberkörper-Fassungen von Pass und Fangen: Im Laufen laufen die Beine weiter
-    ['pass','passO','catch'].forEach(n=>{const c=GLB.clips[n];if(c)GLB.clips[n+'U']=new T3.AnimationClip(n+'U',c.duration,c.tracks.filter(t=>UPPER.test(t.name)));});
+    // Dribbeln im Gehen: nur der Oberkörper aus dem Dribbel-Clip, die Beine laufen mit (sonst schleifen die Füße)
+    ['pass','passO','catch','dribble','dribbleM'].forEach(n=>{const c=GLB.clips[n];if(c)GLB.clips[n+'U']=new T3.AnimationClip(n+'U',c.duration,c.tracks.filter(t=>UPPER.test(t.name)));});
     if(G.phase==='menu')demo();if(CARD.on)cardRig();
   },undefined,e=>console.warn('player.glb nicht geladen, alte Figuren',e));};
-const LOCO=[['idle',0],['walk',1.4],['jog',3.2],['sprint',5.8]],STRIDE={walk:1.85,jog:2.9,sprint:4.1,jogBack:2.6,runBack:2.9,sadWalk:1.6};
+const LOCO=[['idle',0],['walk',1.4],['jog',3.2],['sprint',5.8]],STRIDE={walk:1.4,jog:2.9,sprint:4.1,jogBack:1.75,runBack:1.85,sadWalk:1.1,backD:.8};
 // Zusätzliche Clips aus Mixamo (tools/add_mixamo.mjs): dribble/dribbleM (rechte/linke Hand), ready (Grundstellung),
 // jogBack/runBack (rückwärts), cheer/clap (Jubel), sadWalk. Fehlen sie, laufen die alten Clips weiter.
 const CHEERS=['cheer','clap','cheer','dance'];
@@ -1516,12 +1517,16 @@ const ACTC={shoot:'shot',layup:'layup',block:'block',pass:'pass',catch:'catch'},
 const UPPER=/spine|neck|head|shoulder|arm|hand|f_|thumb|BALL/,BL={x:0,y:0,z:0};
 const _v1=new T3.Vector3(),_v2=new T3.Vector3(),_v3=new T3.Vector3(),_v4=new T3.Vector3(),_v5=new T3.Vector3(),
   _q1=new T3.Quaternion(),_q2=new T3.Quaternion(),_q3=new T3.Quaternion(),UPV=new T3.Vector3(0,1,0);
-const glbJerseys=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>{
+function makeJersey(team,num){const kit=TEAM[team];
   // ?look=stil: Trikotstoff mit Glanz an den Kanten (sheen) und offener Innenseite (Armausschnitt, Saum)
   const material=STIL?new T3.MeshPhysicalMaterial({color:kit.jersey,roughness:.72,envMapIntensity:.45,sheen:1,sheenRoughness:.45,sheenColor:new T3.Color(.42,.42,.46),side:T3.DoubleSide})
     :new T3.MeshStandardMaterial({color:kit.jersey,roughness:.55,envMapIntensity:.55});
   const trim=new T3.Color(kit.trim),collar=new T3.Color(kit.collar);
+  // ?look=stil: glatter Schnitt im Shader; der Stoff gewinnt dicht an der Haut gegen die Haut darunter
+  if(STIL){material.polygonOffset=true;material.polygonOffsetFactor=-1;material.polygonOffsetUnits=-2;}
+  material.customProgramCacheKey=()=>'jersey'+(STIL?'S':'')+(num===undefined?'':'N'); // gleicher Code, anderer Shader je nach Nummer
   material.onBeforeCompile=shader=>{
+    if(STIL)CUT_GLSL(shader);
     // Die Position im Ruhemodell hält Seitenstreifen und Kragen bei der Animation auf dem Trikot.
     shader.uniforms.clubTrim={value:trim};
     shader.uniforms.clubCollar={value:collar};
@@ -1537,15 +1542,34 @@ const glbJerseys=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>{
         float neckHeight = 0.51 + 0.5 * lateral;
         float collarBand = (1.0 - smoothstep(0.012, 0.022, abs(jerseyRest.y - neckHeight)))
           * smoothstep(0.035, 0.065, depth) * (1.0 - smoothstep(0.13, 0.17, lateral));
-        diffuseColor.rgb = mix(mix(diffuseColor.rgb, clubTrim, stripe), clubCollar, collarBand);`);
+        diffuseColor.rgb = mix(mix(diffuseColor.rgb, clubTrim, stripe), clubCollar, collarBand);`+(num===undefined?'':`
+        // Rückennummer und Brustnummer liegen auf dem Stoff (Projektion in Ruhekoordinaten), statt als flache Tafel davor
+        vec2 nF=vec2(jerseyRest.x-numF.x,jerseyRest.y-numF.y)/numF.z+.5,nB=vec2(numB.x-jerseyRest.x,jerseyRest.y-numB.y)/numB.z+.5;
+        vec2 nUV=jerseyRest.z>numZ?nF:nB;
+        if(nUV.x>0.&&nUV.x<1.&&nUV.y>0.&&nUV.y<1.){vec4 nc=texture2D(numTex,nUV);diffuseColor.rgb=mix(diffuseColor.rgb,nc.rgb,nc.a);}`));
+    if(num!==undefined){shader.uniforms.numTex={value:numMat(team,num).map};shader.uniforms.numF={value:NUMP.f};shader.uniforms.numB={value:NUMP.b};shader.uniforms.numZ={value:NUMP.z};
+      shader.fragmentShader=shader.fragmentShader.replace('uniform vec3 clubCollar;','uniform vec3 clubCollar;\nuniform sampler2D numTex;uniform vec3 numF;uniform vec3 numB;uniform float numZ;');}
   };
-  return [team,material];
-}));
+  return material;}
+const glbJerseys=Object.fromEntries(Object.keys(TEAM).map(team=>[team,makeJersey(team)]));
+// ?look=stil: Trikot je Spieler mit aufgedruckter Nummer. Lage in Ruhekoordinaten des Trikots wie bei den alten Nummern-Tafeln
+// (Brust 1,30 m, Rücken 1,32 m; Breite 0,19 bzw. 0,21 m), Vorder- und Rückseite getrennt an der Körpermitte. Die Punkte im
+// Netz sind quantisiert (gltfpack, Bereich ±1), deshalb Welt → Netz über einen Knochen in der Ruhepose.
+const NUMP={},jerseyNums={};
+function jerseyNum(team,num){const k=team+'_'+num;if(jerseyNums[k])return jerseyNums[k];
+  if(!NUMP.f){let J=null;GLB.src.traverse(o=>{if(o.isSkinnedMesh&&o.material.name==='jersey')J=o;});GLB.src.updateMatrixWorld(true);
+    const sk=J.skeleton,bi=sk.bones.findIndex(b=>/spine003/.test(b.name)),
+      m=new T3.Matrix4().multiplyMatrices(sk.bones[bi].matrixWorld,sk.boneInverses[bi]).invert(),sc=new T3.Vector3().setFromMatrixScale(m).x,f=new T3.Vector3(0,1.30,.15).applyMatrix4(m),b=new T3.Vector3(0,1.32,-.18).applyMatrix4(m),z=new T3.Vector3(0,1.3,-.025).applyMatrix4(m);
+    NUMP.f=new T3.Vector3(f.x,f.y,.26*.72*sc);NUMP.b=new T3.Vector3(b.x,b.y,.26*.8*sc);NUMP.z=z.z;}
+  return jerseyNums[k]=makeJersey(team,num);}
 // Farben in Ruhekoordinaten: Die Besätze bleiben auch bei gebeugten Knien am Stoff.
 function kitMaterial(team,part,color,roughness,pattern){
   const material=matC(part+team,{color,roughness});
-  material.customProgramCacheKey=()=>part;
+  const cut=STIL&&part==='shoe'; // ?look=stil: glatter Schuhrand (cut aus partIdx), Schuh liegt über Socke und Haut
+  material.customProgramCacheKey=()=>part+(cut?'C':'');
+  if(cut){material.polygonOffset=true;material.polygonOffsetFactor=-1;material.polygonOffsetUnits=-2;}
   material.onBeforeCompile=shader=>{
+    if(cut)CUT_GLSL(shader);
     shader.uniforms.kitAccent={value:new T3.Color(TEAM[team].trim)};
     shader.vertexShader='varying vec3 kitRest;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nkitRest=position;');
     shader.fragmentShader='varying vec3 kitRest; uniform vec3 kitAccent;\n'+shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n'+pattern);
@@ -1563,9 +1587,11 @@ const teamGear=Object.fromEntries(Object.entries(TEAM).map(([team,kit])=>[team,{
     diffuseColor.rgb=mix(mix(diffuseColor.rgb,kitAccent,heel),vec3(.74),sole);`)
 }]));
 // ?look=stil: weite Hose mit Farbstreifen am Saum (Attribut hemU: 0 an der Hüfte, 1 am Saum, aus youthGeo) und an der Seite
+function stilSock(){if(MAT.sockS)return MAT.sockS;const m=matC('sockS',{color:0xffffff,roughness:.5});
+  m.customProgramCacheKey=()=>'stilSock';m.onBeforeCompile=CUT_GLSL;return m;}
 function stilShorts(team){const k='shortsS'+team;if(MAT[k])return MAT[k];const m=matC(k,{color:TEAM[team].shorts,roughness:.82,side:T3.DoubleSide});
-  m.customProgramCacheKey=()=>'stilShorts';
-  m.onBeforeCompile=sh=>{sh.uniforms.kitAccent={value:new T3.Color(TEAM[team].trim)};
+  m.customProgramCacheKey=()=>'stilShorts';m.polygonOffset=true;m.polygonOffsetFactor=-1;m.polygonOffsetUnits=-2;
+  m.onBeforeCompile=sh=>{CUT_GLSL(sh);sh.uniforms.kitAccent={value:new T3.Color(TEAM[team].trim)};
     sh.vertexShader='attribute float hemU;varying float vHem;varying vec3 kitRest;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvHem=hemU;kitRest=position;');
     sh.fragmentShader='varying float vHem;varying vec3 kitRest;uniform vec3 kitAccent;\n'+sh.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
       float hem=smoothstep(.885,.9,vHem)*(1.-smoothstep(.945,.96,vHem));
@@ -1575,8 +1601,8 @@ function stilShorts(team){const k='shortsS'+team;if(MAT[k])return MAT[k];const m
 function makeGLBRig(team,num,look){
   const C=TEAM[team],L=look||randLook(),si=L.skin;
   // ?look=stil: Haut etwas weicher, mit warmem Eigenleuchten (wirkt wie Licht, das in die Haut fällt, statt Plastik)
-  const MT={jersey:glbJerseys[team],shorts:STIL&&partIdx()?stilShorts(team):teamGear[team].shorts,skin:STIL?matC('ks'+si,{color:SKINC[si],roughness:.62,emissive:new T3.Color(SKINC[si]).multiplyScalar(COMIC?.02:.09),envMapIntensity:.35}):matC('k'+si,{color:SKINC[si],roughness:.55}),
-    sock:matC('t',{color:0xffffff,roughness:.5}),shoe:teamGear[team].shoe};
+  const MT={jersey:STIL&&partIdx()?jerseyNum(team,num):glbJerseys[team],shorts:STIL&&partIdx()?stilShorts(team):teamGear[team].shorts,skin:STIL?matC('ks'+si,{color:SKINC[si],roughness:.62,emissive:new T3.Color(SKINC[si]).multiplyScalar(COMIC?.02:.09),envMapIntensity:.35}):matC('k'+si,{color:SKINC[si],roughness:.55}),
+    sock:STIL&&partIdx()?stilSock():matC('t',{color:0xffffff,roughness:.5}),shoe:teamGear[team].shoe};
   const hm=matC('h'+L.hairC,{color:HAIRC[L.hairC],roughness:.9}),em=matC('eye',{color:0x111111}),bm=matC('b'+L.hairC,{color:new T3.Color(HAIRC[L.hairC]).multiplyScalar(.7),roughness:.9}),tm=MT.sock;
   const root=new T3.Group(),body=GLB.clone(GLB.src);root.add(body);
   const B={};
@@ -1599,8 +1625,9 @@ function makeGLBRig(team,num,look){
     sway=addHair(M,head,L.hair,hm,tm,1.08,head.scale,matC('tie'+num%TIES.length,{color:TIES[num%TIES.length],roughness:.5}));}
   const chest=anchor(B.spine003,0,1.30,0);
   const cz=STIL?.026:0; // weites Trikot: Nummer sitzt weiter außen
-  const nf=new T3.Mesh(GEO.num,numMat(team,num));nf.position.set(0,0,.14+cz);nf.scale.setScalar(.72);chest.add(nf);
-  const nb=new T3.Mesh(GEO.num,numMat(team,num));nb.position.set(0,.02,-.175-cz);nb.rotation.y=Math.PI;nb.scale.setScalar(.8);chest.add(nb);
+  if(!(STIL&&partIdx())){ // ?look=stil: Nummer auf dem Trikot (jerseyNum)
+    const nf=new T3.Mesh(GEO.num,numMat(team,num));nf.position.set(0,0,.14+cz);nf.scale.setScalar(.72);chest.add(nf);
+    const nb=new T3.Mesh(GEO.num,numMat(team,num));nb.position.set(0,.02,-.175-cz);nb.rotation.y=Math.PI;nb.scale.setScalar(.8);chest.add(nb);}
   // ?look=stil: Kinder-Proportionen, größerer Kopf (nach dem Setzen der Anker, damit Gesicht und Haare mitwachsen)
   if(STIL){B.head.scale.setScalar(1.16);B.neck&&B.neck.scale.set(.96,1,.96);}
   const mx=new T3.AnimationMixer(body),A={};
@@ -1623,7 +1650,7 @@ function youthGeo(girl){
   const gg=GLB[key]={};GLB.src.updateMatrixWorld(true);
   // ?look=stil: Punkte, die Trikot und Haut gemeinsam haben (Hals, Armausschnitt): dort liegt das Trikot an, sonst sähe man
   // die Dreieckskante als Zacken. Neuaufteilung: partIdx; Saumstreifen: Attribut hemU und stilShorts.
-  const PI_=STIL?partIdx():null,skinSet=PI_&&PI_.sets.skin;
+  const PI_=STIL?partIdx():null;
 
   const v=new T3.Vector3(),d=new T3.Vector3(),ab=new T3.Vector3(),pr=new T3.Vector3();
   GLB.src.traverse(o=>{if(!o.isSkinnedMesh||gg[o.geometry.uuid])return;const sk=o.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-',''));
@@ -1635,12 +1662,12 @@ function youthGeo(girl){
     // hin immer weiter, das Trikot unten weiter und etwas länger, damit es über den Hosenbund fällt.
     const part=STIL&&o.material&&o.material.name,nv=new T3.Vector3(),q=new T3.Vector3();
     const by=n=>{const k=nm.indexOf(n);return k<0?0:P[k].y;},hipY=by('hips'),chestY=by('spine002');
-    const legs=['L','R'].map(k=>({a:P[nm.indexOf('thigh'+k)],b:P[nm.indexOf('shin'+k)],k})).filter(l=>l.a&&l.b),cz=(P[nm.indexOf('spine001')]||new T3.Vector3()).z;
+    const legs=['L','R'].map(k=>({a:P[nm.indexOf('thigh'+k)],b:P[nm.indexOf('shin'+k)],k})).filter(l=>l.a&&l.b),shins=['L','R'].map(k=>({a:P[nm.indexOf('shin'+k)],b:P[nm.indexOf('foot'+k)]})).filter(l=>l.a&&l.b),cz=(P[nm.indexOf('spine001')]||new T3.Vector3()).z;
     let edge=null,near=null;
     if(PI_&&PI_[part])g.setIndex(PI_[part].clone());
-    if(part==='jersey'&&skinSet){const own=PI_.sets.jersey;
-      edge=[];for(const i of own)if(skinSet.has(i))edge.push(new T3.Vector3().fromBufferAttribute(pos,i).applyMatrix4(o.bindMatrix));
-      near=i=>{let m=1e9;for(const e of edge){const dd=e.distanceToSquared(v);if(dd<m)m=dd;}return Math.sqrt(m);};}
+    if(PI_&&PI_.cut[part])g.setAttribute('cut',new T3.BufferAttribute(PI_.cut[part],1));
+    // Trikot liegt an Hals und Armausschnitt an (Abstand zum Schnitt, hug), sonst steht es als weiter Stoff ab
+    if(part==='jersey'&&PI_)near=i=>Math.max(0,PI_.hug[i]);
     let leg=-1,legT=0;const hemU=part==='shorts'&&PI_?new Float32Array(pos.count):null; // Saumstreifen im Shader (stilShorts)
     for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i).applyMatrix4(o.bindMatrix);d.set(0,0,0);
       leg=-1;
@@ -1650,13 +1677,17 @@ function youthGeo(girl){
         const hip=1-smooth(clamp(tt/.25,0,1));nv.normalize().lerp(q.set(v.x,0,v.z-cz).normalize(),hip).normalize();
         const ht=PI_?PI_.hemT[leg]:SH_CUT;
         legT=tt;d.addScaledVector(nv,.018+.05*Math.pow(Math.min(tt,ht),1.15));}
+      else if(part==='sock'&&shins.length){ // Socke am Bund 3 mm über der Haut
+        let best=1e9,bu=0;for(const l of shins){ab.subVectors(l.b,l.a);const u=clamp(pr.subVectors(v,l.a).dot(ab)/ab.lengthSq(),0,1);q.copy(l.a).addScaledVector(ab,u);const dd=v.distanceTo(q);if(dd<best){best=dd;bu=u;nv.subVectors(v,q);}}
+        // nur am Bund (dort liegt noch Haut darunter); weiter unten nicht, sonst sticht die Socke oben aus dem Schuh
+        d.addScaledVector(nv.normalize(),.003*(1-smooth(clamp((bu-PI_.sockT)/.12,0,1))));}
       else if(part==='jersey'){const t=clamp((chestY-v.y)/(chestY-hipY),0,1);nv.set(v.x,0,v.z-cz).normalize();
         const f=near?.04+.96*smooth(clamp(near(i)/.11,0,1)):1;
         d.addScaledVector(nv,(.024+.03*smooth(t))*f);}
       for(let k=0;k<4;k++){const w=sw[GC[k]](i),S=w&&spec[si[GC[k]](i)];if(!S)continue;
         ab.subVectors(S.b,S.a);const t=clamp(pr.subVectors(v,S.a).dot(ab)/ab.lengthSq(),0,1);pr.copy(S.a).addScaledVector(ab,t);
         d.addScaledVector(pr.subVectors(v,pr),w*(S.f-1));}
-      if(hemU)hemU[i]=leg>=0?clamp(legT/PI_.hemT[leg],0,1):0;
+      if(hemU)hemU[i]=leg>=0?clamp(legT/PI_.hemT[leg],0,1.3):0;
       v.add(d).applyMatrix4(inv);pos.setXYZ(i,v.x,v.y,v.z);}
     if(hemU)g.setAttribute('hemU',new T3.BufferAttribute(hemU,1));
     pos.needsUpdate=true;g.computeBoundingSphere();gg[o.geometry.uuid]=g;});
@@ -1674,31 +1705,54 @@ function headGeo(){if(GEO.cHead)return GEO.cHead;const g=new T3.SphereGeometry(.
   g.computeVertexNormals();return GEO.cHead=g;}
 const SH_CUT=.97; // Hosenlänge: Anteil des Oberschenkels (Hüfte 0, Knie 1)
 function partIdx(){if(GLB.part!==undefined)return GLB.part;GLB.part=null;
-  const ms={};GLB.src.traverse(o=>{if(o.isSkinnedMesh)ms[o.material.name]=o;});const S=ms.shorts,K=ms.skin,J=ms.jersey;
-  if(!S||!K||!J)return null;const pos=K.geometry.attributes.position;if(S.geometry.attributes.position!==pos||J.geometry.attributes.position!==pos)return null;
+  const ms={};GLB.src.traverse(o=>{if(o.isSkinnedMesh)ms[o.material.name]=o;});const S=ms.shorts,K=ms.skin,J=ms.jersey,SO=ms.sock,SH=ms.shoe;
+  if(!S||!K||!J)return null;const pos=K.geometry.attributes.position;if([S,J,SO,SH].some(m=>m&&m.geometry.attributes.position!==pos))return null;
   const sk=K.skeleton,nm=sk.bones.map(b=>b.name.replace('DEF-','')),P=sk.boneInverses.map(m=>new T3.Vector3().setFromMatrixPosition(m.clone().invert()));
-  const seg=(a,b)=>['L','R'].map(k=>({a:P[nm.indexOf(a+k)],b:P[nm.indexOf(b+k)]}));const legs=seg('thigh','shin'),arms=seg('upper_arm','forearm');
-  const neck=P[nm.indexOf('neck')],hipB=P[nm.indexOf('hips')],sp1=P[nm.indexOf('spine001')];if([...legs,...arms].some(l=>!l.a||!l.b)||!neck||!hipB||!sp1)return null;
+  const seg=(a,b)=>['L','R'].map(k=>({a:P[nm.indexOf(a+k)],b:P[nm.indexOf(b+k)]}));const legs=seg('thigh','shin'),arms=seg('upper_arm','forearm'),shins=seg('shin','foot');
+  const neck=P[nm.indexOf('neck')],hipB=P[nm.indexOf('hips')],sp1=P[nm.indexOf('spine001')];if([...legs,...arms,...shins].some(l=>!l.a||!l.b)||!neck||!hipB||!sp1)return null;
   const hemY=hipB.y+(sp1.y-hipB.y)*.2; // Trikotsaum: gerade, knapp über der Hüfte (fällt über den Hosenbund)
-  const hemT=[0,0]; // tatsächlicher Hosensaum je Bein (größter Anteil am Oberschenkel unter den Hosen-Ecken)
-  const si=K.geometry.attributes.skinIndex,sw=K.geometry.attributes.skinWeight;
+  const si=K.geometry.attributes.skinIndex,sw=K.geometry.attributes.skinWeight,n=pos.count;
   const dom=i=>{let b=0,bw=-1;for(let k=0;k<4;k++){const w=sw[GC[k]](i);if(w>bw){bw=w;b=si[GC[k]](i);}}return nm[b];};
-  const c=new T3.Vector3(),v=new T3.Vector3(),ab=new T3.Vector3(),out={shorts:[],skin:[],jersey:[]};
-  const along=(L)=>{let best=1e9,tt=0;for(const l of L){ab.subVectors(l.b,l.a);const u=v.subVectors(c,l.a).dot(ab)/ab.lengthSq();
+  const c=new T3.Vector3(),v=new T3.Vector3(),ab=new T3.Vector3();
+  const along=L=>{let best=1e9,tt=0;for(const l of L){ab.subVectors(l.b,l.a);const u=v.subVectors(c,l.a).dot(ab)/ab.lengthSq();
     const q=c.distanceTo(v.copy(l.a).addScaledVector(ab,clamp(u,0,1)));if(q<best){best=q;tt=u;}}return tt;};
-  for(const [m,own] of [[S,'shorts'],[K,'skin'],[J,'jersey']]){const I=m.geometry.index;
-    for(let t=0;t<I.count;t+=3){const ids=[I.getX(t),I.getX(t+1),I.getX(t+2)],ns=ids.map(dom);
-      // Stoff nur, wenn alle drei Ecken innerhalb des Schnitts liegen: sonst ragen lange Dreiecke als Zacken heraus
-      const all=f=>ids.every(i=>{c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);return f();});
-      let to=own;
-      if(ns.every(n=>n==='head'))continue; // eigener Comic-Kopf (headGeo) ersetzt den Mannequin-Kopf
-      if(ns.every(n=>/^(hips|spine)/.test(n))){to=all(()=>c.y>hemY)?(all(()=>c.y<neck.y+.02)?'jersey':'skin'):'shorts';out[to].push(...ids);continue;}
-      if(ns.every(n=>/^(hips|thigh|shin)/.test(n))){to=all(()=>along(legs)<SH_CUT)?'shorts':'skin';
-        if(to==='shorts')for(const i of ids){c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);const t=along(legs),k=c.x>0===legs[0].a.x>0?0:1;if(t>hemT[k])hemT[k]=t;}}
-      else if(ns.every(n=>/^(spine|shoulder|upper_arm|neck|breast)/.test(n)))to=all(()=>along(arms)<-.02&&c.y<neck.y+.02)?'jersey':'skin';
-      out[to].push(...ids);}}
+  const len=L=>L[0].a.distanceTo(L[0].b),lT=len(legs),lA=len(arms),lS=len(shins);
+  // Socke: Schnitt in der Mitte der alten Kante (Punkte, die Socke und Haut gemeinsam haben)
+  const dn=new Array(n);for(let i=0;i<n;i++)dn[i]=dom(i);
+  let sockT=.62;if(SO){const ks=new Set(),ss=new Set(),I=SO.geometry.index,IK=K.geometry.index;for(let t=0;t<I.count;t++)ss.add(I.getX(t));for(let t=0;t<IK.count;t++)ks.add(IK.getX(t));
+    let sum=0,m=0;for(const i of ss)if(ks.has(i)){c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);sum+=along(shins);m++;}if(m)sockT=sum/m;}
+  // Schuhrand ebenso (Punkte, die Schuh und Socke gemeinsam haben)
+  let shoeT=.93;if(SH&&SO){const hs=new Set(),os=new Set(),I=SH.geometry.index,IO=SO.geometry.index;for(let t=0;t<I.count;t++)hs.add(I.getX(t));for(let t=0;t<IO.count;t++)os.add(IO.getX(t));
+    let sum=0,m=0;for(const i of hs)if(os.has(i)){c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);sum+=along(shins);m++;}if(m)shoeT=sum/m;}
+  // Schnitt-Felder je Punkt (ungefähr in Metern, > 0 = innen). Der Shader verwirft Pixel mit Wert < 0: Die Kante folgt dann
+  // nicht mehr den Dreiecken (Zacken), sondern verläuft glatt durch sie hindurch.
+  const cut={shorts:new Float32Array(n),jersey:new Float32Array(n),sock:new Float32Array(n),shoe:new Float32Array(n)},hug=new Float32Array(n);
+  for(let i=0;i<n;i++){c.fromBufferAttribute(pos,i).applyMatrix4(K.bindMatrix);const y=c.y,tl=along(legs),ta=along(arms),ts=along(shins);
+    cut.shorts[i]=Math.min(hemY+.04-y,(SH_CUT-tl)*lT);
+    hug[i]=Math.min(neck.y+.02-y,(-.02-ta)*lA);cut.jersey[i]=Math.min(hug[i],y-hemY);
+    cut.sock[i]=(ts-sockT)*lS;cut.shoe[i]=(ts-shoeT)*lS;}
+  const out={shorts:[],skin:[],jersey:[],sock:[],shoe:[]},src=[[S,'shorts'],[K,'skin'],[J,'jersey']];if(SO)src.push([SO,'sock']);if(SH&&SO)src.push([SH,'shoe']);
+  for(const [m,own] of src){const I=m.geometry.index;
+    for(let t=0;t<I.count;t+=3){const ids=[I.getX(t),I.getX(t+1),I.getX(t+2)],ns=ids.map(i=>dn[i]);
+      if(ns.every(x=>x==='head'))continue; // eigener Comic-Kopf (headGeo) ersetzt den Mannequin-Kopf
+      const any=k=>ids.some(i=>cut[k][i]>0),all=k=>ids.every(i=>cut[k][i]>0);
+      // Stoff bekommt jedes Dreieck, das den Schnitt berührt; Haut alles, was nicht ganz unter Stoff liegt
+      let inside=false;
+      if(own==='shoe'){out.shoe.push(...ids);if(!all('shoe'))out.sock.push(...ids);continue;} // oben weggeschnitten: Socke darunter
+      if(own==='sock'||own==='skin'&&SH&&SO&&ns.every(x=>/^(shin|foot|toe)/.test(x)))if(any('shoe'))out.shoe.push(...ids);
+      if(own==='sock'){out.sock.push(...ids);if(!all('sock'))out.skin.push(...ids);continue;} // oben weggeschnitten: Haut darunter
+      if(ns.every(x=>/^(hips|spine)/.test(x))){if(any('jersey')){out.jersey.push(...ids);inside=all('jersey');}
+        if(any('shorts')){out.shorts.push(...ids);inside=inside||all('shorts');}}
+      else if(ns.every(x=>/^(hips|thigh|shin)/.test(x))){if(any('shorts')){out.shorts.push(...ids);inside=all('shorts');}
+        if(SO&&ns.every(x=>/^(shin|foot)/.test(x))&&any('sock')){out.sock.push(...ids);inside=inside||all('sock');}}
+      else if(SO&&ns.every(x=>/^(shin|foot)/.test(x))&&any('sock')){out.sock.push(...ids);inside=all('sock');}
+      else if(ns.every(x=>/^(spine|shoulder|upper_arm|neck|breast)/.test(x))&&any('jersey')){out.jersey.push(...ids);inside=all('jersey');}
+      if(!inside)out.skin.push(...ids);}}
   const mk=a=>new T3.BufferAttribute(pos.count>65535?new Uint32Array(a):new Uint16Array(a),1);
-  return GLB.part={hemT,shorts:mk(out.shorts),skin:mk(out.skin),jersey:mk(out.jersey),sets:Object.fromEntries(Object.entries(out).map(([k,a])=>[k,new Set(a)]))};}
+  return GLB.part={hemT:[SH_CUT,SH_CUT],hug,cut,sockT,shorts:mk(out.shorts),skin:mk(out.skin),jersey:mk(out.jersey),sock:SO?mk(out.sock):null,shoe:SH&&SO?mk(out.shoe):null};}
+// Stoff-Schnitt im Shader (Attribut cut aus partIdx): Pixel außerhalb verwerfen
+const CUT_GLSL=sh=>{sh.vertexShader='attribute float cut;varying float vCut;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvCut=cut;');
+  sh.fragmentShader='varying float vCut;\n'+sh.fragmentShader.replace('#include <clipping_planes_fragment>','#include <clipping_planes_fragment>\nif(vCut<0.)discard;');};
 // Zwei-Knochen-IK: Handgelenk zu T (Welt), Ellbogen Richtung pole, mit Gewicht w über die Clip-Pose geblendet
 function rotWorld(bone,q){const pq=bone.parent.getWorldQuaternion(_q3);bone.quaternion.premultiply(_q2.copy(pq).invert().multiply(q).multiply(pq));bone.updateMatrixWorld(true);}
 // wie rotWorld, aber ohne die Kinder sofort zu aktualisieren (danach einmal updateMatrixWorld)
@@ -1717,6 +1771,56 @@ function ik2(a,T,pole,w){
   e.addScaledVector(ax,-e.dot(ax));pv.addScaledVector(ax,-pv.dot(ax));
   if(e.lengthSq()>1e-6&&pv.lengthSq()>1e-6){let ang=e.angleTo(pv);if(ax.dot(e.clone().cross(pv))<0)ang=-ang;rotWorld(up,_q2.setFromAxisAngle(ax,ang).clone());}
   if(w<.999){up.quaternion.slerpQuaternions(u0,up.quaternion.clone(),w);lo.quaternion.slerpQuaternions(l0,lo.quaternion.clone(),w);up.updateMatrixWorld(true);}
+}
+// Füße am Boden festhalten: Die Clips passen nie genau zum Weg der Figur (anderes Tempo, Drehen auf der Stelle,
+// Hüftdrehung beim Seitwärtslaufen, Überblenden). Steht ein Fuß im Clip auf dem Boden (Knöchel unten = flach,
+// sonst Fußspitze unten), merkt sich der Fuß (ox, oz) den Abstand zwischen Clip-Fuß und dem Punkt, an dem er aufgesetzt hat;
+// Zwei-Knochen-IK zieht das Bein dorthin, der Fuß behält die Drehung aus dem Clip. Wird der Abstand zu groß, rutscht
+// der Punkt mit (beim Laufen) bzw. macht die Figur im Stand einen kleinen Schritt (beim Drehen auf der Stelle).
+// Nach dem Abheben baut sich der Abstand in einer S-Kurve ab (FOOT.rel Sekunden).
+const FOOT={flat:.135,toe:.05,drag:.2,step:.13,stepT:.2,lift:.07,rel:.22};
+const _fA=new T3.Vector3(),_fT=new T3.Vector3(),_fK=new T3.Vector3(),_fH=new T3.Vector3(),_fP=new T3.Vector3(),_fQ=new T3.Quaternion(),_fQ2=new T3.Quaternion();
+function footIK(p,r,c,dt,s,busy){
+  if(!r.legs)r.legs=['L','R'].map(k=>({k,up:r.B['thigh'+k],lo:r.B['shin'+k],hand:r.B['foot'+k],toe:r.B['toe'+k]}));
+  if(!r.legs[0].up||!r.legs[0].toe)return;
+  const F=c.feet||(c.feet=r.legs.map(()=>({ox:0,oz:0,m:'',lx:0,lz:0,st:-1})));
+  // Sprung im Weg (neue Runde, Wiederholung): nichts festhalten
+  const jump=c.fx!==undefined&&Math.hypot(p.x-c.fx,p.z-c.fz)>.6;c.fx=p.x;c.fz=p.z;
+  if(jump){F.forEach(f=>{f.ox=f.oz=0;f.m='';f.st=-1;});return;}
+  const calm=s<.6&&!busy&&!(p.act&&/pass|catch/.test(p.act.k));
+  // Laufrichtung im Körper-Koordinatensystem (Spiel: x, z → three: x, −z), mit der Drehung der Figur
+  const ca=Math.cos(r.root.rotation.y),sa=Math.sin(r.root.rotation.y),wx=p.vx||0,wz=-(p.vz||0),bx=ca*wx-sa*wz,bz=sa*wx+ca*wz,bs=Math.hypot(bx,bz);
+  for(let i=0;i<2;i++){const L=r.legs[i],f=F[i],o=F[1-i];
+    L.hand.getWorldPosition(_fA);L.toe.getWorldPosition(_fT);
+    // Schwungbein: Der Clip bewegt den Fuß (relativ zur Figur) in Laufrichtung bzw. im Stand überhaupt merklich
+    const lo=r.root.worldToLocal(_fK.copy(_fA));
+    if(f.px!==undefined&&dt>0){const vx=(lo.x-f.px)/dt,vz=(lo.z-f.pz)/dt,q=1-Math.exp(-dt*30);f.vx=lerp(f.vx||0,vx,q);f.vz=lerp(f.vz||0,vz,q);}
+    f.px=lo.x;f.pz=lo.z;
+    const along=bs>.3?(f.vx*bx+f.vz*bz)/bs:Math.hypot(f.vx||0,f.vz||0),swing=along>(bs>.3?.45:.6);
+    const flat=!swing&&_fA.y<FOOT.flat&&_fT.y<FOOT.toe,toe=!swing&&!flat&&_fT.y<FOOT.toe*.8,m=flat?'f':toe?'t':'';
+    const P=flat?_fA:_fT;
+    if(f.st>=0){ // kleiner Schritt: Abstand weich auf null, Fuß im Bogen
+      f.st+=dt/FOOT.stepT;const u=Math.min(1,f.st),e=1-u*u*(3-2*u);f.ox=f.sx*e;f.oz=f.sz*e;
+      if(u>=1){f.st=-1;f.m=m;f.lx=P.x;f.lz=P.z;f.ox=f.oz=0;}}
+    else if(m){
+      if(m!==f.m){f.lx=P.x+f.ox;f.lz=P.z+f.oz;f.m=m;}
+      f.ox=f.lx-P.x;f.oz=f.lz-P.z;const d=Math.hypot(f.ox,f.oz);
+      if(calm&&d>FOOT.step&&o.st<0&&(d>=Math.hypot(o.ox,o.oz)||!o.m)){f.st=0;f.sx=f.ox;f.sz=f.oz;}
+      else if(d>FOOT.drag){const q=FOOT.drag/d;f.ox*=q;f.oz*=q;f.lx=P.x+f.ox;f.lz=P.z+f.oz;}}
+    else{ // abgehoben: Abstand in einer weichen S-Kurve abbauen (sonst springt das Knie im ersten Bild nach vorn)
+      if(f.m||f.rt===undefined){f.m='';f.rt=0;f.rx=f.ox;f.rz=f.oz;}
+      f.rt=Math.min(1,f.rt+dt/FOOT.rel);const e=1-f.rt*f.rt*(3-2*f.rt);f.ox=f.rx*e;f.oz=f.rz*e;}
+    // Schwungbein, das im Clip-Gemisch über den Boden schleift (Überblenden, flacher Seitschritt): etwas anheben
+    f.h=lerp(f.h||0,swing?FOOT.lift*.8*clamp((along-.3)/1.2,0,1):0,1-Math.exp(-dt*18));
+    const lift=(f.st>=0?FOOT.lift*Math.sin(Math.PI*Math.min(1,f.st)):0)+Math.max(0,f.h-Math.max(0,_fA.y-.104));
+    if(Math.abs(f.ox)+Math.abs(f.oz)+lift<.002)continue;
+    // Ziel des Knöchels; Knie bleibt in seiner Ebene (Pole vor dem Knie)
+    L.hand.getWorldQuaternion(_fQ);
+    const T=_fP.set(_fA.x+f.ox,_fA.y+lift,_fA.z+f.oz);
+    L.up.getWorldPosition(_fH);L.lo.getWorldPosition(_fK);
+    const pole=_fK.clone().addScaledVector(_fK.clone().sub(_fH.clone().add(_fA).multiplyScalar(.5)).normalize(),.6);
+    ik2(L,T.clone(),pole,1);
+    L.hand.quaternion.copy(L.lo.getWorldQuaternion(_fQ2).invert().multiply(_fQ));L.hand.updateMatrixWorld(true);}
 }
 // Sprunghöhe der Aktionen (wie poseP)
 function actJY(p){const A=p.act;if(!A)return 0;const t=A.t;
@@ -1754,29 +1858,34 @@ function poseGLB(p,dt){
   c.bk=lerp(c.bk||0,c.bm||0,1-Math.exp(-dt*8));
   const mv=W.walk+W.jog+W.sprint,ub=clamp((s-2.6)/1.4,0,1);
   W.jogBack=mv*c.bk*(1-ub);W.runBack=mv*c.bk*ub;W.walk*=1-c.bk;W.jog*=1-c.bk;W.sprint*=1-c.bk;
+  // Verteidiger rückwärts: tief in Abwehrhaltung (eigener Clip backD), erst bei hohem Tempo aufrecht rückwärts laufen
+  const bd=def&&has('backD')?1-clamp((s-1.7)/.8,0,1):0;W.backD=(W.jogBack+W.runBack)*bd;W.jogBack*=1-bd;W.runBack*=1-bd;
   // traurig und unterwegs: sadWalk statt normalem Gehen
   const sadMv=A&&A.k==='sad'&&has('sadWalk')?clamp((s-.3)/.5,0,1):0;
   if(sadMv){W.sadWalk=(W.walk+W.jog+W.sprint+W.jogBack+W.runBack)*sadMv;for(const n of['walk','jog','sprint','jogBack','runBack'])W[n]*=1-sadMv;}
-  let sw=0,sl=0;for(const n of['walk','jog','sprint','jogBack','runBack','sadWalk'])if(W[n]){sw+=W[n]*STRIDE[n];sl+=W[n];}
+  let sw=0,sl=0;for(const n of['walk','jog','sprint','jogBack','runBack','sadWalk','backD'])if(W[n]){sw+=W[n]*STRIDE[n];sl+=W[n];}
   const driving=kickComparison?.version!=='before'&&G.phase==='approach'&&ball.owner===p&&!ball.hold;
   // Beim langsamen Andribbeln mischt der Gehclip mit der Grundstellung:
   // Seine kürzeren Schritte brauchen entsprechend weniger Weg pro Zyklus.
   const stride=sl>.001?sw/sl:STRIDE.walk;
-  const distance=driving?(p.travel||0):dt*s;
+  // Weg, den die Figur in diesem Bild wirklich zurücklegt (p.spd ist geglättet und hinkt hinterher)
+  const distance=driving||p.path&&dt>0?(p.travel||0):dt*s;
   r.ph=(r.ph+distance/(driving?stride*Math.max(.35,sl):stride))%1;
   // Ballführer: Dribbel-Clip (Hand passend zur Ballseite), Takt an den Ball gekoppelt
   const sb=p.dside>0?1:-1;
   const drib=(!driving||p.travel===0)&&ball.owner===p&&!ball.hold&&has('dribble')&&!(A&&/shoot|layup|pass/.test(A.k))?1-clamp((s-.6)/1.6,0,1):0;
-  let cr=def&&s<3.5&&!(p.armsUp>0)?.42:(p===Hd&&ball.owner===p&&!drib?.14:0);if(A&&/shoot|layup|block|cheer/.test(A.k))cr=0;
+  let cr=(def&&s<3.5&&!(p.armsUp>0)?.42:(p===Hd&&ball.owner===p&&!drib?.14:0))*(1-W.backD);
+  // im Stand der ganze Dribbel-Clip, in Bewegung nur sein Oberkörper (dribbleU)
+  const dmv=has('dribbleU')?clamp((s-.25)/.5,0,1):0,dF=drib*(1-dmv),dU=drib*dmv;if(A&&/shoot|layup|block|cheer/.test(A.k))cr=0;
   const air=clamp(jy/.12,0,1),cheer=A&&A.k==='cheer'&&A.t>=(A.dl||0)?1:0;
   if(cheer&&!c.ck)c.ck=CHEERS.filter(has)[(p.num+(G.round||0))%CHEERS.filter(has).length]||'dance';if(!cheer)c.ck=null;
   const idleN=has('ready')?'ready':'idle';
-  const tw={idle:0,ready:0,walk:W.walk,jog:W.jog,sprint:W.sprint,jogBack:W.jogBack,runBack:W.runBack,sadWalk:W.sadWalk||0,
-    crouch:cr*(1-clamp(s/1.5,0,1)),crouchFwd:cr*clamp(s/1.5,0,1),jump:air,dance:0,cheer:0,clap:0,dribble:0,dribbleM:0};
-  tw[idleN]=W.idle;if(cheer)tw[c.ck]=1;if(drib)tw[sb>0?'dribbleM':'dribble']=drib;
+  const tw={idle:0,ready:0,walk:W.walk,jog:W.jog,sprint:W.sprint,jogBack:W.jogBack,runBack:W.runBack,sadWalk:W.sadWalk||0,backD:W.backD,
+    crouch:cr*(1-clamp(s/1.5,0,1)),crouchFwd:cr*clamp(s/1.5,0,1)*(1-c.bk),jump:air,dance:0,cheer:0,clap:0,dribble:0,dribbleM:0};
+  tw[idleN]=W.idle;if(cheer)tw[c.ck]=1;if(dF)tw[sb>0?'dribbleM':'dribble']=dF;
   const keep=(1-air)*(1-cheer);
-  for(const n of['idle','ready','walk','jog','sprint','jogBack','runBack','sadWalk'])tw[n]*=(1-cr)*(1-drib)*keep;
-  tw.crouch*=(1-drib)*keep;tw.crouchFwd*=(1-drib)*keep;tw.dribble*=keep;tw.dribbleM*=keep;tw.jump*=(1-cheer);
+  for(const n of['idle','ready','walk','jog','sprint','jogBack','runBack','sadWalk'])tw[n]*=(1-cr)*(1-dF)*keep;
+  tw.backD*=(1-dF)*keep;tw.crouch*=(1-dF)*keep;tw.crouchFwd*=(1-dF)*keep;tw.dribble*=keep;tw.dribbleM*=keep;tw.jump*=(1-cheer);
   for(const n in tw)tw[n]*=1-slideWeight;
   tw.slide=sideways>=0?slideWeight:0;
   tw.slideM=sideways<0?slideWeight:0;
@@ -1803,12 +1912,15 @@ function poseGLB(p,dt){
     if(n==='slide'||n==='slideM'){an.time=(n==='slide'?phase:1-phase)*D;continue;}
     an.time=n==='idle'||n==='ready'||n==='crouch'||n==='jump'?(c.it+p.ph)%D:/dance|cheer|clap/.test(n)?c.dt2%D:/dribble/.test(n)?db*D/3:r.ph*D;}
   for(const n of ACT_ALL){const an=r.A[n];if(!an)continue;const on=n===c.ac&&c.aw>0;an.setEffectiveWeight(on?(up?ua/(1-ua):fa):0);if(on)an.time=(c.at||0)*an.getClip().duration;}
+  for(const n of['dribbleU','dribbleMU']){const an=r.A[n];if(!an)continue;const w=(n==='dribbleMU')===(sb>0)?dU*keep*(1-fa)*(1-ua):0;
+    c['w_'+n]=lerp(c['w_'+n]||0,Math.min(w,.9),k);an.setEffectiveWeight(c['w_'+n]/(1-c['w_'+n]));an.time=db*an.getClip().duration/3;}
   r.mx.update(0);
   // seitlich laufen: Hüfte dreht in Laufrichtung, Wirbelsäule dreht zurück, damit die Brust zum Ball zeigt
   c.hyw=lerp(c.hyw||0,yawT,1-Math.exp(-dt*10));
   if(Math.abs(c.hyw)>.01){r.root.updateMatrixWorld(true);rotWorldN(r.B.hips,_q1.setFromAxisAngle(UPV,c.hyw));
     rotWorldN(r.B.spine001,_q1.setFromAxisAngle(UPV,-c.hyw*.4));rotWorldN(r.B.spine002,_q1.setFromAxisAngle(UPV,-c.hyw*.3));rotWorldN(r.B.spine003,_q1.setFromAxisAngle(UPV,-c.hyw*.3));}
   r.root.updateMatrixWorld(true);
+  footIK(p,r,c,dt,s,busy);
   // Ball in den Händen: an den Knoten BALL des Aktions-Clips, weich vom zuletzt gezeigten Platz aus
   if(r.ballN&&c.aw>0&&A&&/shoot|layup|catch/.test(A.k)&&ball.owner===p&&ball.hold&&!ball.fl){
     if(!c.ab){c.ab=0;c.b0=[BL.x,BL.y,BL.z];}c.ab=Math.min(1,c.ab+dt/.08);
