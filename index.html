@@ -1509,7 +1509,7 @@ window.initGLB=function(GLTFLoader,skClone){
 const LOCO=[['idle',0],['walk',1.4],['jog',3.2],['sprint',5.8]],STRIDE={walk:1.4,jog:2.9,sprint:4.1,jogBack:1.75,runBack:1.85,sadWalk:1.1,backD:.8};
 // Zusätzliche Clips aus Mixamo (tools/add_mixamo.mjs): dribble/dribbleM (rechte/linke Hand), ready (Grundstellung),
 // jogBack/runBack (rückwärts), cheer/clap (Jubel), sadWalk. Fehlen sie, laufen die alten Clips weiter.
-const CHEERS=['cheer','clap','cheer','dance'];
+const CHEERS=['cheer','clap','cheer'];
 // Eigene Clips für Aktionen (tools/make_clips.mjs): Sprungwurf, Korbleger (layupM = linke Hand), Pass, Überkopfpass
 // (lange Pässe), Fangen, Block. Der Knoten BALL zeigt, wo der Ball in den Händen liegt; das Spiel setzt den Ball
 // dorthin, solange der Spieler ihn hält (Wurf bis zum Abwurf, Korbleger bis zum Abwurf, Fangen).
@@ -1634,7 +1634,10 @@ function makeGLBRig(team,num,look){
   for(const k in GLB.clips){const a=mx.clipAction(GLB.clips[k]);a.play();a.timeScale=0;a.setEffectiveWeight(0);A[k]=a;}
   const arm=s=>{const k=s>0?'L':'R';return{s,up:B['upper_arm'+k],lo:B['forearm'+k],hand:B['hand'+k]};};
   toonify(root);
-  return{glb:true,root,body,B,mx,A,arms:[arm(-1),arm(1)],ph:0,cur:{},ballN:body.getObjectByName('BALL'),sway};
+  const r={glb:true,root,body,B,mx,A,headA:head,chestA:chest,arms:[arm(-1),arm(1)],ph:0,cur:{},ballN:body.getObjectByName('BALL'),sway};
+  // Bezug für calmNeck aus der Grundstellung (die Ruhepose des Mannequins steht anders als alle Clips)
+  const nc=A.ready||A.idle;if(nc&&B.head&&B.spine003){nc.setEffectiveWeight(1);nc.time=0;mx.update(0);root.updateMatrixWorld(true);r.nref=neckRef(r).o;nc.setEffectiveWeight(0);}
+  return r;
 }
 // Mädchen-Figur: Der Mannequin ist ein muskulöser Erwachsener. Für Mädchen einmal eine schlankere Fassung der Geometrie
 // berechnen (in der Ruhepose): Punkte werden je nach Knochen-Gewicht zur Knochenachse gezogen, also schmalere Schultern,
@@ -1828,6 +1831,25 @@ function actJY(p){const A=p.act;if(!A)return 0;const t=A.t;
   if(A.k==='layup')return .48*Math.sin(Math.PI*clamp(t/.62,0,1));
   if(A.k==='block')return .42*Math.sin(Math.PI*clamp(t/.62,0,1));
   return 0;}
+// Hals ruhig halten: Der Mixamo-Jubel wirft den Kopf in den Nacken, Korbleger und Jubel ziehen die Schultern hoch. Beim Mannequin
+// zieht das die Haut vom Schulterdach bis unters Kinn (breiter Keil statt Hals), der große Comic-Kopf kippt sichtbar nach hinten.
+// Deshalb nach dem Mischen der Clips: Schulter höchstens NECK.sh (rad) höher als in der Grundstellung, Gesicht höchstens NECK.up
+// weiter nach oben (gegen die Brust gemessen). Nach unten schauen (Dribbeln) und Schultern nach vorn bleiben unverändert.
+const NECK={sh:.1,up:.12};
+function neckRef(r){const c=r.chestA.getWorldQuaternion(_q1),cu=_v1.set(0,1,0).applyQuaternion(c).clone(),o={};
+  for(const s of['L','R']){const sh=r.B['shoulder'+s],ua=r.B['upper_arm'+s];if(!sh||!ua)continue;
+    const d=ua.getWorldPosition(_v2).sub(sh.getWorldPosition(_v3)).normalize();o['e'+s]=Math.asin(clamp(d.dot(cu),-1,1));}
+  const hf=_v2.set(0,0,1).applyQuaternion(r.headA.getWorldQuaternion(_q1));o.h=Math.asin(clamp(hf.dot(cu),-1,1));return{cu,o};}
+const _nv=new T3.Vector3(),_nt=new T3.Vector3(),_nc=new T3.Vector3(),_nq=new T3.Quaternion();
+// Vektor d (normiert) so drehen, dass er gegen die Achse cu höchstens den Winkel lim hat
+function capElev(bone,d,cu,lim){const e=Math.asin(clamp(d.dot(cu),-1,1));if(e<=lim)return;
+  _nt.copy(d).addScaledVector(cu,-d.dot(cu));if(_nt.lengthSq()<1e-8)return;_nt.normalize().multiplyScalar(Math.cos(lim)).addScaledVector(cu,Math.sin(lim));
+  rotWorld(bone,_nq.setFromUnitVectors(d,_nt));}
+function calmNeck(r){if(!r.nref||window.__neckOff)return;r.root.updateMatrixWorld(true);
+  const cu=_nc.set(0,1,0).applyQuaternion(r.chestA.getWorldQuaternion(_q1)),R=r.nref;
+  for(const s of['L','R']){const sh=r.B['shoulder'+s],ua=r.B['upper_arm'+s];if(!sh||!ua)continue;
+    capElev(sh,_nv.copy(ua.getWorldPosition(_v2)).sub(sh.getWorldPosition(_v3)).normalize(),cu,R['e'+s]+NECK.sh);}
+  capElev(r.B.head,_nv.set(0,0,1).applyQuaternion(r.headA.getWorldQuaternion(_q1)),cu,R.h+NECK.up);}
 function poseGLB(p,dt){
   const r=p.rig,c=r.cur,k=1-Math.exp(-dt*12),def=p.team==='def';
   faceP(p,dt);
@@ -1914,7 +1936,7 @@ function poseGLB(p,dt){
   for(const n of ACT_ALL){const an=r.A[n];if(!an)continue;const on=n===c.ac&&c.aw>0;an.setEffectiveWeight(on?(up?ua/(1-ua):fa):0);if(on)an.time=(c.at||0)*an.getClip().duration;}
   for(const n of['dribbleU','dribbleMU']){const an=r.A[n];if(!an)continue;const w=(n==='dribbleMU')===(sb>0)?dU*keep*(1-fa)*(1-ua):0;
     c['w_'+n]=lerp(c['w_'+n]||0,Math.min(w,.9),k);an.setEffectiveWeight(c['w_'+n]/(1-c['w_'+n]));an.time=db*an.getClip().duration/3;}
-  r.mx.update(0);
+  r.mx.update(0);calmNeck(r);
   // seitlich laufen: Hüfte dreht in Laufrichtung, Wirbelsäule dreht zurück, damit die Brust zum Ball zeigt
   c.hyw=lerp(c.hyw||0,yawT,1-Math.exp(-dt*10));
   if(Math.abs(c.hyw)>.01){r.root.updateMatrixWorld(true);rotWorldN(r.B.hips,_q1.setFromAxisAngle(UPV,c.hyw));
@@ -1995,7 +2017,7 @@ const ballTex=canvasTex(256,128,(g,w,h)=>{g.fillStyle='#e0661c';g.fillRect(0,0,w
   g.strokeStyle='#1d0c02';g.lineWidth=5;g.beginPath();g.moveTo(0,h/2);g.lineTo(w,h/2);g.moveTo(w/4,0);g.lineTo(w/4,h);g.moveTo(w*3/4,0);g.lineTo(w*3/4,h);g.stroke();
   g.beginPath();for(let x=0;x<=w;x+=4)g.lineTo(x,h/2+Math.sin(x/w*Math.PI*2)*h*.38);g.stroke();});
 const ballMesh=new T3.Mesh(new T3.SphereGeometry(.122,28,20),new T3.MeshStandardMaterial({map:ballTex,roughness:.65}));ballMesh.castShadow=true;scene.add(ballMesh);
-const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,spin:0};
+const ball={x:0,y:1,z:0,owner:null,hold:false,fl:null,free:null,spin:0};
 
 // ================= Sound =================
 // Aufnahmen in sfx/: erstellt mit ElevenLabs Sound Effects (Free Plan: Namensnennung Pflicht, siehe lizenzen.html und INFO_HTML;
@@ -2261,7 +2283,7 @@ function crowdN(d,v,fq,att){const a=AC;if(!a||muted)return;try{const n=a.sampleR
   const s=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();s.buffer=b;f.type='bandpass';f.frequency.value=fq;f.Q.value=.8;g.gain.value=v;s.connect(f).connect(g).connect(mix().inp);s.start();}catch(e){}}
 const sfx={crowd:()=>{G.excite=Math.max(G.excite,.9);smp('cheer',1,.025,null,{wet:.3,at:.04,attack:.22})||playBuf(PRE.clap,1,.95+Math.random()*.1,.35)||crowdN(2.2,.5,1100,.12);},
   ooh:()=>smp('gasp',.7,.035,null,{wet:.45,at:.09})||playBuf(PRE.ooh,1.1,.92+Math.random()*.16,.4)||crowdN(1.1,.35,520,.3),
-  dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:p=>smp('dribble',.32,.1,p,{wet:1.4}),
+  dribble:p=>smp('dribble',.38,.06,p)||tone(120,.07,'sine',.18,60),catch:p=>smp('catch',.38,.08,p),bounce:(p,v=1)=>smp('dribble',.32*v,.1,p,{wet:1.4}),
   squeak:p=>{if(clock-sqkT<.9||Math.random()<.4)return;sqkT=clock;return smp('squeak',p===ROLE.H?.12:.08,.1,p);},step:(p,v)=>smp('step',v,.12,p,{wet:.5}),
   tape:delay=>smp('tape',.52,0,null,{wet:0,at:delay})||syn('tape',delay),swish:()=>smp('swish',.85,.05,ball,{wet:1.6})||noise(.35,.25,2500),good:()=>syn('good'),bad:()=>syn('bad'),buzz:()=>syn('buzz'),
   rim:()=>smp('rim',.65,.05,ball,{wet:1.8})||tone(330,.2,'triangle',.12,200),release:p=>smp('release',.33,.05,p),pass:p=>sfx.release(p||ball.owner)||syn('pass',p||ball.owner)};
@@ -2433,7 +2455,10 @@ function poseP(p,dt){
 }
 
 // ================= Ball-Logik =================
-function fly(to,d,h,end,o){if(o&&o.shot)sfx.release(ball.owner||shooter);ball.owner=null;ball.hold=false;ball.fl=Object.assign({a:{x:ball.x,y:ball.y,z:ball.z},b:to,d,h,t:0,end},o||{});}
+// Passgeschwindigkeit: kurze Pässe etwa 11 m/s, lange schneller (20 m: 16 m/s). Der Bogen folgt der Schwerkraft: Bei gleicher
+// Abwurf- und Fanghöhe liegt der Scheitel g·t²/8 über der Geraden. Ein zu kleiner Bogen bei langer Flugzeit wirkt wie Schweben.
+const passT=d=>.06+d/(12.5+Math.min(d,20)*.2),passH=t=>Math.max(.05,9.81*t*t/8);
+function fly(to,d,h,end,o){if(o&&o.shot)sfx.release(ball.owner||shooter);ball.owner=null;ball.hold=false;ball.free=null;ball.fl=Object.assign({a:{x:ball.x,y:ball.y,z:ball.z},b:to,d,h,t:0,end},o||{});}
 // Leuchtspur hinter dem Ball bei Würfen
 const trail=[];{const tt=canvasTex(64,64,(g,w)=>{const r=g.createRadialGradient(w/2,w/2,0,w/2,w/2,w/2);r.addColorStop(0,'rgba(255,220,150,1)');r.addColorStop(.4,'rgba(255,140,40,.6)');r.addColorStop(1,'rgba(255,90,0,0)');g.fillStyle=r;g.fillRect(0,0,w,w);});
   for(let i=0;i<18;i++){const sp=new T3.Sprite(new T3.SpriteMaterial({map:tt,blending:T3.AdditiveBlending,depthWrite:false,transparent:true,opacity:0,toneMapped:false}));sp.scale.setScalar(.4);sp.visible=false;scene.add(sp);trail.push({sp,a:0});}}
@@ -2441,14 +2466,29 @@ let trailI=0,trailAcc=0;
 function updTrail(dt){if(ball.fl&&ball.fl.shot){trailAcc+=dt;if(trailAcc>.018){trailAcc=0;const t=trail[trailI++%trail.length];t.a=.75;t.sp.position.set(ball.x,ball.y,-ball.z);t.sp.visible=true;}}
   trail.forEach(t=>{if(!t.sp.visible)return;t.a-=dt*2.4;if(t.a<=0){t.sp.visible=false;return;}t.sp.material.opacity=t.a;t.sp.scale.setScalar(.12+t.a*.4);});}
 let lastCos=1;
+// Freier Ball: Schwerkraft, Aufprall mit Energieverlust (Basketball springt aus 1,8 m etwa 1,2 m hoch), danach rollen.
+// Banden hinter Grundlinie und Seitenlinien werfen ihn zurück, damit er nicht durch die Zuschauer rollt.
+const BALLF={g:9.81,e:.76,fr:.82,vmax:8.3,r:.13,roll:1.1,wx:9.6,wz0:-26,wz1:3.6};
+function bounceBall(f,dt){const F=BALLF;ball.x+=f.vx*dt;ball.z+=f.vz*dt;
+  if(Math.abs(ball.x)>F.wx){ball.x=Math.sign(ball.x)*F.wx;f.vx*=-.5;}
+  if(ball.z>F.wz1){ball.z=F.wz1;f.vz*=-.5;}else if(ball.z<F.wz0){ball.z=F.wz0;f.vz*=-.5;}
+  if(f.vy!==0||ball.y>F.r){f.vy-=F.g*dt;ball.y+=f.vy*dt;
+    if(ball.y<=F.r&&f.vy<0){ball.y=F.r;const v=Math.min(-f.vy,F.vmax);
+      if(v>1)sfx.bounce(ball,Math.min(1,v/6));
+      f.vy=v*F.e;f.vx*=F.fr;f.vz*=F.fr;if(f.vy<.7)f.vy=0;}}
+  else{const k=Math.exp(-dt*F.roll);f.vx*=k;f.vz*=k;if(Math.hypot(f.vx,f.vz)<.04)ball.free=null;}
+  ball.spin+=dt*Math.hypot(f.vx,f.vz)/F.r;}
 function updBall(dt){
   if(ball.fl){const f=ball.fl;f.t+=dt;const u=clamp(f.t/f.d,0,1);
     ball.x=lerp(f.a.x,f.b.x,u);ball.z=lerp(f.a.z,f.b.z,u);ball.y=lerp(f.a.y,f.b.y,u)+f.h*4*u*(1-u);ball.spin+=dt*(f.shot?-11:14);
-    if(u>=1){ball.fl=null;if(f.b.y<.3)sfx.bounce(ball);f.end&&f.end();}}
-  else if(ball.owner){const o=ball.owner,a=o.ang,lx=Math.cos(a),lz=Math.sin(a),fx=Math.sin(a),fz=-Math.cos(a);
+    // Landet der Flug am Boden (nach dem Korb, Fehlwurf, Block), springt der Ball von dort frei weiter (bounceBall)
+    if(u>=1){ball.fl=null;if(f.b.y<.3){sfx.bounce(ball);const vy=Math.max((f.b.y-f.a.y-4*f.h)/f.d,-BALLF.vmax);
+      ball.free={vx:(f.b.x-f.a.x)/f.d*BALLF.fr,vy:-vy*BALLF.e,vz:(f.b.z-f.a.z)/f.d*BALLF.fr};}f.end&&f.end();}}
+  else if(ball.owner){ball.free=null;const o=ball.owner,a=o.ang,lx=Math.cos(a),lz=Math.sin(a),fx=Math.sin(a),fz=-Math.cos(a);
     if(ball.hold){const sa=o.act&&o.act.k==='shoot'?o.act:null;ball.x=o.x+fx*(sa?.2:.33);ball.z=o.z+fz*(sa?.2:.33);ball.y=(sa?lerp(1.25,2.3,clamp((sa.t-.08)/.14,0,1)):o.armsUp>0?2.25:1.18)+(o.jy||0);}
     else{ball.x=o.x+lx*o.dside*.36+fx*.3;ball.z=o.z+lz*o.dside*.36+fz*.3;const c=Math.cos(o.drib);ball.y=.13+.8*Math.abs(c);ball.spin+=dt*8;
       if(Math.sign(c)!==Math.sign(lastCos)&&(G.phase==='approach'||G.phase==='outcome'))sfx.dribble(o);lastCos=c;}}
+  else if(ball.free)bounceBall(ball.free,dt);
   ballMesh.position.set(ball.x,ball.y,-ball.z);ballMesh.rotation.x=ball.spin;ballMesh.visible=ball.fl&&ball.fl.shot||cam.position.distanceTo(ballMesh.position)>1.3;
 }
 
@@ -2899,8 +2939,8 @@ function buildLong(v,T,L,M,who){
     :'Beide Läufer waren gedeckt, ein langer Pass wäre abgefangen worden. Vor dir war aber die Mitte frei: selbst nach vorne dribbeln!';
   const out={};
   if(ctr){out.outcome=(choice,ok,finish)=>{
-    if(choice==='pass:PG'&&ok){ball.y=Math.max(1,ball.y);act(H,'pass',.4);const tf=.25+Math.hypot(PG.x-ball.x,PG.z-ball.z)/15;
-      fly({x:PG.x,y:1.2,z:PG.z},tf,.3,()=>{ball.owner=PG;ball.hold=false;act(PG,'catch',.25);flash('Guter Pass!','#7ff0ad');sfx.good();
+    if(choice==='pass:PG'&&ok){ball.y=Math.max(1,ball.y);act(H,'pass',.4);const tf=passT(Math.hypot(PG.x-ball.x,PG.z-ball.z));
+      fly({x:PG.x,y:1.2,z:PG.z},tf,passH(tf),()=>{ball.owner=PG;ball.hold=false;act(PG,'catch',.25);flash('Guter Pass!','#7ff0ad');sfx.good();
         goTo(PG,[[1.6,s*3.4,-13.5]],true);goTo(H,[[1.6,s*1.2,-17]]);finish(1.4);});}
     else if(choice.startsWith('pass:')){const Wp=role(choice.slice(5));if(ok)passOk(Wp,finish);else passBad(Wp,finish,GUARD[Wp.role]);}};}
   else out.outcome=(choice,ok,finish)=>{
@@ -2919,8 +2959,8 @@ function buildLong(v,T,L,M,who){
 
 // ================= NEUE SPIELZÜGE (Prinzipien aus der DBB-Spielkonzeption, ohne Blöcke) =================
 // Zuspiel ohne Wurf: Ball fliegt zu Wp, danach after()
-function passTo(Wp,after){ball.y=Math.max(1,ball.y);act(ball.owner,'pass',.4);const tf=.25+Math.hypot(Wp.x-ball.x,Wp.z-ball.z)/15;
-  const[x,z]=Wp.path?evalPath(Wp.path,Wp.pt+tf,Wp.lin):[Wp.x,Wp.z];fly({x,y:1.2,z},tf,.35,()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);after&&after();});}
+function passTo(Wp,after){ball.y=Math.max(1,ball.y);act(ball.owner,'pass',.4);const tf=passT(Math.hypot(Wp.x-ball.x,Wp.z-ball.z));
+  const[x,z]=Wp.path?evalPath(Wp.path,Wp.pt+tf,Wp.lin):[Wp.x,Wp.z];fly({x,y:1.2,z},tf,passH(tf),()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);after&&after();});}
 // --------- Aufbau 5: Pass und geh (Give-and-go) oder Pass und raus ---------
 function buildGive(v,T,L,M){
   const s=R()<.5?-1:1;
@@ -3482,7 +3522,10 @@ function act(p,k,d,o){if(p)p.act=Object.assign({k,t:0,d},o||{});if(p&&k==='catch
 let shooter=null;
 function score(after){sfx.swish();netKick(ball.x*3,ball.z*3);G.excite=1;G.slowT=Math.max(G.slowT,.5);sfx.crowd();camFlash();
   if(G.phase==='outcome'&&!G.replay&&G.streak>=3)G.wave=gclock;
-  players.forEach(p=>{if(p.team==='off')act(p,'cheer',2.2,{dl:p===shooter?.15:.25+Math.random()*.4});else if(Math.random()<.7)act(p,'sad',2.4);});
+  // Der Werfer landet erst (Wurf/Korbleger zu Ende spielen), sonst fällt er aus der Luft direkt in den Jubel
+  players.forEach(p=>{if(p.team==='off'){const A=p.act,rest=A&&/shoot|layup/.test(A.k)?Math.max(0,A.d-A.t):0;
+      if(rest>0)later(rest,()=>{if(p.act===A||!p.act)act(p,'cheer',2.2,{dl:.05});});else act(p,'cheer',2.2,{dl:p===shooter?.15:.25+Math.random()*.4});}
+    else if(Math.random()<.7)act(p,'sad',2.4);});
   fly({x:0,y:rimHeight()-.75,z:0},.2,0,()=>fly({x:rand(-.4,.4),y:.13,z:-.7},.35,.1,()=>after&&after()));}
 function shootFrom(S,make,after){S.armsUp=1.3;ball.owner=S;ball.hold=true;act(S,'shoot',1.0);shooter=S;
   later(.24,()=>{const d=Math.hypot(S.x,S.z);rimCam(S);fly({x:0,y:rimHeight(),z:make?0:-.225},.75+d*.04,1.1+d*.13,()=>{
@@ -3505,14 +3548,14 @@ function passOk(Wp,finish){ball.y=Math.max(1,ball.y);
   const passer=ball.owner,featured=kickComparison?.version!=='before'&&!!passer&&Wp.finish!=='layup';
   if(featured)passer.targetLook=Wp;
   act(passer,'pass',.4,{soundAtRelease:featured});
-  const tf=.25+Math.hypot(Wp.x-ball.x,Wp.z-ball.z)/15;
+  const tf=passT(Math.hypot(Wp.x-ball.x,Wp.z-ball.z));
   if(Wp.finish==='layup'){const sx=Math.sign(Wp.x)||1,tx=sx*.6,tz=-.9,d=Math.hypot(Wp.x-tx,Wp.z-tz),du=Math.max(.5,d/6.5);goTo(Wp,[[du,tx,tz]],true);
     const[x,z]=evalPath(Wp.path,tf,true);
-    fly({x,y:1.2,z},tf,.3,()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);later(Math.max(.05,du-tf),()=>layShot(Wp,()=>{flash('Korbleger!','#7ff0ad');sfx.good();finish(.7);}));});}
+    fly({x,y:1.2,z},tf,passH(tf),()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);later(Math.max(.05,du-tf),()=>layShot(Wp,()=>{flash('Korbleger!','#7ff0ad');sfx.good();finish(.7);}));});}
   else{const deliver=()=>{
       const[x,z]=Wp.path?evalPath(Wp.path,Wp.pt+tf,Wp.lin):[Wp.x,Wp.z];
       if(featured)sfx.pass(passer);
-      fly({x,y:1.2,z},tf,.35,()=>{
+      fly({x,y:1.2,z},tf,passH(tf),()=>{
         ball.owner=Wp;ball.hold=true;act(Wp,'catch',featured?.46:.25);
         if(featured){
           // Erst den Pass sichern, dann mit dem zweiten Schritt zum Korb ausrichten.
@@ -4193,11 +4236,16 @@ function startDir(){const sc=G.sc;if(sc.camFix)return{x:sc.camFix.dx,z:sc.camFix
 
 // ================= Loop =================
 let last=performance.now(),clock=0,gclock=0;
-function feedBall(sc){if(sc.give&&!sc.gave&&G.t>=sc.give.t0){sc.gave=true;const g=sc.give,Wp=role(g.to),[x,z]=evalPath(Wp.path,g.t1,Wp.lin);
-    act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},g.t1-g.t0,.35,()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);});}
-  if(!sc.feed||sc.fed||G.t<sc.feed.t0)return;sc.fed=true;
-  const f=sc.feed,[x,z]=evalPath(Hd.path,f.t1,Hd.lin),moving=Hd.path[Hd.path.length-1][0]>f.t1+.1;
-  act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},f.t1-f.t0,.35,()=>{ball.owner=Hd;ball.hold=!moving;act(Hd,'catch',.25);});}
+// Zuspiel im Anlauf: Der Ball kommt zur geplanten Zeit t1 an. Er fliegt aber nur so lange, wie ein Pass dieser Länge braucht
+// (passT), der Passgeber spielt ihn also erst kurz vorher (früher dauerte jeder Pass t1−t0 ≈ 1 s, auch über 5 m).
+function feedBall(sc){
+  if(sc.give&&!sc.gave&&G.t>=sc.give.t0){const g=sc.give,Wp=role(g.to),[x,z]=evalPath(Wp.path,g.t1,Wp.lin),tf=passT(Math.hypot(x-ball.x,z-ball.z));
+    if(G.t>=g.t1-tf){sc.gave=true;
+      act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},Math.max(.2,g.t1-G.t),passH(tf),()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);});}}
+  if(!sc.feed||sc.fed||G.t<sc.feed.t0)return;
+  const f=sc.feed,[x,z]=evalPath(Hd.path,f.t1,Hd.lin),moving=Hd.path[Hd.path.length-1][0]>f.t1+.1,tf=passT(Math.hypot(x-ball.x,z-ball.z));
+  if(G.t<f.t1-tf)return;sc.fed=true;
+  act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},Math.max(.2,f.t1-G.t),passH(tf),()=>{ball.owner=Hd;ball.hold=!moving;act(Hd,'catch',.25);});}
 // Lineare Bremskurve: In TAPE_STOP Sekunden verstreicht noch eine halbe TAPE_STOP an Spielzeit.
 function approachDt(rdt,raw){const start=G.sc.T-TAPE_STOP/2;
   if(G.stopElapsed===null&&G.t+rdt<start)return rdt;
