@@ -1641,7 +1641,7 @@ function poseGLB(p,dt){
   const sadMv=A&&A.k==='sad'&&has('sadWalk')?clamp((s-.3)/.5,0,1):0;
   if(sadMv){W.sadWalk=(W.walk+W.jog+W.sprint+W.jogBack+W.runBack)*sadMv;for(const n of['walk','jog','sprint','jogBack','runBack'])W[n]*=1-sadMv;}
   let sw=0,sl=0;for(const n of['walk','jog','sprint','jogBack','runBack','sadWalk'])if(W[n]){sw+=W[n]*STRIDE[n];sl+=W[n];}
-  const driving=kickComparison?.version!=='before'&&(G.phase==='approach'||G.phase==='readback')&&ball.owner===p&&!ball.hold;
+  const driving=kickComparison?.version!=='before'&&G.phase==='approach'&&ball.owner===p&&!ball.hold;
   // Beim langsamen Andribbeln mischt der Gehclip mit der Grundstellung:
   // Seine kürzeren Schritte brauchen entsprechend weniger Weg pro Zyklus.
   const stride=sl>.001?sw/sl:STRIDE.walk;
@@ -2002,10 +2002,10 @@ function bedFinish(st){const a=AC,{sr,n,fd,out}=st;
   [[1,0,-.45],[.94,2.7,.45]].forEach(([r,o,pn])=>{const s=a.createBufferSource();s.buffer=b;s.loop=true;s.playbackRate.value=r;let n=s;if(a.createStereoPanner){const P=a.createStereoPanner();P.pan.value=pn;n=s.connect(P);}n.connect(lp);s.start(0,o);g.srcs.push([s,r]);});
   return g;}
 let bedSt=null;
-function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED||G.phase==='decide'||((G.phase==='approach'||G.phase==='readback')&&G.stopElapsed!==null))return;
+function updBed(rdt){const a=AC;if(!a||a.state!=='running'||muted&&!BED||G.phase==='decide'||(G.phase==='approach'&&G.stopElapsed!==null))return;
   if(!BED||!BED.r){try{const roar=!!BED;bedSt=bedSt||bedInit(roar);if(bedVoice(bedSt,3)){const g=bedFinish(bedSt);bedSt=null;if(roar)BED.r=g;else BED={g,r:null,t:0,ex:0};}}catch(e){BED={g:null,r:1};}if(!BED||!BED.r)return;}
   if(!BED.g)return;
-  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&(G.phase==='approach'||G.phase==='readback'||G.phase==='outcome'),wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
+  BED.t-=rdt;if(BED.t>0)return;BED.t=.1;const on=!muted&&(G.phase==='approach'||G.phase==='outcome'),wave=gclock-G.wave>=0&&gclock-G.wave<3.4,ex=on?Math.max(G.excite,wave?.75:0):0;
   BED.g.gain.setTargetAtTime(on?.05+.03*ex:0,a.currentTime,on?.4:.25);
   BED.r.gain.setTargetAtTime(on?.32*ex:0,a.currentTime,ex>BED.ex?.12:.6);BED.ex=ex;}
 // Blende den vollständigen Mix aus, einschließlich Hall und laufender Publikumsreaktionen.
@@ -3203,7 +3203,7 @@ function makeBag(){
   for(let i=0;i<G.rounds;i++){const p=plays[i%plays.length];const vs=PLAYS[p].vars(G.mode,G.level);let v;do{v=vs[(Math.random()*vs.length)|0];}while(vs.length>1&&v===last[p]);last[p]=v;bag.push([p,v]);}
   for(let i=bag.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[bag[i],bag[j]]=[bag[j],bag[i]];}
   return bag;}
-function startRound(){hush();G.readSay=null;
+function startRound(){hush();
   G.round++;G.replay=false;
   const[p,v]=G.bag[G.round-1];G.sc=buildScenario(kickComparison?4173:(Math.random()*1e9)|0,p,v);
   beginApproach();showBanner(PLAYS[p].name,PLAYS[p].desc);
@@ -3389,26 +3389,8 @@ function quizReveal(hit){const q=G.quiz;if(!q)return;G.quiz=null;
   $('fbQs').textContent=hit===true?'Genau darauf kommt es an. Jetzt die ganze Lösung:':'Hier ist die Lösung:';
   $('feedback').querySelector('.card').classList.remove('quiz');drawMini(G.choice,{hl:q.r});
   if(hit===true)confetti(18);
-  // Danach der Merksatz: das, was vom Spielzug hängen bleiben soll (Sprachdatei über VOICE, sonst still).
-  // Mit Wiederholung erst, wenn die Auswertung wieder erscheint, damit die Ansage nicht über die Szene läuft.
-  const lines=(hit===true?['Richtig erkannt!']:hit===false?['Guter Versuch! Schau auf den Ring.']:['Hier ist die Lösung:']).concat(G.sc.rule||[]);
-  if(kickComparison?.version!=='before'){G.readSay=lines;replayRead(q);}
-  else say(lines,hit===true?.25:0);}
-// Beim Kick-out direkt beim Helferschritt einsteigen, sonst auch die einleitenden Pässe zeigen.
-function replayRead(q){
-  const sc=G.sc;
-  G.sc=buildScenario(sc.seed,sc.play,sc.variant);
-  G.phase='readback';G.t=sc.featured?sc.T*.43:0;G.ts=1;G.timers=[];G.stopElapsed=null;
-  for(const p of players){
-    p.pt=G.t;[p.x,p.z]=evalPath(p.path,G.t,p.lin);
-  }
-  // Wie beim Anlauf: Feldton an, am Ende bremst die Szene mit dem Tape-Stop ab (approachDt).
-  endCam();computeFit();camDir=startDir();updCam(0,true);tape(false);
-  $('feedback').classList.add('hidden');
-  $('prompt').querySelector('.a').textContent='Wiederholung';
-  $('promptB').textContent=sc.featured?(sc.helper?'Achte auf den ersten Schritt der Hilfe.':'Achte auf den Weg zum Korb.'):q.t;
-  $('prompt').classList.add('on');
-}
+  // Danach der Merksatz: das, was vom Spielzug hängen bleiben soll (Sprachdatei über VOICE, sonst still)
+  say((hit===true?['Richtig erkannt!']:hit===false?['Guter Versuch! Schau auf den Ring.']:['Hier ist die Lösung:']).concat(G.sc.rule||[]),hit===true?.25:0);}
 // Erst antworten, dann weiter: Kinder sollen die Frage nicht wegdrücken (DBB-Leitfaden: Fragen statt Lösungen).
 // Weiter/Nochmal bleiben gesperrt, bis auf der Karte ein Spieler angetippt wurde; ein falscher Tipp zeigt auch die Lösung.
 function quizNudge(t){const f=$('fbQ');t=t||'Erst die Frage beantworten: Tippe auf der Karte auf einen Spieler.';$('fbQs').textContent=t;say([t],.1);
@@ -3825,7 +3807,7 @@ function startKickComparison(version){
 $('kickBefore').onclick=()=>startKickComparison('before');
 $('kickAfter').onclick=()=>startKickComparison('after');
 $('startBtn').onclick=newGame;$('againBtn').onclick=()=>{if(G.nextLv){G.level=G.nextLv;G.nextLv=0;markSel('lvl','l',G.level);refreshBest();}newGame();};$('menuBtn').onclick=toMenu;$('quitBtn').onclick=toMenu;$('fbMenu').onclick=toMenu;$('lgBtn').onclick=()=>{$('lgd').classList.remove('hidden');$('lgBtn').classList.add('hidden');};
-function toMenu(){hush();G.readSay=null;
+function toMenu(){hush();
   if(kickComparison){
     Object.assign(G,kickComparison.saved);kickComparison=null;
     $('hud').classList.remove('comparing');$('kickCompare').showModal();
@@ -4010,16 +3992,12 @@ function update(rdt,raw=rdt){
   // Zeitlupe bei Würfen, Blocks und Ballgewinnen
   let tsT=1;if(G.phase==='outcome'){if(ball.fl&&ball.fl.shot&&ball.fl.t/ball.fl.d>.42)tsT=.3;if(G.slowT>0){G.slowT-=rdt;tsT=Math.min(tsT,.32);}}
   G.ts=lerp(G.ts,tsT,1-Math.exp(-rdt*(tsT<G.ts?18:6)));
-  const dt=G.phase==='approach'?approachDt(rdt,raw):G.phase==='readback'?approachDt(rdt*.85,raw):rdt*G.ts;
-  const sceneDt=(G.phase==='approach'||G.phase==='readback')&&G.stopElapsed!==null?dt:rdt;
+  const dt=G.phase==='approach'?approachDt(rdt,raw):rdt*G.ts;
+  const sceneDt=G.phase==='approach'&&G.stopElapsed!==null?dt:rdt;
   clock+=sceneDt;gclock+=dt;G.excite=Math.max(0,G.excite-dt*.45);ledTex.offset.x+=dt*.03;
   const sc=G.sc;if(!sc)return;
   let pdt=dt;
-  if(G.phase==='readback'&&G.stopElapsed>=TAPE_STOP){
-    G.phase='feedback';G.stopElapsed=null;quietCourt();$('prompt').classList.remove('on');$('feedback').classList.remove('hidden');$('nextBtn').focus({preventScroll:true});
-    if(G.readSay){say(G.readSay,.25);G.readSay=null;}
-  }
-  if(G.phase==='approach'||G.phase==='menu'||G.phase==='readback'){G.t+=dt;feedBall(sc);
+  if(G.phase==='approach'||G.phase==='menu'){G.t+=dt;feedBall(sc);
     if(Hd.cross){const s=clamp((G.t-sc.T*.5)/(sc.T*.1),0,1);Hd.dside=lerp(-Hd.cross,Hd.cross,s);}
     if(G.phase==='menu'&&G.t>sc.T+1.4)demo();}
   else if(G.phase==='feedback'||G.phase==='summary')pdt=0;
