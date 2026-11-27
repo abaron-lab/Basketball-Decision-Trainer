@@ -60,15 +60,15 @@ def main():
     parser.add_argument('--three', required=True)
     parser.add_argument('--chrome')
     args = parser.parse_args()
-    html = (ROOT / 'index.html').read_text()
+    main_js = (ROOT / 'js' / 'main.js').read_text()
     hook = 'window.__G=G;'
-    assert html.count(hook) == 1
+    assert main_js.count(hook) == 1
     handler = functools.partial(Quiet, directory=str(ROOT))
     with http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler) as server, sync_playwright() as pw:
         threading.Thread(target=server.serve_forever, daemon=True).start()
         browser = pw.chromium.launch(executable_path=args.chrome, args=['--use-angle=swiftshader', '--enable-unsafe-swiftshader'])
         page = browser.new_page()
-        page.route('**/index.html*', lambda r: r.fulfill(body=html.replace(hook, CHECK + hook), content_type='text/html'))
+        page.route('**/js/main.js', lambda r: r.fulfill(body=main_js.replace(hook, CHECK + hook), content_type='application/javascript'))
         page.route('**/three.min.js', lambda r: r.fulfill(path=args.three, content_type='application/javascript'))
         page.route('**/config.js', lambda r: r.abort())
         page.route('**/examples/jsm/**', lambda r: r.abort())
