@@ -15,14 +15,15 @@
 <nav class="legal" aria-label="Rechtliches"><a href="impressum.html">Impressum</a><a href="datenschutz.html" aria-current="page">Datenschutz</a><a href="lizenzen.html">Lizenzen &amp; Quellen</a></nav>
 
 <h1>Datenschutzerklärung</h1>
-<p class="mut">Stand: 23. November 2026</p>
+<p class="mut">Stand: 27. November 2026</p>
 
 <div class="box">
 <h2>Kurz gesagt (für Eltern und Trainer)</h2>
 <ul>
-<li><b>Kein Konto, keine E-Mail, keine Cookies, keine Werbung, kein Tracking.</b></li>
-<li>Spielerkarte, Name, Trikotnummer, Aussehen, Level und Statistik bleiben <b>nur auf dem Gerät</b>.</li>
-<li>Nur wer nach einem Spiel freiwillig auf <b>„Eintragen“</b> tippt, schickt einen <b>Vor- oder Spitznamen und das Ergebnis</b> an die Online-Rangliste. Diese Einträge kann jeder mit dem Team-Link sehen. Bitte keine vollen Namen verwenden.</li>
+<li><b>Keine Cookies, keine Werbung, kein Tracking.</b> Spielen geht ohne Anmeldung.</li>
+<li>Ohne Konto bleiben Spielerkarte, Name, Trikotnummer, Aussehen, Level und Statistik <b>nur auf dem Gerät</b>.</li>
+<li><b>Freiwilliges Konto:</b> Wer den Spieler auf mehreren Geräten haben möchte, kann sich mit der <b>E-Mail-Adresse der Eltern</b> anmelden, ohne Passwort (Link per E-Mail). Dann liegen die Spielerkarten zusätzlich bei Google Firebase. Die E-Mail-Adresse wird nie angezeigt. Das Konto lässt sich im Spiel jederzeit löschen (siehe <a href="#konto">Abschnitt 5</a>).</li>
+<li>In die Online-Rangliste kommt ein <b>Vor- oder Spitzname mit dem Ergebnis</b>, wenn man nach einem Spiel auf <b>„Eintragen“</b> tippt oder, mit Konto, automatisch nach jedem Spiel. Diese Einträge kann jeder mit dem Team-Link sehen. Bitte keine vollen Namen verwenden.</li>
 <li>Beim Laden der Seite sehen der Webhoster (GitHub) und das Download-Netz jsDelivr technisch bedingt die IP-Adresse des Geräts.</li>
 <li>Einträge in der Rangliste löschen wir auf Nachricht hin. Die Daten auf dem Gerät löscht man selbst (siehe <a href="#loeschen">unten</a>).</li>
 </ul>
@@ -50,50 +51,66 @@ E-Mail: <a href="mailto:a.baron@posteo.de">a.baron@posteo.de</a>
 <li><b>Einstellungen:</b> zuletzt gewählte Position, Spielform, Schwierigkeit und Spielzüge;</li>
 <li><b>Mehrere Spieler:</b> die Liste der Spieler auf diesem Gerät und wer gerade spielt;</li>
 <li><b>Rangliste auf dem Gerät:</b> eingetragene Ergebnisse und Einträge, die wegen fehlender Verbindung noch nicht an die Online-Rangliste geschickt werden konnten.</li>
+<li><b>Konto (nur wenn angemeldet):</b> die E-Mail-Adresse, eine zufällige Konto-Kennung und die Zugangsschlüssel der Anmeldung (Tokens), welche Spieler schon im Konto sind; während einer Anmeldung kurz die E-Mail-Adresse, an die der Link ging.</li>
 </ul>
 <p>Außerdem speichert ein <b>Service Worker</b> die Dateien des Spiels im Cache des Browsers, damit es auch ohne Internet startet. Nach dem ersten Spiel bittet das Spiel den Browser einmal, die Daten nicht automatisch zu löschen („dauerhafter Speicher“); manche Browser fragen dafür nach.</p>
-<p>Diese Daten verlassen das Gerät nicht, außer man trägt sich in die Online-Rangliste ein (Abschnitt 4) oder teilt selbst einen Spieler-Link (Abschnitt 5). Wir haben keinen Zugriff darauf. Die Speicherung ist für den vom Nutzer gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG); eine Einwilligung ist dafür nicht nötig. Soweit dabei personenbezogene Daten verarbeitet werden, ist Rechtsgrundlage Art. 6 Abs. 1 lit. b und f DSGVO (Bereitstellung des Spiels mit Fortschritt und Einstellungen).</p>
+<p>Diese Daten verlassen das Gerät nicht, außer man trägt sich in die Online-Rangliste ein (Abschnitt 4), meldet sich mit einem Konto an (Abschnitt 5) oder teilt selbst einen Spieler-Link (Abschnitt 6). Wir haben keinen Zugriff darauf. Die Speicherung ist für den vom Nutzer gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG); eine Einwilligung ist dafür nicht nötig. Soweit dabei personenbezogene Daten verarbeitet werden, ist Rechtsgrundlage Art. 6 Abs. 1 lit. b und f DSGVO (Bereitstellung des Spiels mit Fortschritt und Einstellungen).</p>
 
 <h2 id="rangliste">4. Online-Rangliste (Google Firebase)</h2>
-<p>Nach einem Spiel kann man sich freiwillig in eine gemeinsame Rangliste des Teams eintragen. Erst durch Tippen auf <b>„Eintragen“</b> werden folgende Daten gesendet:</p>
+<p>Nach einem Spiel kann man sich freiwillig in eine gemeinsame Rangliste des Teams eintragen. Erst durch Tippen auf <b>„Eintragen“</b> werden folgende Daten gesendet. Mit Konto (Abschnitt 5) geschieht das <b>automatisch nach jedem Spiel</b> unter dem Spitznamen des Spielers; dem haben die Eltern bei der Anmeldung zugestimmt.</p>
 <ul>
 <li>der eingegebene <b>Vor- oder Spitzname</b> (höchstens 14 Zeichen),</li>
 <li>Punkte, Anzahl richtiger Entscheidungen und Runden, Position, Spielform, Schwierigkeit, ob der Lernmodus an war,</li>
 <li>Ergebnis je Lernziel (z. B. „Lücke erkennen: 3 von 4“),</li>
-<li>Zeitpunkt des Eintrags und der Team-Name aus dem Link.</li>
+<li>Zeitpunkt des Eintrags und der Team-Name aus dem Link,</li>
+<li>nur mit Konto: die zufällige Konto-Kennung (keine E-Mail-Adresse), damit die Einträge beim Löschen des Kontos mit gelöscht werden können.</li>
 </ul>
-<p>Trikotnummer, Aussehen, Statistik, Spieler-Kennung oder Gerätedaten werden <b>nicht</b> übertragen. Beim Senden und beim Anzeigen der Rangliste erhält der Anbieter technisch bedingt die IP-Adresse des Geräts.</p>
+<p>Trikotnummer, Aussehen, Statistik oder Gerätedaten werden <b>nicht</b> in die Rangliste übertragen. Beim Senden und beim Anzeigen der Rangliste erhält der Anbieter technisch bedingt die IP-Adresse des Geräts.</p>
 <p><b>Wer sieht die Einträge?</b> Die Rangliste ist öffentlich: Jeder, der die Seite mit dem jeweiligen Team-Link öffnet, sieht Namen und Ergebnisse. Die Trainer-Ansicht „Team“ zeigt aus denselben Einträgen, welche Lernziele schon gut klappen. Deshalb bitte nur einen Vornamen oder Spitznamen verwenden, keinen vollen Namen.</p>
 <p><b>Anbieter:</b> Die Einträge werden in <b>Google Cloud Firestore</b> (Teil von Google Firebase) gespeichert. Anbieter für Nutzer in der EU ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Speicherort der Datenbank: Rechenzentrum in Frankfurt am Main, Deutschland (Region „europe-west3“). Eine Verarbeitung durch die Google LLC in den USA ist nicht auszuschließen; Google ist nach dem EU-US Data Privacy Framework zertifiziert. Mit Google besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO (Firebase-Datenverarbeitungsbedingungen). Weitere Informationen: <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Datenschutz und Sicherheit in Firebase</a>.</p>
-<p><b>Rechtsgrundlage</b> ist Art. 6 Abs. 1 lit. a DSGVO (Einwilligung durch das freiwillige Eintragen). Bei Kindern unter 16 Jahren soll der Eintrag mit Zustimmung der Eltern erfolgen, z. B. weil der Trainer die Rangliste im Verein mit den Eltern abgesprochen hat (Art. 8 DSGVO). Die Einwilligung kann jederzeit mit Wirkung für die Zukunft widerrufen werden: eine kurze Nachricht an die oben genannte E-Mail-Adresse (mit Team-Link, Name und ungefährem Datum), dann wird der Eintrag gelöscht.</p>
+<p><b>Rechtsgrundlage</b> ist Art. 6 Abs. 1 lit. a DSGVO (Einwilligung durch das freiwillige Eintragen). Bei Kindern unter 16 Jahren soll der Eintrag mit Zustimmung der Eltern erfolgen, z. B. weil der Trainer die Rangliste im Verein mit den Eltern abgesprochen hat (Art. 8 DSGVO). Die Einwilligung kann jederzeit mit Wirkung für die Zukunft widerrufen werden: mit Konto über „Konto löschen“ (löscht auch alle Ranglisten-Einträge des Kontos), sonst eine kurze Nachricht an die oben genannte E-Mail-Adresse (mit Team-Link, Name und ungefährem Datum), dann wird der Eintrag gelöscht.</p>
 <p><b>Speicherdauer:</b> Einträge bleiben gespeichert, bis sie auf Anfrage gelöscht werden oder die Rangliste nicht mehr gebraucht wird.</p>
 
-<h2>5. Spieler-Link, QR-Code und Teilen</h2>
+<h2 id="konto">5. Freiwilliges Konto mit E-Mail-Link</h2>
+<p>Unter Spielerkarte → <b>„Sichern“</b> können Eltern ein Konto anlegen, damit der Spieler auf jedem Gerät erhalten bleibt (z. B. Handy und Tablet, nach einem neuen Gerät oder wenn der Browser Daten gelöscht hat). Es gibt <b>kein Passwort</b>: Man gibt eine E-Mail-Adresse ein und bekommt einen Link, der die Anmeldung abschließt. Erst mit dem Klick auf diesen Link entsteht das Konto; damit ist bestätigt, dass die Adresse stimmt und ihr Inhaber einverstanden ist (Double-Opt-in). Wird der Link nicht angeklickt, entsteht kein Konto.</p>
+<p><b>Was gespeichert wird:</b></p>
+<ul>
+<li><b>Anmeldung (Firebase Authentication):</b> die E-Mail-Adresse, eine zufällige Konto-Kennung, Zeitpunkt der Erstellung und der letzten Anmeldung. Google verarbeitet dabei technisch bedingt die IP-Adresse und verschickt die E-Mail mit dem Link (Absender <code>noreply@basketball-iq.firebaseapp.com</code>).</li>
+<li><b>Konto (Cloud Firestore):</b> der Zeitpunkt der Einwilligung und die Team-Namen, in deren Rangliste das Konto Einträge hat.</li>
+<li><b>Spieler im Konto (Cloud Firestore):</b> für jeden Spieler des Geräts dieselben Angaben wie im Spieler-Link (Spitzname, Trikotnummer, Aussehen, Lieblingsposition, Spielform, Altersklasse, Level und XP, Abzeichen, Statistik je Lernziel und Entscheidung, Zahl der Spiele, Zeitpunkt der letzten Änderung). Diese Angaben werden nach jedem Spiel und nach Änderungen an der Spielerkarte abgeglichen.</li>
+</ul>
+<p><b>Wer sieht was?</b> Nur wer mit dem Konto angemeldet ist, kann dessen Spieler lesen und ändern (abgesichert durch die Sicherheitsregeln der Datenbank). Die E-Mail-Adresse wird im Spiel nie angezeigt, auch nicht in der Rangliste; dort erscheint nur der Spitzname (Abschnitt 4). Wir als Anbieter könnten die Daten in der Firebase-Konsole einsehen, tun das aber nur, wenn es für Anfragen nach Abschnitt 12 oder zur Fehlersuche nötig ist.</p>
+<p><b>Rechtsgrundlage</b> ist die Einwilligung (Art. 6 Abs. 1 lit. a DSGVO), die bei der Anmeldung mit einem Häkchen gegeben wird. Für Kinder unter 16 Jahren geben die Eltern die Einwilligung (Art. 8 DSGVO); das Spiel bittet deshalb ausdrücklich um die E-Mail-Adresse der Eltern. Den Zeitpunkt der Einwilligung speichern wir als Nachweis (Art. 7 Abs. 1 DSGVO).</p>
+<p><b>Anbieter</b> ist wie bei der Rangliste die Google Ireland Limited (Abschnitt 4). Die Spieler im Konto liegen in Cloud Firestore in Frankfurt am Main (Region „europe-west3“). Firebase Authentication ist ein weltweiter Dienst; die Anmeldedaten können dabei auch auf Servern der Google LLC in den USA verarbeitet werden. Google ist nach dem EU-US Data Privacy Framework zertifiziert (Angemessenheitsbeschluss, Art. 45 DSGVO); es gelten die Firebase-Datenverarbeitungsbedingungen (Auftragsverarbeitung nach Art. 28 DSGVO). Weitere Informationen: <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Datenschutz und Sicherheit in Firebase</a>.</p>
+<p><b>Abmelden und löschen:</b> „Abmelden“ beendet die Anmeldung auf dem Gerät; die Spieler bleiben dort, werden aber nicht mehr abgeglichen. <b>„Konto löschen“</b> (Spielerkarte → Sichern) löscht sofort alle Spieler im Konto, die Ranglisten-Einträge des Kontos, das Konto-Dokument und die Anmeldung samt E-Mail-Adresse. Ist die letzte Anmeldung länger her, schickt das Spiel zur Sicherheit vorher noch einmal einen Link. Die Spieler auf dem Gerät bleiben erhalten (löschen wie in Abschnitt 11). Ein einzelner Spieler wird über „Diesen Spieler entfernen“ auch aus dem Konto entfernt. Alternativ genügt eine E-Mail an uns.</p>
+<p><b>Speicherdauer:</b> bis das Konto gelöscht wird oder die Einwilligung widerrufen wird.</p>
+
+<h2>6. Spieler-Link, QR-Code und Teilen</h2>
 <p>Unter „Sichern“ erzeugt das Spiel einen Spieler-Link, der die Spielerkarte enthält (Name, Trikotnummer, Aussehen, Level, Abzeichen, Statistik). Diese Angaben stehen hinter dem Zeichen <code>#</code> in der Adresse. Dieser Teil wird vom Browser <b>nicht an den Server übertragen</b>; er wird nur auf dem Gerät gelesen, das den Link öffnet. Auch der QR-Code wird auf dem Gerät erzeugt.</p>
 <p>Wer den Link kopiert, teilt oder per Messenger verschickt, entscheidet selbst darüber; für die Verarbeitung durch den gewählten Messenger oder Dienst ist dessen Anbieter verantwortlich. Jeder, der den Link bekommt, kann den Spieler übernehmen. Deshalb den Link nur an sich selbst, die Eltern oder vertraute Personen schicken.</p>
 
-<h2>6. Programmbibliotheken über jsDelivr</h2>
+<h2>7. Programmbibliotheken über jsDelivr</h2>
 <p>Für die 3D-Darstellung lädt das Spiel die Bibliothek three.js und, nur beim Sichern, eine Bibliothek für den QR-Code über das Download-Netz <b>jsDelivr</b>. Betreiber ist die Prospect One sp. z o.o. (Polen); die Dateien werden über Server von Partnern wie Cloudflare und Fastly ausgeliefert, auch außerhalb der EU. Dabei wird die <b>IP-Adresse</b> des Geräts an diese Server übermittelt; das ist technisch nötig, um die Dateien auszuliefern. Es werden keine Cookies gesetzt.</p>
 <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse ist eine schnelle, zuverlässige Auslieferung der Programmteile ohne eigenen Server. Weitere Informationen: <a href="https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net" target="_blank" rel="noopener">Datenschutzerklärung von jsDelivr</a>.</p>
 <p>Schriften werden <b>nicht</b> von Google geladen, sondern liegen auf demselben Server wie das Spiel.</p>
 
-<h2>7. Links zu anderen Seiten</h2>
+<h2>8. Links zu anderen Seiten</h2>
 <p>Auf der Info-Seite für Trainer stehen Links zu Regelwerken und Unterlagen des DBB und der FIBA. Erst wenn man einen solchen Link antippt, wird die fremde Seite geladen; dann gilt die Datenschutzerklärung des jeweiligen Anbieters.</p>
 
-<h2>8. Was es nicht gibt</h2>
-<p>Keine Benutzerkonten, keine Anmeldung, keine Reichweitenmessung (z. B. Google Analytics), keine Werbung, keine Social-Media-Plugins, keine Profilbildung und keine automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO.</p>
+<h2>9. Was es nicht gibt</h2>
+<p>Keine Pflicht zur Anmeldung, keine Passwörter, keine Reichweitenmessung (z. B. Google Analytics), keine Werbung, keine Social-Media-Plugins, keine Profilbildung und keine automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO.</p>
 
-<h2>9. Kinder</h2>
-<p>Das Spiel richtet sich an Kinder und Jugendliche im Vereinssport. Es fragt deshalb so wenig wie möglich ab: Ein Name ist nur für die Anzeige auf der Spielerkarte nötig und kann ein Spitzname sein. Wir empfehlen Eltern und Trainern, mit den Kindern zu besprechen, welcher Name in der Online-Rangliste erscheinen soll.</p>
+<h2>10. Kinder</h2>
+<p>Das Spiel richtet sich an Kinder und Jugendliche im Vereinssport. Es fragt deshalb so wenig wie möglich ab: Ein Name ist nur für die Anzeige auf der Spielerkarte nötig und kann ein Spitzname sein. Ein Konto ist freiwillig und soll von den Eltern mit ihrer eigenen E-Mail-Adresse angelegt werden. Wir empfehlen Eltern und Trainern, mit den Kindern zu besprechen, welcher Name in der Online-Rangliste erscheinen soll.</p>
 
-<h2 id="loeschen">10. Daten auf dem Gerät löschen</h2>
+<h2 id="loeschen">11. Daten auf dem Gerät löschen</h2>
 <ul>
 <li><b>Einen Spieler entfernen:</b> Spielerkarte öffnen → „Anpassen“ → „Diesen Spieler entfernen“ (zweimal tippen).</li>
 <li><b>Alles löschen:</b> in den Browser-Einstellungen die Website-Daten für diese Seite löschen. Wurde das Spiel als App auf den Startbildschirm gelegt, genügt es meist, die App zu entfernen.</li>
 </ul>
-<p>Einträge in der Online-Rangliste werden dadurch nicht gelöscht (siehe Abschnitt 4).</p>
+<p>Einträge in der Online-Rangliste und Daten im Konto werden dadurch nicht gelöscht (siehe Abschnitte 4 und 5). Das Konto löscht man im Spiel über Spielerkarte → Sichern → „Konto löschen“.</p>
 
-<h2>11. Deine Rechte</h2>
+<h2>12. Deine Rechte</h2>
 <p>Soweit personenbezogene Daten verarbeitet werden, hast du (bei Kindern auch die Eltern) folgende Rechte:</p>
 <ul>
 <li>Auskunft über die gespeicherten Daten (Art. 15 DSGVO),</li>
@@ -104,7 +121,7 @@ E-Mail: <a href="mailto:a.baron@posteo.de">a.baron@posteo.de</a>
 </ul>
 <p>Eine formlose E-Mail an die oben genannte Adresse genügt. Außerdem besteht ein Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde (Art. 77 DSGVO), z. B. bei der Behörde des eigenen Bundeslandes oder der für uns zuständigen: Berliner Beauftragte für Datenschutz und Informationsfreiheit, Alt-Moabit 59–61, 10555 Berlin, <a href="https://www.datenschutz-berlin.de" target="_blank" rel="noopener">www.datenschutz-berlin.de</a>.</p>
 
-<h2>12. Änderungen</h2>
+<h2>13. Änderungen</h2>
 <p>Ändert sich das Spiel so, dass andere Daten verarbeitet werden, passen wir diese Erklärung an. Es gilt die jeweils hier veröffentlichte Fassung.</p>
 
 <footer><a href="./">Zum Spiel</a> · <a href="impressum.html">Impressum</a> · <a href="lizenzen.html">Lizenzen &amp; Quellen</a></footer>

@@ -29,7 +29,8 @@ function jparse(v){try{return JSON.parse(v)||{}}catch(e){return{}}}
 const PROFILE=Object.assign({age:store.get('pgt_mode')==='5'?'U12':'U10',num:7,skin:2,hair:0,hairC:1,games:0,rounds:0,correct:0,cat:{pass:[0,0],drive:[0,0],shot:[0,0],off:[0,0]},rtS:0,rtN:0,best:0,pos:{},xp:0,badges:{},lz:{}},jparse(store.get(PK)));
 PROFILE.cat.def=PROFILE.cat.def||[0,0];PROFILE.lz=PROFILE.lz||{};
 if(!PROFILE.uid){PROFILE.uid=Math.random().toString(36).slice(2,10);store.set(PK,JSON.stringify(PROFILE));}
-function saveProf(){store.set(PK,JSON.stringify(PROFILE));regSync();}
+// mt = letzte Änderung (für den Abgleich mit dem Konto, js/account.js)
+function saveProf(){PROFILE.mt=Date.now();store.set(PK,JSON.stringify(PROFILE));regSync();if(typeof accDirty==='function')accDirty();}
 // Mädchen oder Jungen (PROFILE.g = 'w' | 'm'; fehlt bei alten Profilen = Jungen). ?g=w im Link wählt für neue Spieler vor.
 const GURL=(/[?&]g=([wm])(?![a-z])/.exec(location.search)||[])[1]||'';
 setGirl(PROFILE.g==='w');

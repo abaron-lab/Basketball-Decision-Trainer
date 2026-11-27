@@ -9,6 +9,7 @@ import threading
 
 from playwright.sync_api import sync_playwright
 from smoke_test import Quiet, ROOT
+from browser import launch_kw  # --gpu: echte Grafikkarte statt SwiftShader
 
 
 # Im selben Gültigkeitsbereich wie die Builder testen. Nur das 3D-Modell wird
@@ -66,7 +67,7 @@ def main():
     handler = functools.partial(Quiet, directory=str(ROOT))
     with http.server.ThreadingHTTPServer(('127.0.0.1', 0), handler) as server, sync_playwright() as pw:
         threading.Thread(target=server.serve_forever, daemon=True).start()
-        browser = pw.chromium.launch(executable_path=args.chrome, args=['--use-angle=swiftshader', '--enable-unsafe-swiftshader'])
+        browser = pw.chromium.launch(**launch_kw(args.chrome))
         page = browser.new_page()
         page.route('**/js/main.js', lambda r: r.fulfill(body=main_js.replace(hook, CHECK + hook), content_type='application/javascript'))
         page.route('**/three.min.js', lambda r: r.fulfill(path=args.three, content_type='application/javascript'))

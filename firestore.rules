@@ -1,11 +1,17 @@
 rules_version = '2';
-// Regeln für die Online-Rangliste des Basketball IQ Trainers (siehe README).
-// Jeder darf lesen und neue Einträge anlegen. Ändern oder Löschen geht nur in der Firebase-Konsole.
+// Regeln für den Basketball IQ Trainer (siehe README): Online-Rangliste und freiwilliges Konto mit E-Mail-Link.
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Angemeldet über den E-Mail-Link (bestätigte Adresse) und Besitzer des Kontos
+    function owner(uid) {
+      return request.auth != null && request.auth.uid == uid && request.auth.token.email_verified == true;
+    }
+
+    // Rangliste: Jeder darf lesen und neue Einträge anlegen. Einträge mit Konto tragen dessen uid,
+    // nur dieses Konto darf sie löschen (beim Löschen des Kontos). Ändern geht nur in der Firebase-Konsole.
     match /teams/{team}/scores/{id} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasOnly(['name','score','correct','rounds','pos','mode','level','learn','ts','lz'])
+      allow create: if request.resource.data.keys().hasOnly(['name','score','correct','rounds','pos','mode','level','learn','ts','lz','uid'])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 14
         && request.resource.data.score is int && request.resource.data.score >= 0 && request.resource.data.score <= 2500
@@ -18,8 +24,30 @@ service cloud.firestore {
         && request.resource.data.learn is bool
         && request.resource.data.ts is int
         // Lernziele, z. B. "luecke:3/4,zusammen:2/2" (optional)
-        && (!('lz' in request.resource.data) || (request.resource.data.lz is string && request.resource.data.lz.size() <= 160));
-      allow update, delete: if false;
+        && (!('lz' in request.resource.data) || (request.resource.data.lz is string && request.resource.data.lz.size() <= 160))
+        // Konto (optional): nur die eigene uid
+        && (!('uid' in request.resource.data) || owner(request.resource.data.uid));
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.get('uid', '') == request.auth.uid;
+    }
+
+    // Konto: Zeitpunkt der Einwilligung und Teams mit Ranglisten-Einträgen. Nur der Besitzer liest und schreibt.
+    match /accounts/{uid} {
+      allow read, delete: if owner(uid);
+      allow create, update: if owner(uid)
+        && request.resource.data.keys().hasOnly(['consent','teams'])
+        && request.resource.data.consent is int
+        && (!('teams' in request.resource.data) || (request.resource.data.teams is string && request.resource.data.teams.size() <= 600));
+
+      // Spieler im Konto: Spielerkarte als kompakter Text (wie im Spieler-Link), Anzahl Spiele, Zeitpunkt
+      match /players/{pid} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid)
+          && pid.matches('[a-z0-9]{1,12}')
+          && request.resource.data.keys().hasOnly(['data','games','ts'])
+          && request.resource.data.data is string && request.resource.data.data.size() <= 4000
+          && request.resource.data.games is int && request.resource.data.ts is int;
+      }
     }
   }
 }

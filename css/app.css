@@ -545,3 +545,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
   .card.sv .qrbox{grid-column:1;grid-row:2/8;margin:0;justify-content:flex-start}
   #svQR{width:min(150px,30vh)}.card.sv p{margin-top:0}.card.sv>.foot{display:none}.card.sv>.body{padding-bottom:12px}}
 @media (prefers-reduced-motion:reduce){.tcard:after,.ul-rays,.tag .in,#meTag span{animation:none!important}.overlay:not(.hidden)>.card{animation:none}}
+/* Konto mit E-Mail-Link (#acct, js/account.js) */
+.card.ac>.body>p,.apane>p{margin:0 0 6px;font-size:14px;line-height:1.45;color:#d7deef}
+.apane{display:none}.apane.on{display:block;animation:fadeIn .2s}
+.apane .btn.wide{display:flex;width:100%;justify-content:center;margin-top:12px}
+.apane .lnk{margin-top:8px;padding:10px 4px}
+.apane .note .lnk{margin:0;padding:0 2px;font-size:inherit;display:inline}
+.apane .namerow{margin-top:2px}
+.chk{display:flex!important;align-items:flex-start;gap:10px;margin:12px 0 0!important;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.05);cursor:pointer;
+  font:700 13px/1.4 Nunito,system-ui,sans-serif!important;color:#d7deef!important;letter-spacing:0!important}
+.chk input{flex:0 0 auto;width:24px!important;height:24px;margin:0;padding:0!important;accent-color:#2ecc71;cursor:pointer}
+.chk a{color:#8fb4ff}
+.chk.nudge{animation:nudge .45s;box-shadow:inset 0 0 0 2px #ffd23d}
+.acst{display:flex;align-items:center;gap:12px;padding:12px;border-radius:16px;background:rgba(46,204,113,.1);border:2px solid rgba(46,204,113,.35);margin-bottom:8px}
+.acst b{display:block;font:400 24px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1px}.acst small{display:block;margin-top:3px;font-size:13px;font-weight:800;color:#9fb0d4}
+.acok{flex:0 0 auto;width:40px;height:40px;border-radius:50%;background:#2ecc71;display:grid;place-items:center;color:#06210f}.acok .i{width:24px;height:24px;stroke-width:3}
+.acmsg{margin-top:10px;min-height:1.4em;font-size:13px;color:#ffd27a}.acmsg.ok{color:#7ff0ad}.acmsg:empty{display:none}
+.whoacct{display:flex;width:100%;justify-content:center;margin-top:10px}

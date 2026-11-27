@@ -21,6 +21,7 @@ lassen sich über file:// nicht laden). GLTFLoader/SkeletonUtils kommen von jsDe
 """
 import argparse, asyncio, os, random, pathlib, threading, functools, http.server
 from playwright.async_api import async_playwright
+from browser import launch_kw  # --gpu: echte Grafikkarte statt SwiftShader
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -39,8 +40,7 @@ async def run(a):
     w, h = map(int, a.size.split('x'))
     os.makedirs(a.out, exist_ok=True)
     async with async_playwright() as p:
-        kw = {'executable_path': a.chrome} if a.chrome else {}
-        b = await p.chromium.launch(args=['--no-sandbox', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'], **kw)
+        b = await p.chromium.launch(**launch_kw(a.chrome))
         pg = await b.new_page(viewport={'width': w, 'height': h})
         await pg.route('**/three.min.js', lambda r: r.fulfill(body=three, content_type='application/javascript'))
         await pg.route('**/config.js', lambda r: r.abort())  # Test schreibt nicht in die echte Online-Rangliste

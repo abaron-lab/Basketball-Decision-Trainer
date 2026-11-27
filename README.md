@@ -72,7 +72,8 @@ Nach dem ersten Öffnen funktioniert es auch ohne Internet (die Online-Rangliste
 Tipp für Eltern: Als App auf dem Startbildschirm bleibt der Spieler auch nach längeren Pausen gespeichert. Safari löscht sonst die Daten von Webseiten, die etwa eine Woche nicht geöffnet wurden.
 
 ### Spieler behalten und mitnehmen
-Der Spieler (Name, Trikot, Aussehen, Level, Abzeichen, Statistik) wird nur auf dem Gerät gespeichert, ohne Anmeldung und ohne Server.
+Der Spieler (Name, Trikot, Aussehen, Level, Abzeichen, Statistik) wird auf dem Gerät gespeichert, ohne Anmeldung.
+- **Mit Konto auf jedes Gerät (empfohlen, freiwillig):** Spielerkarte → **Sichern** → E-Mail-Adresse der Eltern eingeben, Häkchen setzen, „Link schicken“. In der E-Mail auf den Link tippen, fertig. Kein Passwort. Danach werden alle Spieler des Geräts nach jedem Spiel automatisch gesichert und erscheinen mit ihrem Spitznamen in der Rangliste (die E-Mail-Adresse nie). Auf einem anderen Gerät dasselbe mit derselben Adresse, oder auf der Willkommens-Karte „Ich habe schon einen Spieler“ → „Mit E-Mail anmelden“. Ist die E-Mail auf einem anderen Gerät, kann man den Link dort kopieren und unter „Sichern“ einfügen. Abmelden und „Konto löschen“ gibt es unter Sichern. Einrichtung siehe [Konto einrichten](#konto-einrichten).
 - **Mehrere Kinder auf einem Gerät:** Spielerkarte → **Spieler** → „Neuer Spieler“. Gibt es mehrere Spieler, fragt das Spiel beim Start „Wer spielt?“.
 - **Auf ein anderes Gerät mitnehmen oder sichern:** Spielerkarte → **Sichern**. Das zeigt einen Spieler-Link und einen QR-Code. Den Link z. B. per Messenger an sich selbst oder die Eltern schicken oder den Code mit dem anderen Gerät scannen. Beim Öffnen fragt das Spiel „Dein Spieler ist da!“ und übernimmt ihn. Der Link enthält den Stand von dem Moment, in dem er erstellt wurde; nach einigen Spielen erinnert die Auswertung ans Neu-Sichern. Rekorde je Einstellung bleiben auf dem alten Gerät.
 - Auf der Willkommens-Karte gibt es „Ich habe schon einen Spieler“, dort kann man einen Link einfügen.
@@ -97,13 +98,27 @@ Der Firebase-`apiKey` ist kein Geheimnis, er darf im Code stehen. Wer möchte, k
 
 **Einträge löschen** (z. B. Quatsch-Namen): in der Firebase-Konsole unter Firestore → `teams` → Teamname → `scores`.
 
+### Konto einrichten
+
+Das Konto (Anmeldung per E-Mail-Link, ohne Passwort) nutzt dasselbe Firebase-Projekt wie die Rangliste, ohne zusätzliche Bibliothek (Firebase Authentication per REST, `js/account.js`). Einmalig in der Firebase-Konsole:
+
+1. **Build → Authentication → Jetzt starten**. Unter **Sign-in method** den Anbieter **E-Mail-Adresse/Passwort** aktivieren und darin den Schalter **E-Mail-Link (Anmeldung ohne Passwort)** einschalten. Speichern.
+2. **Authentication → Einstellungen → Autorisierte Domains**: die GitHub-Pages-Adresse hinzufügen (z. B. `abaron-lab.github.io`). `localhost` steht schon drin.
+3. **Authentication → Einstellungen → Nutzeraktionen** (falls angeboten): „E-Mail-Aufzählungsschutz“ eingeschaltet lassen.
+4. **Firestore → Regeln**: den aktuellen Inhalt von [`firestore.rules`](firestore.rules) einfügen und veröffentlichen (neu: `accounts/…` und `uid` in der Rangliste).
+5. Falls der `apiKey` in der Google Cloud Console eingeschränkt ist: dort zusätzlich **Identity Toolkit API** und **Token Service API** erlauben.
+6. **Tarif:** Im kostenlosen Spark-Tarif verschickt Firebase nur **5 Anmelde-E-Mails pro Tag** (Stand Ende 2026, siehe [Firebase: Authentication-Limits](https://firebase.google.com/docs/auth/limits)). Für ein Team auf **Blaze** (nutzungsabhängig) umstellen, dann sind es bis zu 25.000 pro Tag. Bei der Menge eines Vereins bleibt das im kostenlosen Kontingent; zur Sicherheit in der Google Cloud Console ein **Budget mit Warnung** (z. B. 1 €) anlegen.
+7. Optional unter **Authentication → Templates** die Sprache auf Deutsch stellen. Das Spiel fordert die E-Mail ohnehin auf Deutsch an.
+
+Testen ohne echtes Firebase: `python3 tools/account_test.py package/build/three.min.js shots` (ahmt Anmeldung und Firestore im Test nach).
+
 Hinweis: Die Punkte werden im Browser berechnet. Wer sich mit Programmieren auskennt, könnte schummeln. Für eine Vereinsrangliste unter Kindern ist das in Ordnung. Bei Verbindungsproblemen wird der Eintrag auf dem Gerät gemerkt und später nachgeschickt.
 
 ## Dateien
 
 - `index.html`: das Spiel (three.js), dazu `css/app.css` und die Skripte in `js/` (Aufteilung siehe `CLAUDE.md`)
 - `config.js`: Zugangsdaten für die Online-Rangliste (Firebase `projectId` und `apiKey`)
-- `firestore.rules`: Sicherheitsregeln für die Online-Rangliste
+- `firestore.rules`: Sicherheitsregeln für die Online-Rangliste und das Konto
 - `docs/TRAINER.md`: Hinweise für Trainer und Eltern, Lernziele und Quellen
 - `legacy/2d-version.html`: frühere 2D-Version (Canvas), nur Aufbau über die Mitte
 - `sfx/`: Geräusche (Dribbeln, Abwurf, Fangen, Schuhquietschen, Schritte, Netz, Ring, Jubel, Überraschung und Tape-Stop), erstellt mit der Sound-Effects-KI von [ElevenLabs](https://elevenlabs.io/) und gekürzt. Im Free Plan von ElevenLabs ist die Namensnennung Pflicht (steht in `lizenzen.html` und auf der Info-Seite im Spiel) und die kommerzielle Nutzung eingeschränkt; vor einer kommerziellen Nutzung die Sounds mit einem bezahlten Plan neu erzeugen oder ersetzen. Die Hallenkulisse während des Spielzugs besteht aus synthetischem Publikumsgemurmel. Fehlen die Dateien, spielt das Spiel eigene synthetische Töne.

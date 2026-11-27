@@ -371,6 +371,7 @@
       <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-users"/></svg><h2>Wer spielt?</h2><button class="rbtn" id="whoX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
       <div class="wlist" id="whoList"></div>
       <button class="wp new" id="whoNew"><span class="ps-num plus"><svg class="i"><use href="#i-plus"/></svg></span><span><b class="nm">Neuer Spieler</b><small>Für Geschwister, Freunde oder das Team-Tablet</small></span></button>
+      <button class="btn sec whoacct hidden" id="whoAcct"><svg class="i"><use href="#i-lock"/></svg>Mit E-Mail anmelden</button>
       <div class="sec-t">Spieler-Link von einem anderen Gerät</div>
       <div class="namerow"><input id="whoIn" placeholder="Link hier einfügen" autocomplete="off" enterkeyhint="go"><button class="btn" id="whoLoad">Laden</button></div>
       <div class="cnote" id="whoMsg"></div>
@@ -391,6 +392,46 @@
       <p class="note">Der Link speichert deinen Stand von heute. Nach weiteren Spielen einfach neu sichern.</p>
     </div>
     <div class="foot"><button class="btn" id="svClose">Fertig</button></div>
+  </div>
+</div>
+
+<div id="acct" class="overlay hidden">
+  <div class="card ac">
+    <div class="body">
+      <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-lock"/></svg><h2 id="acT">Spieler sichern</h2><button class="rbtn" id="acX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
+      <div class="apane cform" data-p="out">
+        <p>Mit der E-Mail-Adresse deiner Eltern bleibt dein Spieler auf jedem Gerät erhalten. Ganz ohne Passwort: Ihr bekommt einen Link per E-Mail.</p>
+        <label for="acMail">E-Mail-Adresse der Eltern</label>
+        <input id="acMail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@beispiel.de" enterkeyhint="send">
+        <label class="chk" id="acOkRow"><input type="checkbox" id="acOk"><span>Ich bin Elternteil (oder mindestens 16) und einverstanden, dass Spielstand und Spitzname gespeichert werden. Der Spitzname steht in der Rangliste, die E-Mail-Adresse nie. <a href="datenschutz.html#konto" target="_blank" rel="noopener">Datenschutz</a></span></label>
+        <button class="btn wide" id="acSend"><svg class="i"><use href="#i-share"/></svg>Link schicken</button>
+        <button class="lnk" id="acPlain">Ohne Konto: Spieler-Link oder QR-Code</button>
+      </div>
+      <div class="apane cform" data-p="sent">
+        <p>Wir haben einen Link an <b id="acTo"></b> geschickt. Tippt in der E-Mail auf den Link, am besten auf diesem Gerät. Keine E-Mail da? Schaut auch im Spam-Ordner nach.</p>
+        <label for="acPaste">Die E-Mail ist auf einem anderen Gerät? Halte dort den Link gedrückt, kopiere ihn und füge ihn hier ein:</label>
+        <div class="namerow"><input id="acPaste" placeholder="Link aus der E-Mail" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go"><button class="btn" id="acGo">Anmelden</button></div>
+        <div class="row2"><button class="btn sec" id="acAgain">Neuer Link</button><button class="btn sec" id="acOther">Andere E-Mail</button></div>
+      </div>
+      <div class="apane cform" data-p="confirm">
+        <p id="acCfT"></p>
+        <label for="acMail2">E-Mail-Adresse</label>
+        <input id="acMail2" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@beispiel.de" enterkeyhint="go">
+        <label class="chk" id="acOk2Row"><input type="checkbox" id="acOk2"><span>Ich bin Elternteil (oder mindestens 16) und einverstanden, dass Spielstand und Spitzname gespeichert werden. <a href="datenschutz.html#konto" target="_blank" rel="noopener">Datenschutz</a></span></label>
+        <button class="btn wide" id="acFin">Weiter</button>
+        <p class="note">Spielt ihr in der installierten App? Dann <button class="lnk" id="acCopy">kopiert diesen Link</button> und fügt ihn in der App unter Spielerkarte → Sichern ein.</p>
+      </div>
+      <div class="apane" data-p="in">
+        <div class="acst"><span class="acok"><svg class="i"><use href="#i-check"/></svg></span><div><b>Auf jedem Gerät dabei</b><small id="acWho"></small></div></div>
+        <p id="acInfo" class="cnote"></p>
+        <p class="note">Auf einem anderen Gerät: Spielerkarte → Sichern → dieselbe E-Mail-Adresse eingeben. Nach jedem Spiel wird automatisch gesichert und du stehst mit deinem Spitznamen in der Rangliste.</p>
+        <div class="row2"><button class="btn sec" id="acOut">Abmelden</button></div>
+        <button class="lnk del" id="acDel">Konto löschen</button>
+      </div>
+      <div class="apane" data-p="busy"><div class="lb-st">Einen Moment …</div></div>
+      <div class="cnote acmsg" id="acMsg" role="status" aria-live="polite"></div>
+    </div>
+    <div class="foot"><button class="btn" id="acClose">Fertig</button></div>
   </div>
 </div>
 
@@ -463,6 +504,7 @@
 <script src="js/playlist.js"></script>
 <script src="js/game.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/account.js"></script>
 <script src="js/main.js"></script>
 <!-- three.js-Erweiterungen als ES-Module (gleiche Version 0.149.0); "three" zeigt per Importmap auf die globale THREE-Variable.
      Schlägt das Laden fehl (offline, file://), bleiben die alten Figuren. -->
