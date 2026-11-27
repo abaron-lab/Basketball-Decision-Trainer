@@ -81,7 +81,8 @@ async def run(a):
         assert not miss, f'Sprachdateien fehlen: {miss}'
         print('Sprachdateien: vollständig')
         await pg.click(f'#pos .lvb[data-v="{a.pos}"]')
-        await pg.click(f'#mode .lvb[data-m="{a.mode}"]')
+        # Spielform folgt aus der Altersklasse: 4 gegen 4 = U10, 5 gegen 5 = U12
+        await pg.click(f'#age .lvb[data-age="{"U10" if a.mode == "4" else "U12"}"]')
         await pg.click(f'#lvl .lvb[data-l="{a.level}"]')
         await pg.click('#noLimit')
         if a.plays:

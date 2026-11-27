@@ -157,6 +157,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .lv.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .lv.four{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .lv.four .lvb b{font-size:14px}.lv.four .lvb span{font-size:10.5px}
+.ageseg .lvb span+span{opacity:.8}
 .agenote{margin:6px 2px 0;font-size:11px;line-height:1.25;color:#a9b6d6;font-weight:700}.agenote.hidden{display:none}
 .lvb{cursor:pointer;text-align:left;border-radius:16px;padding:10px 10px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.06);color:#fff;font-family:Nunito,system-ui,sans-serif;transition:transform .1s,background .2s,border-color .2s}
 .lvb:active{transform:scale(.97)}
@@ -363,7 +364,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .posb{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1a1300;font:900 12px/1 Nunito,system-ui,sans-serif;font-style:normal;margin-right:7px;vertical-align:-4px;letter-spacing:0}
 .seg .chip .posb{margin-right:5px}
 @media (max-height:700px){.pico svg{width:46px;height:37px}.sec-t{margin:8px 0 5px}.chip{padding:5px 10px}.chips{gap:5px}.btn.big{padding:10px 16px 8px}.mhead .logo{width:42px;height:42px;flex-basis:42px}h1{font-size:36px}}
-@media (max-height:600px){#pos .lvb span,.seg .lvb span{display:none}}
+@media (max-height:600px){#pos .lvb span,.seg:not(.ageseg) .lvb span{display:none}}
 .seg .chip.sel .posb{background:#1d1500;color:var(--gold)}
 #bPos .chip{flex-direction:column;gap:3px;min-width:0;padding:6px 2px;font-size:13px;line-height:1.1}
 #bPos .chip .posb{margin:0;flex-shrink:0}
@@ -499,6 +500,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
   #menu .card>.foot .btn.big{padding:8px 16px 6px;font-size:26px}
   #menu .best{display:none}
   #menu .pltog,#menu .tog{margin-top:6px;padding-top:5px;padding-bottom:5px}#menu .seg .lvb{padding:6px 4px}
+  #menu .agenote{display:none}#menu .ageseg .lvb span{display:inline;font-size:10px;white-space:nowrap}#menu .ageseg .lvb span+span::before{content:' · '}
 }
 /* Willkommen (erster Start) */
 .card.wel>.body{justify-content:safe center}
@@ -668,17 +670,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       </div>
       </div><div class="mcol">
       <div class="sec-t">Altersklasse</div>
-      <div class="seg" id="age" role="group" aria-label="Altersklasse">
-        <button class="lvb" data-age="U10"><b>U10</b></button>
-        <button class="lvb" data-age="U12"><b>U12</b></button>
-        <button class="lvb" data-age="U14"><b>U13/U14</b></button>
+      <div class="seg ageseg" id="age" role="group" aria-label="Altersklasse">
+        <button class="lvb" data-age="U10"><b>U10</b><span>4 gegen 4</span><span>Korb 2,60 m</span></button>
+        <button class="lvb" data-age="U12"><b>U12</b><span>5 gegen 5</span><span>Korb 2,60 m</span></button>
+        <button class="lvb" data-age="U14"><b>U13/U14</b><span>5 gegen 5</span><span>Korb 3,05 m</span></button>
       </div>
-      <p class="agenote hidden" id="ageNote">(Die Korbhöhe ist hier etwas anders, deshalb sehen die Animationen anders aus.)</p>
-      <div class="sec-t">Spielform</div>
-      <div class="seg" id="mode">
-        <button class="lvb sel" data-m="4"><b>4 gegen 4</b><span>Miniregeln U10/U12</span></button>
-        <button class="lvb" data-m="5"><b>5 gegen 5</b><span>U12 Leistung · U14</span></button>
-      </div>
+      <p class="agenote hidden" id="ageNote">(Der Korb hängt höher, deshalb sehen Würfe und Animationen etwas anders aus.)</p>
       <div class="sec-t">Schwierigkeit</div>
       <div class="seg" id="lvl">
         <button class="lvb sel" data-l="1"><b><i class="dot l1"></i>Anfänger</b><span>4 Sekunden</span></button>
@@ -897,10 +894,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <label>Deine Trikotnummer</label>
         <div class="numsel"><button class="rbtn" id="wNumM" aria-label="kleiner">−</button><b id="wNum">7</b><button class="rbtn" id="wNumP" aria-label="größer">+</button></div></div></div>
       <div class="sec-t">Altersklasse</div>
-      <div class="seg" id="wAge" role="group" aria-label="Altersklasse">
-        <button class="lvb" data-age="U10"><b>U10</b></button>
-        <button class="lvb" data-age="U12"><b>U12</b></button>
-        <button class="lvb" data-age="U14"><b>U13/U14</b></button>
+      <div class="seg ageseg" id="wAge" role="group" aria-label="Altersklasse">
+        <button class="lvb" data-age="U10"><b>U10</b><span>4 gegen 4</span><span>Korb 2,60 m</span></button>
+        <button class="lvb" data-age="U12"><b>U12</b><span>5 gegen 5</span><span>Korb 2,60 m</span></button>
+        <button class="lvb" data-age="U14"><b>U13/U14</b><span>5 gegen 5</span><span>Korb 3,05 m</span></button>
       </div>
         <label>Wo spielst du am liebsten?</label>
         <div class="lv four" id="wPos">
@@ -2375,7 +2372,7 @@ const lzKeys=r=>r.lz2?[r.lz,r.lz2]:[r.lz];
 // ================= Spielerprofil =================
 const PK='pgt_profile';
 function jparse(v){try{return JSON.parse(v)||{}}catch(e){return{}}}
-const PROFILE=Object.assign({age:store.get('pgt_mode')==='5'?'U14':'U12',num:7,skin:2,hair:0,hairC:1,games:0,rounds:0,correct:0,cat:{pass:[0,0],drive:[0,0],shot:[0,0],off:[0,0]},rtS:0,rtN:0,best:0,pos:{},xp:0,badges:{},lz:{}},jparse(store.get(PK)));
+const PROFILE=Object.assign({age:store.get('pgt_mode')==='5'?'U12':'U10',num:7,skin:2,hair:0,hairC:1,games:0,rounds:0,correct:0,cat:{pass:[0,0],drive:[0,0],shot:[0,0],off:[0,0]},rtS:0,rtN:0,best:0,pos:{},xp:0,badges:{},lz:{}},jparse(store.get(PK)));
 PROFILE.cat.def=PROFILE.cat.def||[0,0];PROFILE.lz=PROFILE.lz||{};
 if(!PROFILE.uid){PROFILE.uid=Math.random().toString(36).slice(2,10);store.set(PK,JSON.stringify(PROFILE));}
 function saveProf(){store.set(PK,JSON.stringify(PROFILE));regSync();}
@@ -4102,6 +4099,8 @@ function showAge(age){
   basketMount.position.y=(age==='U14'?3.05:2.60)-rimG.position.y;
   // Pfosten steht fest (Fuß bei 0,9 m) und endet knapp über dem Arm, der mit dem Korb hoch- und runterfährt
   const top=3.65+basketMount.position.y,h=top-.9;basketPost.scale.y=h/3.4;basketPost.position.y=.9+h/2;
+  // Altersklasse bestimmt die Spielform: U10 4 gegen 4, ab U12 5 gegen 5
+  G.mode=age==='U10'?4:5;store.set('pgt_mode',String(G.mode));
   $('ageNote').classList.toggle('hidden',age!=='U14');
   for(const id of ['age','wAge']){
     markSel(id,'age',age);
@@ -4109,11 +4108,10 @@ function showAge(age){
   }
 }
 for(const id of ['age','wAge'])selGroup(id,'age',age=>{
-  PROFILE.age=age;saveProf();showAge(age);if(G.phase==='menu')computeFit();
+  PROFILE.age=age;saveProf();showAge(age);if(G.phase==='menu'){computeFit();demo();}
 });
-selGroup('mode','m',v=>{G.mode=+v;store.set('pgt_mode',v);saveProf();demo();});
 selGroup('pos','v',v=>{G.pos=v;store.set('pgt_pos',v);renderPlayChips();demo();});
-{const m=+(store.get('pgt_mode')||4);G.mode=m===5?5:4;markSel('mode','m',G.mode);showAge(PROFILE.age);
+{showAge(PROFILE.age);
  const p=store.get('pgt_pos');if(p&&POS[p])G.pos=p;markSel('pos','v',G.pos);renderPlayChips();}
 $('noLimit').onchange=e=>{G.noLimit=e.target.checked;refreshBest();};
 $('tipsBtn').onclick=()=>$('tips').classList.remove('hidden');$('tipsInfo').onclick=()=>{$('tips').classList.add('hidden');$('coachBtn').click();coachTab('in');};$('tipsClose').onclick=$('tipsX').onclick=()=>$('tips').classList.add('hidden');
