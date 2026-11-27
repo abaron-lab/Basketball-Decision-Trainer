@@ -34,7 +34,7 @@ const INFO_HTML=`<h3>Was ist das?</h3>
 <li><a href="https://basketball-bund.de/wp-content/uploads/sites/2/2022/12/SPIELKONZEPTION-ZUR-ENTWICKLUNG-VON-NATIONALSPIELERN-NATIONALSPIELERIN....pdf" target="_blank" rel="noopener">DBB: Spielkonzeption zur Entwicklung von Nationalspieler:innen (2022)</a></li>
 <li><a href="https://www.basketball-bund.de/wp-content/uploads/sites/2/2021/08/MMV-Kriterien.pdf" target="_blank" rel="noopener">DBB: Kriterien Mann-Mann-Verteidigung U14/U16</a></li>
 <li><a href="https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-manual-mini-basketball-eng.pdf" target="_blank" rel="noopener">FIBA/WABC: Coaching Manual Mini-Basketball</a></li></ul>
-<p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird nur auf dem Gerät gespeichert. In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt.</small></p>
+<p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird auf dem Gerät gespeichert. Wer es geräteübergreifend sichern möchte, kann freiwillig ein Konto mit der E-Mail-Adresse der Eltern anlegen (Spielerkarte → Sichern, ohne Passwort). In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt; mit Konto geschieht das automatisch unter dem Spitznamen, die E-Mail-Adresse erscheint nie.</small></p>
 <p><small>Geräusche (Ball, Schuhe, Korb, Publikum und Tape-Stop) und gesprochene Ansagen erstellt mit <a href="https://elevenlabs.io/" target="_blank" rel="noopener">ElevenLabs</a>.</small></p>
 <p class="legal"><a href="impressum.html" target="_blank" rel="noopener">Impressum</a> · <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a> · <a href="lizenzen.html" target="_blank" rel="noopener">Lizenzen</a></p>`;
 function cleanName(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,14);}
@@ -45,10 +45,15 @@ async function postOnline(e){
   const I=v=>({integerValue:String(v|0)}),S=v=>({stringValue:String(v)});
   const fields={name:S(e.name),score:I(e.score),correct:I(e.correct),rounds:I(e.rounds),pos:S(e.pos),mode:I(e.mode),level:I(e.level),learn:{booleanValue:!!e.learn},ts:I(Math.floor(e.ts/1000))};
   if(e.lz)fields.lz=S(String(e.lz).slice(0,160));
-  const post=f=>fetch(`${FS()}/scores?key=${encodeURIComponent(ONLINE.apiKey)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:f})});
+  // Mit Konto (js/account.js): Eintrag gehört dem Konto (uid), damit er beim Löschen des Kontos mit verschwindet
+  const tok=e.uid&&accOn()&&ACC.uid===e.uid?await accToken().catch(()=>null):null;if(tok)fields.uid=S(e.uid);
+  const post=f=>fetch(`${FS()}/scores?key=${encodeURIComponent(ONLINE.apiKey)}`,{method:'POST',headers:Object.assign({'Content-Type':'application/json'},f.uid?{Authorization:'Bearer '+tok}:{}),body:JSON.stringify({fields:f})});
+  const no=r=>r.status===400||r.status===403;
   let r=await post(fields);
-  if((r.status===400||r.status===403)&&fields.lz){delete fields.lz;r=await post(fields);} // ältere Firestore-Regeln ohne Lernziele
-  if(!r.ok){const er=new Error('HTTP '+r.status);er.rejected=r.status===400||r.status===403;throw er;}}
+  if(no(r)&&fields.uid){delete fields.uid;r=await post(fields);} // ältere Firestore-Regeln ohne Konto
+  if(no(r)&&fields.lz){delete fields.lz;r=await post(fields);} // ältere Firestore-Regeln ohne Lernziele
+  if(!r.ok){const er=new Error('HTTP '+r.status);er.rejected=no(r);throw er;}
+  if(fields.uid)accTeam(TEAMID);}
 async function flushPending(){const p=jget('pgt_pending_'+TEAMID);if(!p.length)return;const rest=[];
   for(const e of p){try{await postOnline(e);}catch(err){if(!err.rejected)rest.push(e);}}store.set('pgt_pending_'+TEAMID,JSON.stringify(rest));if(rest.length)throw new Error('offline');}
 async function fetchOnline(){
@@ -81,12 +86,18 @@ async function saveScore(){
   G.saved=true;store.set('pgt_name',name);$('saveBtn').disabled=true;$('saveBtn').textContent='…';
   const lzc={};G.results.forEach(r=>lzKeys(r).forEach(k=>{const a=lzc[k]||(lzc[k]=[0,0]);a[1]++;if(r.ok)a[0]++;}));
   const e={name,score:G.score,correct:G.results.filter(r=>r.ok).length,rounds:G.results.length,pos:G.pos,mode:G.mode,level:G.level,learn:G.noLimit,ts:Date.now(),lz:Object.entries(lzc).map(([k,a])=>`${k}:${a[0]}/${a[1]}`).join(',')};
+  if(accOn())e.uid=ACC.uid;
   saveLocal(e);
   if(onlineOn()){try{await postOnline(e);}catch(err){if(!err.rejected){const p=jget('pgt_pending_'+TEAMID);p.push(e);store.set('pgt_pending_'+TEAMID,JSON.stringify(p));}}}
-  $('saveBtn').innerHTML=svgI('check')+'Gespeichert';
+  $('saveBtn').innerHTML=svgI('check')+(e.uid?'Eingetragen':'Gespeichert');$('nameIn').readOnly=true;
   showBoardIn($('sBoard'),{pos:G.pos,mode:G.mode,level:G.level},name);}
 $('saveBtn').onclick=saveScore;
+const NHINT=$('nameHint').firstChild.textContent;
 if(!onlineOn())$('nameHint').firstChild.textContent='Dein Name wird nur auf diesem Gerät gespeichert. ';
+// Mit Konto: nach jedem Spiel automatisch unter dem Spitznamen eintragen (Einwilligung bei der Anmeldung)
+function autoScore(){if(!onlineOn())return;const on=accOn();
+  $('nameHint').firstChild.textContent=on?'Mit deinem Konto wirst du automatisch mit deinem Spitznamen eingetragen. ':NHINT;
+  if(on&&store.get('pgt_name')){saveScore();return true;}return false;}
 $('nameIn').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter'){e.preventDefault();saveScore();$('nameIn').blur();}});
 // Ranglisten-Fenster
 const bF={pos:'pg',mode:4,level:1};let bData=null;
@@ -202,7 +213,7 @@ $('numM').onclick=()=>{PROFILE.num=(PROFILE.num+99)%100;saveProf();renderCard();
 document.querySelectorAll('#pG .lvb').forEach(b=>b.onclick=()=>{PROFILE.g=b.dataset.v;saveProf();setGirl(PROFILE.g==='w');renderCard();cardRig();if(G.phase==='menu')demo();});
 $('numP').onclick=()=>{PROFILE.num=(PROFILE.num+1)%100;saveProf();renderCard();cardRig();};
 $('pName').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('pName').blur();});
-$('pName').addEventListener('change',()=>{const n=cleanName($('pName').value);if(n)store.set('pgt_name',n);renderCard();});
+$('pName').addEventListener('change',()=>{const n=cleanName($('pName').value);if(n){store.set('pgt_name',n);saveProf();}renderCard();});
 $('cardNum').textContent=PROFILE.num;
 function showUnlock(res){const nb=res.neu;
   $('ulT').textContent=nb.length>1?'Neue Abzeichen!':nb.length?'Neues Abzeichen!':'Level-Aufstieg!';
@@ -421,14 +432,16 @@ $('whoLoad').onclick=()=>{const d=unpackLink($('whoIn').value);if(!d){$('whoMsg'
 const POSK=['pg','wing','center','def','mix'],CATK=['pass','drive','shot','off','def'];
 const b64e=t=>btoa(unescape(encodeURIComponent(t))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const b64d=t=>decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/'))));
-function packLink(){const P=PROFILE;
-  const o={v:1,u:P.uid,n:store.get('pgt_name')||'',p:store.get('pgt_pos')||'pg',m:+(store.get('pgt_mode')||4),
+// packObj: Spielerdaten kompakt (auch für das Konto, siehe js/account.js); P/n/p/m = Profil, Name, Position, Spielform
+function packObj(P=PROFILE,n=store.get('pgt_name')||'',p=store.get('pgt_pos')||'pg',m=+(store.get('pgt_mode')||4)){
+  return{v:1,u:P.uid,n,p,m,
     d:[P.num,P.skin,P.hair,P.hairC,P.games,P.rounds,P.correct,Math.round(P.rtS*10),P.rtN,P.best,P.xp,P.saved||0],
     c:CATK.map(k=>P.cat[k]||[0,0]),o:POSK.filter(k=>P.pos[k]).map(k=>POSK.indexOf(k)).join(''),
-    b:BADGES.reduce((a,b,i)=>P.badges[b.id]?a+2**i:a,0),z:P.lz,g:P.g||'',age:P.age};
-  let base=location.origin+location.pathname;if(TEAMID!=='team')base+='?team='+encodeURIComponent(TEAMID);
-  return base+'#s='+b64e(JSON.stringify(o));}
-function unpackLink(t){try{const m=/[#&]s=([A-Za-z0-9_-]+)/.exec(String(t||''));if(!m)return null;const o=JSON.parse(b64d(m[1]));
+    b:BADGES.reduce((a,b,i)=>P.badges[b.id]?a+2**i:a,0),z:P.lz,g:P.g||'',age:P.age,t:P.mt||0};}
+function packLink(){let base=location.origin+location.pathname;if(TEAMID!=='team')base+='?team='+encodeURIComponent(TEAMID);
+  return base+'#s='+b64e(JSON.stringify(packObj()));}
+function unpackLink(t){try{const m=/[#&]s=([A-Za-z0-9_-]+)/.exec(String(t||''));if(!m)return null;return unpackObj(JSON.parse(b64d(m[1])));}catch(e){return null;}}
+function unpackObj(o){try{
   if(!o||o.v!==1||!Array.isArray(o.d)||o.d.length<11)return null;
   const n=(i,max)=>clamp(Math.round(+o.d[i]||0),0,max),pr=a=>Array.isArray(a)?[clamp(+a[0]|0,0,1e6),clamp(+a[1]|0,0,1e6)]:[0,0];
   const P={num:n(0,99),skin:n(1,SKINC.length-1),hair:n(2,HAIRS.length-1),hairC:n(3,HAIRC.length-1),games:n(4,1e6),rounds:n(5,1e7),correct:n(6,1e7),
@@ -438,6 +451,7 @@ function unpackLink(t){try{const m=/[#&]s=([A-Za-z0-9_-]+)/.exec(String(t||''));
   if(o.z&&typeof o.z==='object')Object.keys(LZ).forEach(k=>{if(o.z[k])P.lz[k]=pr(o.z[k]);});
   if(o.g==='w'||o.g==='m')P.g=o.g;
   if(['U10','U12','U14'].includes(o.age))P.age=o.age;
+  P.mt=clamp(+o.t||0,0,4e12);
   return{P,name:cleanName(o.n),pos:POS[o.p]&&o.p!=='mix'?o.p:'pg',mode:o.m===5?5:4};}catch(e){return null;}}
 // Link öffnen: Spieler übernehmen
 let RST=null;
@@ -467,16 +481,19 @@ $('svCopy').onclick=$('svLink').onclick=()=>{const t=$('svLink').textContent,ok=
     let r=false;try{r=document.execCommand('copy');}catch(e){}a.remove();window.scrollTo(0,0);if(r)ok();else $('svNote').textContent='Kopieren ging nicht. Nimm „Teilen“ oder scanne den Code.';});};
 $('svShare').onclick=()=>{navigator.share({title:'Mein Spieler im Basketball IQ Trainer',text:'Mein Spieler-Link (öffnen, um weiterzuspielen):',url:$('svLink').textContent}).catch(()=>{});};
 $('svClose').onclick=$('svX').onclick=()=>$('save').classList.add('hidden');
-$('pcSave').onclick=()=>openSave();$('pcWho').onclick=()=>{closeCard();openWho(false);};$('sSave').onclick=openSave;$('wHave').onclick=()=>{$('welcome').classList.add('hidden');openWho(false);};
+$('pcSave').onclick=()=>openAcct();$('pcWho').onclick=()=>{closeCard();openWho(false);};$('sSave').onclick=()=>openAcct();$('wHave').onclick=()=>{$('welcome').classList.add('hidden');openWho(false);};
 // Spieler entfernen (zweimal tippen)
-let delArm=0;$('pcDel').onclick=()=>{if(Date.now()-delArm>3000){delArm=Date.now();$('pcDel').textContent='Wirklich entfernen? Nochmal tippen';return;}
+let delArm=0;$('pcDel').onclick=async()=>{if(Date.now()-delArm>3000){delArm=Date.now();$('pcDel').textContent=accOn()?'Wirklich entfernen, auch aus dem Konto? Nochmal tippen':'Wirklich entfernen? Nochmal tippen';return;}
+  if(accOn()){$('pcDel').textContent='Wird entfernt …';clearTimeout(ACC_T);ACC_T=0;ACC_BUSY=true; // kein verspätetes Hochladen mehr
+    try{await fsReq('DELETE',`accounts/${ACC.uid}/players/${PROFILE.uid}`);const k=accKnown();delete k[PROFILE.uid];accKnownSet(k);}
+    catch(e){ACC_BUSY=false;delArm=0;$('pcDel').textContent='Ohne Internet geht das gerade nicht. Später noch mal tippen';return;}}
   slotKeys(CUR).forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});const l=regList().filter(x=>x.id!==CUR);regSave(l);
   reloadAs(l.length?l[0].id:newSlotId());};
 // Browser bitten, die Daten nicht automatisch zu löschen (einmal pro Gerät, nach dem ersten Spiel)
 function askPersist(){try{if(navigator.storage&&navigator.storage.persist&&!store.get('pgt_persist')){store.set('pgt_persist','1');navigator.storage.persisted().then(p=>p||navigator.storage.persist()).catch(()=>{});}}catch(e){}}
 // Erinnerung in der Auswertung: Spieler sichern
-function needSave(){const P=PROFILE;return P.saved?P.games-P.saved>=5:P.games>=2;}
-function startFlow(){const d=unpackLink(location.hash);
+function needSave(){const P=PROFILE;if(accOn())return false;return P.saved?P.games-P.saved>=5:P.games>=2;}
+function startFlow(){if(accLanding()){accLabel();return;}accStart();const d=unpackLink(location.hash);
   if(d){openRestore(d);return;}
   if(location.hash.includes('s='))try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(regList().length>1&&!sess.get('pgt_picked')){openWho(true);return;}

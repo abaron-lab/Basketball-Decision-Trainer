@@ -6,6 +6,7 @@ Prüft: neuer Spieler, „Wer spielt?“ beim Start, Wechsel, Link auf einem zwe
 """
 import asyncio, sys, os, functools, threading, http.server, pathlib
 from playwright.async_api import async_playwright
+from browser import launch_kw  # --gpu: echte Grafikkarte statt SwiftShader
 OUT=sys.argv[2] if len(sys.argv)>2 else 'shots'
 os.makedirs(OUT,exist_ok=True)
 ROOT=str(pathlib.Path(__file__).resolve().parent.parent)
@@ -14,12 +15,12 @@ class Q(http.server.SimpleHTTPRequestHandler):
 SIM='''()=>{const G=__G;G.results=Array.from({length:5},(_,i)=>({play:'wcatch',ans:'pass:C',choice:'pass:C',ok:i<4,rt:1.2,pts:100,off:false,def:false,lz:'luecke'}));G.round=5;G.rounds=5;G.score=400;G.bestStreak=4;G.phase='feedback';document.getElementById('nextBtn').click();}'''
 async def main():
     three=open(sys.argv[1],'rb').read()
-    srv=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Q,directory=ROOT))
+    class S(http.server.ThreadingHTTPServer): request_queue_size=128  # sonst verliert macOS Verbindungen beim Laden vieler Dateien
+    srv=S(('127.0.0.1',0),functools.partial(Q,directory=ROOT))
     threading.Thread(target=srv.serve_forever,daemon=True).start()
     base=f'http://127.0.0.1:{srv.server_address[1]}/index.html?lite&rig=alt'
     async with async_playwright() as p:
-        kw={'executable_path':os.environ['CHROME']} if os.environ.get('CHROME') else {}
-        b=await p.chromium.launch(**kw,args=['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader'])
+        b=await p.chromium.launch(**launch_kw(os.environ.get('CHROME')))
         errs=[]
         async def page(ctx):
             pg=await ctx.new_page(); pg.on('pageerror',lambda e:errs.append(str(e)))

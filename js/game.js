@@ -340,8 +340,8 @@ function showSummary(){
   $('menuBtn').classList.toggle('ico',!!G.nextLv);$('menuBtn').innerHTML=svgI('home')+(G.nextLv?'':'Hauptmenü');
   if(G.first){G.first=false;G.rounds=10;}
   $('sSave').classList.toggle('hidden',!needSave());
-  G.saved=false;$('nameIn').value=store.get('pgt_name')||'';$('saveBtn').disabled=false;$('saveBtn').innerHTML='Eintragen';$('nameRow').classList.remove('hidden');
-  showBoardIn($('sBoard'),{pos:G.pos,mode:G.mode,level:G.level},null);
+  G.saved=false;$('nameIn').readOnly=false;$('nameIn').value=store.get('pgt_name')||'';$('saveBtn').disabled=false;$('saveBtn').innerHTML='Eintragen';$('nameRow').classList.remove('hidden');
+  if(!autoScore())showBoardIn($('sBoard'),{pos:G.pos,mode:G.mode,level:G.level},null);
   $('summary').classList.remove('hidden');
 }
 
