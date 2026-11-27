@@ -10,9 +10,18 @@ function feedBall(sc){
     if(G.t>=g.t1-tf){sc.gave=true;
       act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},Math.max(.2,g.t1-G.t),passH(tf),()=>{ball.owner=Wp;ball.hold=true;act(Wp,'catch',.25);});}}
   if(!sc.feed||sc.fed||G.t<sc.feed.t0)return;
+  if(sc.feed.miss){missBall(sc);return;}
   const f=sc.feed,[x,z]=evalPath(Hd.path,f.t1,Hd.lin),moving=Hd.path[Hd.path.length-1][0]>f.t1+.1,tf=passT(Math.hypot(x-ball.x,z-ball.z));
   if(G.t<f.t1-tf)return;sc.fed=true;
   act(ball.owner,'pass',.4);ball.hold=false;ball.y=Math.max(1,ball.y);fly({x,y:1.15,z},Math.max(.2,f.t1-G.t),passH(tf),()=>{ball.owner=Hd;ball.hold=!moving;act(Hd,'catch',.25);});}
+// Fehlwurf im Anlauf (feed.miss, Offensiv-Rebound): Der Ballführer wirft bei t0, der Ball prallt vom Ring ab und kommt bei t1
+// beim eigenen Spieler an. Der springt kurz vorher hoch (Block-Bewegung, Arme oben) und holt den Ball aus der Luft.
+function missBall(sc){const f=sc.feed;
+  if(!f.st){f.st=1;const S=ball.owner;S.armsUp=1.3;ball.hold=true;act(S,'shoot',1.0);return;}
+  if(f.st===1&&G.t>=f.t0+.24){f.st=2;const S=ball.owner,d=Math.hypot(S.x,S.z),[x,z]=evalPath(Hd.path,f.t1,Hd.lin);
+    fly({x:0,y:rimHeight(),z:-.225},.75+d*.04,1.1+d*.13,()=>{sfx.rim();rimHit();
+      fly({x,y:2.05,z},Math.max(.3,f.t1-G.t),.8,()=>{ball.owner=Hd;ball.hold=true;sfx.catch(Hd);});},{shot:true});}
+  if(f.st===2&&G.t>=f.t1-.3){sc.fed=true;Hd.armsUp=1;act(Hd,'block',.62);}}
 // Lineare Bremskurve: In TAPE_STOP Sekunden verstreicht noch eine halbe TAPE_STOP an Spielzeit.
 function approachDt(rdt,raw){const start=G.sc.T-TAPE_STOP/2;
   if(G.stopElapsed===null&&G.t+rdt<start)return rdt;
