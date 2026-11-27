@@ -57,6 +57,9 @@
 <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
 <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.2-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M18 14.8c1.9.8 3.1 2.5 3.5 5.2"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4.5 21c.7-4.2 3.6-6.5 7.5-6.5s6.8 2.3 7.5 6.5"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1"/><path d="M14 14h2.5v2.5H14zM18 18h2.5v2.5H18zM14 20.5h2M20.5 14v2"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.5-2.2h5.4L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18z"/><circle cx="12" cy="13" r="3.5"/></symbol>
 <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3.5v11M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5"/></symbol>
 <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
 <symbol id="i-dive" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5M6 20h12"/></symbol>
@@ -103,6 +106,7 @@
         <button class="rbtn lbl gold" id="boardBtn" title="Rangliste"><svg class="i"><use href="#i-trophy"/></svg><small>Rangliste</small></button>
         <button class="rbtn lbl" id="tipsBtn" title="So geht's"><svg class="i"><use href="#i-help"/></svg><small>Hilfe</small></button>
         <button class="rbtn lbl" id="coachBtn" title="Für Trainer &amp; Eltern"><svg class="i"><use href="#i-coach"/></svg><small>Trainer</small></button>
+        <button class="rbtn lbl prof" id="profBtn" title="Profil: Spieler und Konto" aria-label="Profil: Spieler und Konto"><span class="pav"><svg class="i"><use href="#i-user"/></svg><i class="pdot"><svg class="i"><use href="#i-check"/></svg></i></span><small>Profil</small></button>
       </div>
       <button class="taskbar hidden" id="taskBar"><svg class="i"><use href="#i-coach"/></svg><span><small>Aufgabe<i class="vt"> vom Trainer</i></small><b id="taskTxt"></b></span><em>Los</em></button>
       <div class="mcols"><div class="mcol">
@@ -259,7 +263,7 @@
       <div class="best" id="sBest"></div>
       <div class="xprow" id="sXp"><span class="lvn" id="sXpLv">Rookie</span><i><em id="sXpBar"></em></i><b id="sXpN">+0 XP</b></div>
       <div class="goal hidden" id="sGoal"></div>
-      <button class="taskbar blue hidden" id="sSave"><svg class="i"><use href="#i-link"/></svg><span><small>Spieler sichern</small><b>Mit deinem Link auf jedes Gerät</b></span><em>Sichern</em></button>
+      <button class="taskbar blue hidden" id="sSave"><svg class="i"><use href="#i-lock"/></svg><span><small>Spieler sichern</small><b>Mit der E-Mail deiner Eltern auf jedes Gerät</b></span><em>Profil</em></button>
       <div class="sec-t">Rangliste</div>
       <div id="nameRow" class="namerow"><input id="nameIn" maxlength="14" placeholder="Vorname oder Spitzname" autocomplete="off" enterkeyhint="done"><button class="btn" id="saveBtn">Eintragen</button></div>
       <p class="nhint" id="nameHint">Dein Name ist danach für dein Team sichtbar. Nimm deinen Vornamen oder einen Spitznamen. <a href="datenschutz.html#rangliste" target="_blank" rel="noopener">Datenschutz</a></p>
@@ -309,7 +313,7 @@
         </div>
       </div>
     </div>
-    <div class="foot"><button class="btn sec" id="pcWho"><svg class="i"><use href="#i-users"/></svg>Spieler</button><button class="btn sec" id="pcSave"><svg class="i"><use href="#i-link"/></svg>Sichern</button><button class="btn" id="pcClose">Fertig</button></div>
+    <div class="foot"><button class="btn sec" id="pcWho"><svg class="i"><use href="#i-users"/></svg>Spieler wechseln</button><button class="btn" id="pcClose">Fertig</button></div>
   </div>
 </div>
 
@@ -371,41 +375,49 @@
       <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-users"/></svg><h2>Wer spielt?</h2><button class="rbtn" id="whoX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
       <div class="wlist" id="whoList"></div>
       <button class="wp new" id="whoNew"><span class="ps-num plus"><svg class="i"><use href="#i-plus"/></svg></span><span><b class="nm">Neuer Spieler</b><small>Für Geschwister, Freunde oder das Team-Tablet</small></span></button>
-      <button class="btn sec whoacct hidden" id="whoAcct"><svg class="i"><use href="#i-lock"/></svg>Mit E-Mail anmelden</button>
-      <div class="sec-t">Spieler-Link von einem anderen Gerät</div>
-      <div class="namerow"><input id="whoIn" placeholder="Link hier einfügen" autocomplete="off" enterkeyhint="go"><button class="btn" id="whoLoad">Laden</button></div>
-      <div class="cnote" id="whoMsg"></div>
-      <p class="note">Den Link bekommst du auf deiner Spielerkarte unter „Sichern“. Du kannst ihn auch einfach antippen oder den Code mit der Kamera scannen.</p>
     </div>
-  </div>
-</div>
-
-<div id="save" class="overlay hidden">
-  <div class="card sv">
-    <div class="body">
-      <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-link"/></svg><h2>Spieler sichern</h2><button class="rbtn" id="svX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
-      <p>Mit diesem Link holst du deinen Spieler auf jedes Gerät zurück. Schick ihn dir oder deinen Eltern, oder scanne den Code mit einem anderen Gerät.</p>
-      <div class="qrbox"><canvas id="svQR" width="264" height="264" class="hidden"></canvas><div class="cnote" id="svQRmsg"></div></div>
-      <button id="svLink" class="svlink" type="button" aria-label="Dein Spieler-Link, tippen zum Kopieren"></button>
-      <div class="row2"><button class="btn sec" id="svCopy"><svg class="i"><use href="#i-link"/></svg>Kopieren</button><button class="btn sec" id="svShare"><svg class="i"><use href="#i-share"/></svg>Teilen</button></div>
-      <div class="cnote" id="svNote"></div>
-      <p class="note">Der Link speichert deinen Stand von heute. Nach weiteren Spielen einfach neu sichern.</p>
-    </div>
-    <div class="foot"><button class="btn" id="svClose">Fertig</button></div>
   </div>
 </div>
 
 <div id="acct" class="overlay hidden">
   <div class="card ac">
     <div class="body">
-      <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff"><use href="#i-lock"/></svg><h2 id="acT">Spieler sichern</h2><button class="rbtn" id="acX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
-      <div class="apane cform" data-p="out">
-        <p>Mit der E-Mail-Adresse deiner Eltern bleibt dein Spieler auf jedem Gerät erhalten. Ganz ohne Passwort: Ihr bekommt einen Link per E-Mail.</p>
+      <div class="bhead"><svg class="i" style="width:28px;height:28px;color:#6fa5ff" id="acIco"><use href="#i-user"/></svg><h2 id="acT">Profil</h2><button class="rbtn" id="acX" aria-label="Schließen"><svg class="i"><use href="#i-close"/></svg></button></div>
+      <div class="cnote acmsg" id="acMsg" role="status" aria-live="polite"></div>
+      <div class="apane" data-p="home">
+        <div class="sec-t">Wer spielt?</div>
+        <div class="wlist" id="acList"></div>
+        <button class="wp new" id="acNew"><span class="ps-num plus"><svg class="i"><use href="#i-plus"/></svg></span><span><b class="nm">Neuer Spieler</b><small>Für Geschwister, Freunde oder das Team-Tablet</small></span></button>
+        <div id="acKonto">
+          <div class="sec-t">Konto</div>
+          <div class="acst" id="acSt"><span class="acok"><svg class="i"><use href="#i-check"/></svg></span><div><b id="acStT"></b><small id="acStS"></small></div></div>
+          <div class="acdo" data-s="out">
+            <button class="btn wide" id="acMailBtn"><svg class="i"><use href="#i-lock"/></svg>Eltern: mit E-Mail anmelden</button>
+            <button class="btn sec wide" id="acScanBtn"><svg class="i"><use href="#i-qr"/></svg>QR-Code scannen</button>
+            <button class="lnk" id="acCodeBtn">Oder den Code eintippen</button>
+            <p class="note" id="acPendN"></p>
+            <p class="note">Eltern melden sich auf ihrem Gerät mit der E-Mail-Adresse an. Danach zeigt ihr Gerät einen QR-Code, den du hier scannst. So kommen alle Spieler auf jedes Gerät.</p>
+          </div>
+          <div class="acdo" data-s="owner">
+            <button class="btn wide" id="acAdd"><svg class="i"><use href="#i-qr"/></svg>Weiteres Gerät hinzufügen</button>
+            <div class="sec-t" id="acDevT">Verbundene Geräte</div>
+            <div class="devl" id="acDevs"></div>
+            <div class="row2"><button class="btn sec" id="acOut">Abmelden</button></div>
+            <button class="lnk del" id="acDel">Konto löschen</button>
+          </div>
+          <div class="acdo" data-s="dev">
+            <p class="note">Was du hier spielst, wird automatisch im Konto gesichert, auch für die anderen Geräte.</p>
+            <div class="row2"><button class="btn sec" id="acLeave">Gerät vom Konto trennen</button></div>
+          </div>
+        </div>
+        <p class="note" id="acLocal">Die Spieler werden nur auf diesem Gerät gespeichert.</p>
+      </div>
+      <div class="apane cform" data-p="mail">
+        <p>Mit der E-Mail-Adresse der Eltern bleiben alle Spieler auf jedem Gerät erhalten. Ganz ohne Passwort: Ihr bekommt einen Link per E-Mail.</p>
         <label for="acMail">E-Mail-Adresse der Eltern</label>
         <input id="acMail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@beispiel.de" enterkeyhint="send">
         <label class="chk" id="acOkRow"><input type="checkbox" id="acOk"><span>Ich bin Elternteil (oder mindestens 16) und einverstanden, dass Spielstand und Spitzname gespeichert werden. Der Spitzname steht in der Rangliste, die E-Mail-Adresse nie. <a href="datenschutz.html#konto" target="_blank" rel="noopener">Datenschutz</a></span></label>
         <button class="btn wide" id="acSend"><svg class="i"><use href="#i-share"/></svg>Link schicken</button>
-        <button class="lnk" id="acPlain">Ohne Konto: Spieler-Link oder QR-Code</button>
       </div>
       <div class="apane cform" data-p="sent">
         <p>Wir haben einen Link an <b id="acTo"></b> geschickt. Tippt in der E-Mail auf den Link, am besten auf diesem Gerät. Keine E-Mail da? Schaut auch im Spam-Ordner nach.</p>
@@ -419,30 +431,27 @@
         <input id="acMail2" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="120" placeholder="name@beispiel.de" enterkeyhint="go">
         <label class="chk" id="acOk2Row"><input type="checkbox" id="acOk2"><span>Ich bin Elternteil (oder mindestens 16) und einverstanden, dass Spielstand und Spitzname gespeichert werden. <a href="datenschutz.html#konto" target="_blank" rel="noopener">Datenschutz</a></span></label>
         <button class="btn wide" id="acFin">Weiter</button>
-        <p class="note">Spielt ihr in der installierten App? Dann <button class="lnk" id="acCopy">kopiert diesen Link</button> und fügt ihn in der App unter Spielerkarte → Sichern ein.</p>
+        <p class="note" id="acCopyN">Spielt ihr in der installierten App? Dann <button class="lnk" id="acCopy">kopiert diesen Link</button> und fügt ihn in der App unter Profil → Anmeldung fortsetzen ein.</p>
       </div>
-      <div class="apane" data-p="in">
-        <div class="acst"><span class="acok"><svg class="i"><use href="#i-check"/></svg></span><div><b>Auf jedem Gerät dabei</b><small id="acWho"></small></div></div>
-        <p id="acInfo" class="cnote"></p>
-        <p class="note">Auf einem anderen Gerät: Spielerkarte → Sichern → dieselbe E-Mail-Adresse eingeben. Nach jedem Spiel wird automatisch gesichert und du stehst mit deinem Spitznamen in der Rangliste.</p>
-        <div class="row2"><button class="btn sec" id="acOut">Abmelden</button></div>
-        <button class="lnk del" id="acDel">Konto löschen</button>
+      <div class="apane" data-p="qr">
+        <p>Öffne das Spiel auf dem anderen Gerät, tippe oben rechts auf <b>Profil</b> und dann auf <b>QR-Code scannen</b>.</p>
+        <div class="qrbox"><canvas id="acQR" width="264" height="264" class="hidden"></canvas><div class="cnote" id="acQRmsg"></div></div>
+        <div class="pcode"><small>Oder diesen Code eintippen</small><b id="acPCode">····-····</b><span id="acPExp"></span></div>
+        <button class="btn sec wide hidden" id="acPNew">Neuer Code</button>
+      </div>
+      <div class="apane" data-p="scan">
+        <div class="scanbox"><video id="acVid" playsinline muted autoplay></video><i class="scanf"></i></div>
+        <p class="cnote" id="acScanMsg">Halte die Kamera auf den QR-Code auf dem Gerät deiner Eltern.</p>
+        <button class="lnk" id="acScanCode">Lieber den Code eintippen</button>
+      </div>
+      <div class="apane cform" data-p="code">
+        <p>Den Code siehst du auf dem Gerät deiner Eltern unter Profil → Weiteres Gerät hinzufügen.</p>
+        <label for="acCode">Code</label>
+        <div class="namerow"><input id="acCode" class="codein" maxlength="12" placeholder="ABCD-EFGH" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go"><button class="btn" id="acJoin">Verbinden</button></div>
       </div>
       <div class="apane" data-p="busy"><div class="lb-st">Einen Moment …</div></div>
-      <div class="cnote acmsg" id="acMsg" role="status" aria-live="polite"></div>
     </div>
-    <div class="foot"><button class="btn" id="acClose">Fertig</button></div>
-  </div>
-</div>
-
-<div id="restore" class="overlay hidden">
-  <div class="card ul">
-    <div class="body">
-      <div class="ul-t">Dein Spieler ist da!</div>
-      <div class="rs-p"><span id="rsJ"></span><div><b class="nm" id="rsName"></b><small id="rsInfo"></small></div></div>
-      <p class="note" id="rsNote"></p>
-    </div>
-    <div class="foot"><button class="btn sec" id="rsNo">Abbrechen</button><button class="btn" id="rsYes">Weiterspielen</button></div>
+    <div class="foot"><button class="btn sec hidden" id="acBack">Zurück</button><button class="btn" id="acClose">Fertig</button></div>
   </div>
 </div>
 

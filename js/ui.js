@@ -1,4 +1,4 @@
-// Rangliste, Trainer (Themen, Aufgabe, Team), Spielerkarte, Menü und Bedienung, Willkommen, mehrere Spieler und Spieler-Link, Demo im Menü.
+// Rangliste, Trainer (Themen, Aufgabe, Team), Spielerkarte, Menü und Bedienung, Willkommen, mehrere Spieler, Demo im Menü.
 // Teil des Spiels: Alle Dateien in js/ sind normale Skripte (kein Build), Reihenfolge wie in index.html.
 
 // ================= Rangliste =================
@@ -34,7 +34,7 @@ const INFO_HTML=`<h3>Was ist das?</h3>
 <li><a href="https://basketball-bund.de/wp-content/uploads/sites/2/2022/12/SPIELKONZEPTION-ZUR-ENTWICKLUNG-VON-NATIONALSPIELERN-NATIONALSPIELERIN....pdf" target="_blank" rel="noopener">DBB: Spielkonzeption zur Entwicklung von Nationalspieler:innen (2022)</a></li>
 <li><a href="https://www.basketball-bund.de/wp-content/uploads/sites/2/2021/08/MMV-Kriterien.pdf" target="_blank" rel="noopener">DBB: Kriterien Mann-Mann-Verteidigung U14/U16</a></li>
 <li><a href="https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-manual-mini-basketball-eng.pdf" target="_blank" rel="noopener">FIBA/WABC: Coaching Manual Mini-Basketball</a></li></ul>
-<p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird auf dem Gerät gespeichert. Wer es geräteübergreifend sichern möchte, kann freiwillig ein Konto mit der E-Mail-Adresse der Eltern anlegen (Spielerkarte → Sichern, ohne Passwort). In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt; mit Konto geschieht das automatisch unter dem Spitznamen, die E-Mail-Adresse erscheint nie.</small></p>
+<p><small>Inoffizielles Lernspiel, nicht vom DBB oder der FIBA herausgegeben. Inhalte sind an die genannten Unterlagen angelehnt und stark vereinfacht. Regeln können je Landesverband und Wettbewerb abweichen. Das Profil wird auf dem Gerät gespeichert. Wer es geräteübergreifend sichern möchte, kann freiwillig ein Konto mit der E-Mail-Adresse der Eltern anlegen (oben rechts unter Profil, ohne Passwort). Weitere Geräte, z. B. das Tablet der Kinder, werden danach per QR-Code verbunden. In die Rangliste kommt nur, wer einen Vornamen oder Spitznamen einträgt; mit Konto geschieht das automatisch unter dem Spitznamen, die E-Mail-Adresse erscheint nie.</small></p>
 <p><small>Geräusche (Ball, Schuhe, Korb, Publikum und Tape-Stop) und gesprochene Ansagen erstellt mit <a href="https://elevenlabs.io/" target="_blank" rel="noopener">ElevenLabs</a>.</small></p>
 <p class="legal"><a href="impressum.html" target="_blank" rel="noopener">Impressum</a> · <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutz</a> · <a href="lizenzen.html" target="_blank" rel="noopener">Lizenzen</a></p>`;
 function cleanName(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,14);}
@@ -405,7 +405,7 @@ $('wGo').onclick=()=>{welDone();if(TASK){$('taskBar').click();return;}
   G.level=1;markSel('lvl','l',1);G.noLimit=true;$('noLimit').checked=true;G.rounds=5;G.first=true;newGame();};
 
 
-// ================= Spieler: mehrere pro Gerät, Spieler-Link =================
+// ================= Spieler: mehrere pro Gerät =================
 // Verzeichnis der Spieler auf diesem Gerät (nur Anzeige): [{id,uid,name,num,xp,g}]
 function regList(){let l=[];try{l=JSON.parse(store.get('pgt_players')||'[]')||[]}catch(e){}return Array.isArray(l)?l:[];}
 function regSave(l){store.set('pgt_players',JSON.stringify(l));}
@@ -420,27 +420,22 @@ function newPlayer(){if(isEmptyMe()){store.del('pgt_welcome');reloadAs(CUR);retu
 // Spieler wählen
 function lvlName(xp){return lvlOf(xp||0).name;}
 function jerseyHTML(num){return`<span class="ps-num"><svg viewBox="0 0 24 24"><path d="M8.5 3c.4 1.9 1.7 3 3.5 3s3.1-1.1 3.5-3H18c0 3 .8 5 2 6v12H4V9c1.2-1 2-3 2-6z"/></svg><b>${num}</b></span>`;}
-function openWho(first){regSync();const el=$('whoList'),l=regList();el.innerHTML='';
-  l.forEach(e=>{const b=document.createElement('button');b.className='wp'+(e.id===CUR?' sel':'');
-    b.innerHTML=jerseyHTML(e.num)+`<span><b class="nm"></b><small>${lvlName(e.xp)} · ${e.g||0} Spiele</small></span>`;b.querySelector('.nm').textContent=e.name||'Ohne Namen';
-    b.onclick=()=>{if(e.id===CUR){closeWho();return;}reloadAs(e.id);};el.appendChild(b);});
-  $('whoX').classList.toggle('hidden',!!first);$('whoIn').value='';$('whoMsg').textContent='';$('who').classList.remove('hidden');}
+// Liste der Spieler (beim Start in „Wer spielt?“ und im Profil): Antippen wechselt per Neuladen
+function whoRows(el,cur){regSync();el.innerHTML='';
+  regList().forEach(e=>{const b=document.createElement('button');b.className='wp'+(e.id===CUR?' sel':'');
+    b.innerHTML=jerseyHTML(e.num)+`<span><b class="nm"></b><small>${lvlName(e.xp)} · ${e.g===1?'1 Spiel':(e.g||0)+' Spiele'}</small></span>`+(e.id===CUR?'<em class="wpme">Spielt gerade</em>':'');b.querySelector('.nm').textContent=e.name||'Ohne Namen';
+    b.onclick=()=>{if(e.id===CUR){cur();return;}reloadAs(e.id);};el.appendChild(b);});}
+function openWho(first){whoRows($('whoList'),closeWho);$('whoX').classList.toggle('hidden',!!first);$('who').classList.remove('hidden');}
 function closeWho(){$('who').classList.add('hidden');sess.set('pgt_picked','1');maybeWelcome();}
 $('whoX').onclick=closeWho;$('whoNew').onclick=newPlayer;
-$('whoLoad').onclick=()=>{const d=unpackLink($('whoIn').value);if(!d){$('whoMsg').textContent='Das ist kein Spieler-Link. Kopiere den ganzen Link.';return;}$('who').classList.add('hidden');openRestore(d);};
-// Spieler-Link: Spielerdaten kompakt im Link (#s=…), kein Server nötig
+// Spielerdaten kompakt (für das Konto, siehe js/account.js)
 const POSK=['pg','wing','center','def','mix'],CATK=['pass','drive','shot','off','def'];
-const b64e=t=>btoa(unescape(encodeURIComponent(t))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-const b64d=t=>decodeURIComponent(escape(atob(t.replace(/-/g,'+').replace(/_/g,'/'))));
 // packObj: Spielerdaten kompakt (auch für das Konto, siehe js/account.js); P/n/p/m = Profil, Name, Position, Spielform
 function packObj(P=PROFILE,n=store.get('pgt_name')||'',p=store.get('pgt_pos')||'pg',m=+(store.get('pgt_mode')||4)){
   return{v:1,u:P.uid,n,p,m,
     d:[P.num,P.skin,P.hair,P.hairC,P.games,P.rounds,P.correct,Math.round(P.rtS*10),P.rtN,P.best,P.xp,P.saved||0],
     c:CATK.map(k=>P.cat[k]||[0,0]),o:POSK.filter(k=>P.pos[k]).map(k=>POSK.indexOf(k)).join(''),
     b:BADGES.reduce((a,b,i)=>P.badges[b.id]?a+2**i:a,0),z:P.lz,g:P.g||'',age:P.age,t:P.mt||0};}
-function packLink(){let base=location.origin+location.pathname;if(TEAMID!=='team')base+='?team='+encodeURIComponent(TEAMID);
-  return base+'#s='+b64e(JSON.stringify(packObj()));}
-function unpackLink(t){try{const m=/[#&]s=([A-Za-z0-9_-]+)/.exec(String(t||''));if(!m)return null;return unpackObj(JSON.parse(b64d(m[1])));}catch(e){return null;}}
 function unpackObj(o){try{
   if(!o||o.v!==1||!Array.isArray(o.d)||o.d.length<11)return null;
   const n=(i,max)=>clamp(Math.round(+o.d[i]||0),0,max),pr=a=>Array.isArray(a)?[clamp(+a[0]|0,0,1e6),clamp(+a[1]|0,0,1e6)]:[0,0];
@@ -453,35 +448,14 @@ function unpackObj(o){try{
   if(['U10','U12','U14'].includes(o.age))P.age=o.age;
   P.mt=clamp(+o.t||0,0,4e12);
   return{P,name:cleanName(o.n),pos:POS[o.p]&&o.p!=='mix'?o.p:'pg',mode:o.m===5?5:4};}catch(e){return null;}}
-// Link öffnen: Spieler übernehmen
-let RST=null;
-function openRestore(d){RST=d;setGirl(d.P.g==='w');$('rsJ').innerHTML=jerseyHTML(d.P.num);$('rsName').textContent=d.name||'Ohne Namen';
-  const got=BADGES.filter(b=>d.P.badges[b.id]).length;$('rsInfo').textContent=`${lvlName(d.P.xp)} · ${d.P.games} Spiele · ${got} Abzeichen`;
-  const ex=regList().find(x=>x.uid===d.P.uid);
-  $('rsNote').textContent=ex?(ex.g>d.P.games?'Diesen Spieler gibt es hier schon mit mehr Spielen. Du wechselst zu ihm, sein Stand bleibt.':'Diesen Spieler gibt es hier schon. Er bekommt den Stand aus dem Link.'):'Der Spieler wird auf diesem Gerät gespeichert.';
-  $('restore').classList.remove('hidden');}
-$('rsNo').onclick=()=>{$('restore').classList.add('hidden');setGirl(PROFILE.g==='w');try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}RST=null;closeWho();};
-$('rsYes').onclick=()=>{const d=RST;if(!d)return;const ex=regList().find(x=>x.uid===d.P.uid);
-  let id=ex?ex.id:isEmptyMe()?CUR:newSlotId();if(ex&&ex.g>d.P.games){reloadAs(id);return;}
-  useSlot(id);store.set(PK,JSON.stringify(d.P));if(d.name)store.set('pgt_name',d.name);store.set('pgt_welcome','1');store.set('pgt_pos',d.pos);store.set('pgt_mode',String(d.mode));
-  const l=regList().filter(x=>x.id!==id);l.push({id,uid:d.P.uid,name:d.name,num:d.P.num,xp:d.P.xp,g:d.P.games});regSave(l);reloadAs(id);};
-// Spieler sichern: Link teilen, kopieren, QR-Code
+// QR-Code (Gerät hinzufügen, js/account.js): Bibliothek erst bei Bedarf von jsDelivr
 function loadQR(){return window.qrcode?Promise.resolve():new Promise((ok,no)=>{const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';sc.onload=ok;sc.onerror=no;document.head.appendChild(sc);});}
-function drawQR(url){const cv=$('svQR'),g=cv.getContext('2d');cv.classList.add('hidden');$('svQRmsg').textContent='Code wird erstellt …';
-  loadQR().then(()=>{const q=window.qrcode(0,'L');q.addData(url);q.make();const n=q.getModuleCount(),m=4,sz=cv.width,c=sz/(n+2*m);
-    g.fillStyle='#fff';g.fillRect(0,0,sz,sz);g.fillStyle='#0c1222';for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))g.fillRect(Math.floor((k+m)*c),Math.floor((r+m)*c),Math.ceil(c),Math.ceil(c));
-    cv.classList.remove('hidden');$('svQRmsg').textContent='Mit der Kamera eines anderen Geräts scannen.';})
-  .catch(()=>{$('svQRmsg').textContent='Den Code gibt es nur mit Internet. Der Link funktioniert trotzdem.';});}
-function openSave(){const url=packLink();$('svLink').textContent=url;$('svNote').textContent='';PROFILE.saved=PROFILE.games;saveProf();
-  $('svShare').classList.toggle('hidden',!navigator.share);drawQR(url);$('save').classList.remove('hidden');$('sSave').classList.add('hidden');}
-// Kopieren ohne sichtbares Eingabefeld: Ersatzweg über ein verstecktes Textfeld mit 16 px (sonst zoomt iOS)
-$('svCopy').onclick=$('svLink').onclick=()=>{const t=$('svLink').textContent,ok=()=>$('svNote').textContent='Kopiert. Füge den Link z. B. in einen Chat mit dir oder deinen Eltern ein.';
-  (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(ok).catch(()=>{const a=document.createElement('textarea');a.value=t;a.readOnly=true;
-    a.style.cssText='position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;font-size:16px';document.body.appendChild(a);a.select();a.setSelectionRange(0,t.length);
-    let r=false;try{r=document.execCommand('copy');}catch(e){}a.remove();window.scrollTo(0,0);if(r)ok();else $('svNote').textContent='Kopieren ging nicht. Nimm „Teilen“ oder scanne den Code.';});};
-$('svShare').onclick=()=>{navigator.share({title:'Mein Spieler im Basketball IQ Trainer',text:'Mein Spieler-Link (öffnen, um weiterzuspielen):',url:$('svLink').textContent}).catch(()=>{});};
-$('svClose').onclick=$('svX').onclick=()=>$('save').classList.add('hidden');
-$('pcSave').onclick=()=>openAcct();$('pcWho').onclick=()=>{closeCard();openWho(false);};$('sSave').onclick=()=>openAcct();$('wHave').onclick=()=>{$('welcome').classList.add('hidden');openWho(false);};
+function drawQR(cv,url){const g=cv.getContext('2d');
+  return loadQR().then(()=>{const q=window.qrcode(0,'M');q.addData(url);q.make();const n=q.getModuleCount(),m=4,sz=cv.width,c=sz/(n+2*m);
+    g.fillStyle='#fff';g.fillRect(0,0,sz,sz);g.fillStyle='#0c1222';for(let r=0;r<n;r++)for(let k=0;k<n;k++)if(q.isDark(r,k))g.fillRect(Math.floor((k+m)*c),Math.floor((r+m)*c),Math.ceil(c),Math.ceil(c));});}
+$('pcWho').onclick=()=>{closeCard();openAcct();};
+$('sSave').onclick=()=>{PROFILE.saved=PROFILE.games;saveProf();openAcct();};
+$('wHave').onclick=()=>{$('welcome').classList.add('hidden');if(onlineOn())openAcct();else openWho(false);};
 // Spieler entfernen (zweimal tippen)
 let delArm=0;$('pcDel').onclick=async()=>{if(Date.now()-delArm>3000){delArm=Date.now();$('pcDel').textContent=accOn()?'Wirklich entfernen, auch aus dem Konto? Nochmal tippen':'Wirklich entfernen? Nochmal tippen';return;}
   if(accOn()){$('pcDel').textContent='Wird entfernt …';clearTimeout(ACC_T);ACC_T=0;ACC_BUSY=true; // kein verspätetes Hochladen mehr
@@ -492,9 +466,10 @@ let delArm=0;$('pcDel').onclick=async()=>{if(Date.now()-delArm>3000){delArm=Date
 // Browser bitten, die Daten nicht automatisch zu löschen (einmal pro Gerät, nach dem ersten Spiel)
 function askPersist(){try{if(navigator.storage&&navigator.storage.persist&&!store.get('pgt_persist')){store.set('pgt_persist','1');navigator.storage.persisted().then(p=>p||navigator.storage.persist()).catch(()=>{});}}catch(e){}}
 // Erinnerung in der Auswertung: Spieler sichern
-function needSave(){const P=PROFILE;if(accOn())return false;return P.saved?P.games-P.saved>=5:P.games>=2;}
-function startFlow(){if(accLanding()){accLabel();return;}accStart();const d=unpackLink(location.hash);
-  if(d){openRestore(d);return;}
+function needSave(){const P=PROFILE;if(!onlineOn()||accOn())return false;return P.saved?P.games-P.saved>=5:P.games>=2;}
+function startFlow(){if(accLanding()){accLabel();return;}accStart();
+  if(pairLanding())return;
+  // alte Spieler-Links (#s=…) gibt es nicht mehr
   if(location.hash.includes('s='))try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
   if(regList().length>1&&!sess.get('pgt_picked')){openWho(true);return;}
   maybeWelcome();}
