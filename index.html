@@ -157,6 +157,7 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .lv.three{grid-template-columns:repeat(3,minmax(0,1fr))}
 .lv.four{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .lv.four .lvb b{font-size:14px}.lv.four .lvb span{font-size:10.5px}
+.agenote{margin:6px 2px 0;font-size:11px;line-height:1.25;color:#a9b6d6;font-weight:700}.agenote.hidden{display:none}
 .lvb{cursor:pointer;text-align:left;border-radius:16px;padding:10px 10px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.06);color:#fff;font-family:Nunito,system-ui,sans-serif;transition:transform .1s,background .2s,border-color .2s}
 .lvb:active{transform:scale(.97)}
 .lvb b{font-size:15px;display:block;white-space:nowrap}
@@ -670,8 +671,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="seg" id="age" role="group" aria-label="Altersklasse">
         <button class="lvb" data-age="U10"><b>U10</b></button>
         <button class="lvb" data-age="U12"><b>U12</b></button>
-        <button class="lvb" data-age="U14"><b>U14</b></button>
+        <button class="lvb" data-age="U14"><b>U13/U14</b></button>
       </div>
+      <p class="agenote hidden" id="ageNote">(Die Korbhöhe ist hier etwas anders, deshalb sehen die Animationen anders aus.)</p>
       <div class="sec-t">Spielform</div>
       <div class="seg" id="mode">
         <button class="lvb sel" data-m="4"><b>4 gegen 4</b><span>Miniregeln U10/U12</span></button>
@@ -898,7 +900,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
       <div class="seg" id="wAge" role="group" aria-label="Altersklasse">
         <button class="lvb" data-age="U10"><b>U10</b></button>
         <button class="lvb" data-age="U12"><b>U12</b></button>
-        <button class="lvb" data-age="U14"><b>U14</b></button>
+        <button class="lvb" data-age="U14"><b>U13/U14</b></button>
       </div>
         <label>Wo spielst du am liebsten?</label>
         <div class="lv four" id="wPos">
@@ -4100,6 +4102,7 @@ function showAge(age){
   basketMount.position.y=(age==='U14'?3.05:2.60)-rimG.position.y;
   // Pfosten steht fest (Fuß bei 0,9 m) und endet knapp über dem Arm, der mit dem Korb hoch- und runterfährt
   const top=3.65+basketMount.position.y,h=top-.9;basketPost.scale.y=h/3.4;basketPost.position.y=.9+h/2;
+  $('ageNote').classList.toggle('hidden',age!=='U14');
   for(const id of ['age','wAge']){
     markSel(id,'age',age);
     for(const button of $(id).querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.age===age));
