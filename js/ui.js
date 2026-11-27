@@ -186,6 +186,12 @@ function renderCard(){const P=PROFILE,R=ratings(),L=lvlOf(P.xp),tier=TIERS[L.i];
   const got=BADGES.filter(b=>P.badges[b.id]).sort((a,b)=>P.badges[b.id]-P.badges[a.id]);$('tcBadges').innerHTML=got.slice(0,4).map(b=>medal(b,true)).join('');
 
   $('lzList').innerHTML=lzRows(P.lz);
+  // Seitenleiste neben der Karte (nur Handy quer): Level, nächstes Abzeichen, Zahlen
+  const ng=nextGoal(),pct=P.rounds?Math.round(P.correct/P.rounds*100):0;
+  $('pcSide').innerHTML=`<div class="psb"><small>Level</small><b>${L.name}</b><i class="pxp"><em style="width:${Math.round(L.f*100)}%"></em></i><span>${L.b?`noch ${L.b-P.xp} XP bis ${LEVELS[L.i+1][1]}`:`${P.xp} XP`}</span></div>`
+    +(ng?`<button class="psb psg" id="pcsGoal">${medal(ng.b,false)}<div><small>Nächstes Abzeichen</small><b>${ng.b.n}</b><span><em class="pd">${ng.b.d} </em>${ng.pr?`${ng.pr.c} von ${ng.pr.g}`:''}</span>${bpBar(ng.pr)}</div></button>`:'')
+    +`<div class="psn"><div><b>${P.games}</b><span>Spiele</span></div><div><b>${pct} %</b><span>richtig</span></div><div><b>${got.length}/${BADGES.length}</b><span>Abzeichen</span></div></div>`;
+  if(ng)$('pcsGoal').onclick=()=>{pcTab('badges');const c=$('bGrid').querySelector(`.bcell[data-i="${BADGES.indexOf(ng.b)}"]`);if(c)c.click();};
   $('bGrid').innerHTML=BADGES.map((b,i)=>{const on=!!P.badges[b.id];return`<button class="bcell${on?' on':''}" data-i="${i}">${medal(b,on)}<span>${b.n}</span>${on?'':bpBar(bProg(b))}</button>`;}).join('');
   $('bGrid').querySelectorAll('.bcell').forEach(c=>c.onclick=()=>{const b=BADGES[+c.dataset.i],on=!!P.badges[b.id];$('bGrid').querySelectorAll('.bcell').forEach(x=>x.classList.toggle('sel',x===c));
     const pr=on?null:bProg(b);$('bDesc').innerHTML=medal(b,on)+`<div><b>${b.n}</b><br>${b.d}${on?' <span style="color:#7ff0ad">Geschafft!</span>':pr?` <span style="color:#8fa0c6">${pr.c} von ${pr.g}</span>${bpBar(pr)}`:' <span style="color:#8fa0c6">(noch offen)</span>'}</div>`;});
