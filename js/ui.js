@@ -100,13 +100,13 @@ $('boardClose').onclick=$('boardX').onclick=()=>$('board').classList.add('hidden
 // ================= Trainer: Themen, Aufgabe, Team =================
 const THEMES=[
  {id:'hilfe',n:'Wer hilft, lässt jemanden frei',d:'Hilfe erkennen, freien Mitspieler finden',i:'pass',plays:['top','wing','dkick','wcatch','wdrive','cpost','creb']},
- {id:'ohneball',n:'Ohne Ball',d:'Backdoor, Flash-Cut, Pass und geh, Platz machen',i:'cut',plays:['backdoor','give','wcut','cdive','cflash']},
+ {id:'ohneball',n:'Ohne Ball',d:'Backdoor, Flash-Cut, Pass und geh, Platz machen',i:'cut',plays:['backdoor','give','wcut','cdive','cflash','wspace']},
  {id:'ballbewegen',n:'Ball bewegen',d:'Den Ball dorthin spielen, wo die Abwehr nicht ist',i:'pass',plays:['swing','xpass','cflash','give']},
- {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, langer Pass, Rim Run',i:'bolt',plays:['break','plong','wbreak','two','clong','rimrun','crun']},
- {id:'umschalten',n:'Umschalten',d:'Nach Ballgewinn nach vorne, nach Ballverlust zurück',i:'bolt',plays:['plong','clong','break','rimrun','dback']},
- {id:'wurf',n:'Guter Wurf',d:'Wann werfen, wann ziehen, wann passen?',i:'ball',plays:['top','wcatch','xpass','chigh','creb']},
- {id:'backdoor',n:'Backdoor',d:'Steht der Verteidiger im Passweg: hinten rum!',i:'cut',plays:['backdoor','wcut','chigh']},
- {id:'abwehr',n:'Mann-Mann-Verteidigung',d:'Am Ball, ein Pass weg, helfen, mitgehen, zurück',i:'shield',plays:['dball','dpass','dhelp','drot','dclose','djump','dback']}];
+ {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, langer Pass, Rim Run',i:'bolt',plays:['break','plong','wbreak','two','clong','rimrun','crun','p2on1']},
+ {id:'umschalten',n:'Umschalten',d:'Nach Ballgewinn nach vorne, nach Ballverlust zurück',i:'bolt',plays:['plong','clong','break','rimrun','dback','dtwo']},
+ {id:'wurf',n:'Guter Wurf',d:'Wann werfen, wann ziehen, wann passen?',i:'ball',plays:['top','wcatch','xpass','chigh','creb','wcorner','pback']},
+ {id:'backdoor',n:'Backdoor',d:'Steht der Verteidiger im Passweg: hinten rum!',i:'cut',plays:['backdoor','wcut','chigh','dcut']},
+ {id:'abwehr',n:'Mann-Mann-Verteidigung',d:'Am Ball, ein Pass weg, helfen, mitgehen, zurück',i:'shield',plays:['dball','dpass','dhelp','drot','dclose','djump','dback','dcut','dtwo']}];
 const TASK=(()=>{const q=new URLSearchParams(location.search),t=THEMES.find(x=>x.id===q.get('aufgabe'));if(!t)return null;
   const r=+q.get('r'),l=+q.get('l');return{theme:t.id,txt:cleanName2(q.get('txt')||'')||t.n,r:r===5?5:10,l:[1,2,3].includes(l)?l:0};})();
 function cleanName2(n){return String(n||'').replace(/[<>"'`\\{}]/g,'').replace(/\s+/g,' ').trim().slice(0,60);}
@@ -262,7 +262,8 @@ const ICO={
 '↻':'<path d="M19 12a7 7 0 1 1-2.1-5"/><path d="M19 4v4h-4"/>',
 '⤓':'<path d="M12 4v12M7 11l5 5 5-5M6 20h12"/>',
 '→':'<path d="M4 12h14M13 6l6 6-6 6"/>',
-'↗':'<path d="M6 18 18 6M9 6h9v9"/>'};
+'↗':'<path d="M6 18 18 6M9 6h9v9"/>',
+'↘':'<path d="M6 6 18 18M18 9v9H9"/>'};
 const icoSvg=c=>`<svg viewBox="0 0 24 24">${ICO[c]||ICO['▲']}</svg>`;
 function buildButtons(){const sc=G.sc,np=passers().length;
   $('prompt').querySelector('.a').textContent='Was machst du?';

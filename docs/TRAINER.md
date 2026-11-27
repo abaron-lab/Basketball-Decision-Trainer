@@ -12,13 +12,13 @@ Jede Situation im Spiel gehört zu einem Lernziel. Der *DBB-Leitfaden Minibasket
 
 | Lernziel | Woher | Was gelesen wird | Beispiele im Spiel |
 |---|---|---|---|
-| Lücke erkennen | Leitfaden Minibasketball | Raum und Helfer: Kommt keine Hilfe, ist der Weg frei. Steht ein Mitspieler in der Lücke zwischen zwei Verteidigern, ist das die Lücke für einen Pass (Leitfaden Kap. 3.1). | Freie Bahn zum Korb, Durchbruch ohne Helfer, Offensiv-Rebound mit freiem Weg zum Korb, Verteidiger rutscht beim Backdoor-Cut zur Seite, Pass zum Center in die Lücke an der Freiwurflinie (Ball umkehren) |
-| Gegenspieler umspielen | Leitfaden Minibasketball | Den eigenen Verteidiger: Steht er neben dir statt vor dir, oder kommt er mit Schwung angerannt? | Fangen & lesen, Freiwurflinie, Extra-Pass („Verteidiger fliegt vorbei“), Ball umkehren (Verteidiger springt in den Passweg) |
-| Überzahl nutzen | Leitfaden Minibasketball | Wen nimmt der einzelne Verteidiger? | Schnellangriff 3 gegen 2, Einer gegen zwei, Rim Run, Rim Run mit Ball |
+| Lücke erkennen | Leitfaden Minibasketball | Raum und Helfer: Kommt keine Hilfe, ist der Weg frei. Steht ein Mitspieler in der Lücke zwischen zwei Verteidigern, ist das die Lücke für einen Pass (Leitfaden Kap. 3.1). | Freie Bahn zum Korb, Durchbruch ohne Helfer, Offensiv-Rebound mit freiem Weg zum Korb, Verteidiger rutscht beim Backdoor-Cut zur Seite, Durchbruch an der Grundlinie aus der Ecke, Pass zum Center in die Lücke an der Freiwurflinie (Ball umkehren) |
+| Gegenspieler umspielen | Leitfaden Minibasketball | Den eigenen Verteidiger: Steht er neben dir statt vor dir, oder kommt er mit Schwung angerannt? | Fangen & lesen, Freiwurflinie, Extra-Pass („Verteidiger fliegt vorbei“), Ball umkehren (Verteidiger springt in den Passweg), Center passt zurück (Verteidiger kommt angerannt) |
+| Überzahl nutzen | Leitfaden Minibasketball | Wen nimmt der einzelne Verteidiger? | Schnellangriff 3 gegen 2, 2 gegen 1, Einer gegen zwei, Rim Run, Rim Run mit Ball |
 | In den Lauf passen | Leitfaden Minibasketball | Wer läuft frei zum Korb? | Pass zum Backdoor-Cutter, langer Pass nach Ballgewinn oder Rebound |
-| Zusammenspiel | Leitfaden Minibasketball | Wer hilft, lässt jemanden frei. | Kick-out nach Hilfe, Extra-Pass, Pass und geh, Ball umkehren, Pass raus nach dem Offensiv-Rebound |
-| Anbieten und Orientieren | Leitfaden Minibasketball | Ohne Ball: Wo steht mein Verteidiger, wo ist Platz? | Backdoor oder Ball fordern, Flash-Cut oder unten bleiben, Platz lassen, hinten bleiben |
-| Guter Wurf (statt „Ins Ziel treffen“) | Leitfaden, DBB-Spielkonzeption („Wofür spielen wir?“) | Wurfauswahl: Ist ein freier Wurf die beste Lösung? | Freier Wurf bei viel Platz. Wer wirft, obwohl ein Korbleger oder Pass besser war, bekommt hier zusätzlich einen Fehlversuch („lieber Korbleger als weiter Wurf“). |
+| Zusammenspiel | Leitfaden Minibasketball | Wer hilft, lässt jemanden frei. | Kick-out nach Hilfe, Extra-Pass, Pass und geh, Ball umkehren, Pass raus nach dem Offensiv-Rebound, Pass aus der Ecke zum Center am Brett |
+| Anbieten und Orientieren | Leitfaden Minibasketball | Ohne Ball: Wo steht mein Verteidiger, wo ist Platz? | Backdoor oder Ball fordern, Flash-Cut oder unten bleiben, Platz lassen, hinten bleiben, beim Durchbruch des Mitspielers in die Ecke ausweichen oder hoch in die Lücke |
+| Guter Wurf (statt „Ins Ziel treffen“) | Leitfaden, DBB-Spielkonzeption („Wofür spielen wir?“) | Wurfauswahl: Ist ein freier Wurf die beste Lösung? | Freier Wurf bei viel Platz, auch aus der Ecke oder wenn der Center zurückpasst. Wer wirft, obwohl ein Korbleger oder Pass besser war, bekommt hier zusätzlich einen Fehlversuch („lieber Korbleger als weiter Wurf“). |
 | Mann-Mann-Verteidigung | Miniregeln (MMV-Pflicht), MMV-Kriterien, FIBA | Ball, du, Gegenspieler | Position Abwehr |
 
 Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welches Lernziel richtig gelesen hat. Die Auswertung nach jedem Spiel zeigt es unter „Details“. Ein falscher Wurf zählt dabei zweimal: beim Lernziel der Situation und bei „Guter Wurf“.
@@ -39,9 +39,9 @@ Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welche
 - **Schnelle Entscheidungen:** Wurf, Drive oder Pass, möglichst schon vor dem Fangen.
 - **Extra-Pass:** Spielzug „Extra-Pass“ (Flügel). Kommt der Verteidiger zu dir, ist ein anderer frei.
 - **„1 can't guard 2“:** Spielzug „Einer gegen zwei“ (Flügel).
-- **Attackieren und Platz machen:** Spielzug „Pass und geh“ (Aufbau). Nach dem Pass schneiden oder raus und Platz machen.
+- **Attackieren und Platz machen:** Spielzug „Pass und geh“ (Aufbau). Nach dem Pass schneiden oder raus und Platz machen. Spielzug „Mitspieler zieht zum Korb“ (Flügel): Zieht ein Mitspieler, mach Platz, und zwar dort, wo der Helfer nicht ist.
 - **Rim Run im Schnellangriff:** Spielzüge „Rim Run“ (Center, ohne Ball: sprinten oder hinten bleiben) und „Rim Run mit Ball“ (Center: Pass im Lauf, dann Korbleger oder Pass zum freien Läufer).
-- **Transition-Verteidigung:** „Erste:r zurück sichert den Korb“, alle sprinten hinter den Ball. Spielzug „Zurück in die Abwehr“ (Abwehr): erst den Korb sichern, dann den Ball stoppen, dann den eigenen Gegenspieler finden. Feste Zuordnungen wie in der Zonenverteidigung gibt es für Minis nicht (MMV-Pflicht), deshalb endet der Spielzug beim eigenen Gegenspieler.
+- **Transition-Verteidigung:** „Erste:r zurück sichert den Korb“, alle sprinten hinter den Ball. Spielzug „Zurück in die Abwehr“ (Abwehr): erst den Korb sichern, dann den Ball stoppen, dann den eigenen Gegenspieler finden. Spielzug „Unterzahl 1 gegen 2“ (Abwehr): allein gegen zwei erst den Korb schützen und Zeit gewinnen, bis die anderen zurück sind. Feste Zuordnungen wie in der Zonenverteidigung gibt es für Minis nicht (MMV-Pflicht), deshalb endet der Spielzug beim eigenen Gegenspieler.
 - **Wofür spielen wir?** Korbnahe Abschlüsse, freie Würfe von außen, Freiwürfe: Lernziel „Guter Wurf“.
 - Blöcke, Pick & Roll und Handoffs aus der Spielkonzeption wurden bewusst **nicht** übernommen (Miniregeln).
 
@@ -59,9 +59,10 @@ Aushelfen nach einem Durchbruch ist auch im Minibasketball erlaubt und gilt nich
 - **Spielnah lernen** („game-based teaching“, Kap. 2) statt isolierter Übungen: Das Spiel zeigt immer echte Spielsituationen mit Verteidigung.
 - **Fragen stellen** statt vorsagen (Kap. 2.2/2.3): Nach einer falschen Wahl fragt das Spiel zuerst, wie oben beim Leitfaden beschrieben.
 - **Üben nach Können** (Kap. 1.4): drei Schwierigkeitsstufen mit weniger Zeit und Verteidigern, die nur so tun, als würden sie helfen.
-- **Space and Movement, Motion-Offense-Prinzipien** (Kap. 5.3/5.4): Backdoor-Cut („Backdoor-Cut“, „Ohne Ball: Backdoor?“), Pass und geh bzw. Pass-Cut-Replace („Pass und geh“), Flash-Cut („Flash-Cut“, Center), Ball umkehren („Ball umkehren“, Aufbau), Drive and Dish („Durchbruch & Kick-out“), nicht zum Ball laufen, sondern Platz lassen („Ohne Ball“ und „Flash-Cut“ beim Center).
-- **Transition** (Kap. 5.3): Pass nach vorne statt Dribbling über das ganze Feld („Langer Pass“, „Rebound“), breite Laufwege („Läufer“), 2 gegen 1 und 3 gegen 2. In der Verteidigung „erst Korb, dann Ball“ („Zurück in die Abwehr“).
-- **Mann-Mann-Positionen** (Kap. 5.3): ein Pass weg, zwei Pässe weg und „jump to the ball“, also bei jeder Ballbewegung die Position anpassen („Mitgehen beim Pass“).
+- **Space and Movement, Motion-Offense-Prinzipien** (Kap. 5.3/5.4): Backdoor-Cut („Backdoor-Cut“, „Ohne Ball: Backdoor?“), Pass und geh bzw. Pass-Cut-Replace („Pass und geh“), Flash-Cut („Flash-Cut“, Center), Ball umkehren („Ball umkehren“, Aufbau), Drive and Dish („Durchbruch & Kick-out“, ohne Ball „Mitspieler zieht zum Korb“), Spiel über den Center am Brett („Ball in der Ecke“), Inside-out: Ball rein und wieder raus („Center passt zurück“), nicht zum Ball laufen, sondern Platz lassen („Ohne Ball“ und „Flash-Cut“ beim Center).
+- **Transition** (Kap. 5.3): Pass nach vorne statt Dribbling über das ganze Feld („Langer Pass“, „Rebound“), breite Laufwege („Läufer“), 2 gegen 1 („2 gegen 1“, Aufbau) und 3 gegen 2. In der Verteidigung „erst Korb, dann Ball“ („Zurück in die Abwehr“).
+- **Mann-Mann-Positionen** (Kap. 5.3): ein Pass weg, zwei Pässe weg und „jump to the ball“, also bei jeder Ballbewegung die Position anpassen („Mitgehen beim Pass“). Auch bei jedem Schnitt des Gegenspielers mitgehen und den Ball sehen („Backdoor verteidigen“).
+- **Unterzahl verteidigen** (Kap. 5.3, Transition): im 1 gegen 2 den Korb schützen, zwischen beiden stehen und erst spät zum Ball („Unterzahl 1 gegen 2“).
 - **Keine Zonenverteidigung, kein Doppeln** (Kap. 5.2) wie in den Miniregeln.
 
 ## Die Position Abwehr
@@ -70,13 +71,15 @@ Hier bist du der Verteidiger im weißen Trikot. Im Entscheidungsmoment tippst du
 
 | Spielzug | Richtige Position |
 |---|---|
-| Gegenspieler mit Ball | Zwischen ihm und dem Korb, eine Armlänge weg |
-| Ein Pass entfernt | Etwas zum Ball hin, eine Hand im Passweg |
+| Gegenspieler mit Ball | Zwischen ihm und dem Korb, eine Armlänge weg (in der Ecke auch die Grundlinie zu) |
+| Ein Pass entfernt | Etwas zum Ball hin, eine Hand im Passweg (am Brett seitlich vor dem Center, nicht hinter ihm) |
 | Zwei Pässe entfernt | Als Helfer in der Zone |
-| Aushelfen | Dem Ballführer in den Weg, wenn er an seinem Verteidiger vorbei ist |
+| Aushelfen | Dem Ballführer in den Weg, wenn er an seinem Verteidiger vorbei ist, auch an der Grundlinie |
 | Zurück zum Gegenspieler | Zurücklaufen und eine Armlänge vor ihm abstoppen |
 | Mitgehen beim Pass | Geht der Ball weg von deinem Gegenspieler: ab in die Zone. Kommt er näher: zurück in den Passweg |
 | Zurück in die Abwehr | Nach Ballverlust: erst den Korb sichern, dann den Ball stoppen, dann den Gegenspieler finden |
+| Backdoor verteidigen | Schneidet dein Gegenspieler hinter deinem Rücken zum Korb: mitlaufen, zwischen ihm und dem Ball bleiben. Täuscht er nur an und kommt zurück: zurück in den Passweg |
+| Unterzahl 1 gegen 2 | Allein gegen zwei im Schnellangriff: erst den Korb schützen und zwischen beiden stehen, erst spät dem Ballführer in den Weg |
 
 ## Mädchen-Version
 
