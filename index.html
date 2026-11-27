@@ -158,7 +158,6 @@ p{margin:6px 0;line-height:1.4;color:#d7deef}
 .lv.four{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
 .lv.four .lvb b{font-size:14px}.lv.four .lvb span{font-size:10.5px}
 .ageseg .lvb span+span{opacity:.8}
-.agenote{margin:6px 2px 0;font-size:11px;line-height:1.25;color:#a9b6d6;font-weight:700}.agenote.hidden{display:none}
 .lvb{cursor:pointer;text-align:left;border-radius:16px;padding:10px 10px;background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.06);color:#fff;font-family:Nunito,system-ui,sans-serif;transition:transform .1s,background .2s,border-color .2s}
 .lvb:active{transform:scale(.97)}
 .lvb b{font-size:15px;display:block;white-space:nowrap}
@@ -500,7 +499,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
   #menu .card>.foot .btn.big{padding:8px 16px 6px;font-size:26px}
   #menu .best{display:none}
   #menu .pltog,#menu .tog{margin-top:6px;padding-top:5px;padding-bottom:5px}#menu .seg .lvb{padding:6px 4px}
-  #menu .agenote{display:none}#menu .ageseg .lvb span{display:inline;font-size:10px;white-space:nowrap}#menu .ageseg .lvb span+span::before{content:' · '}
+  #menu .ageseg .lvb span{display:inline;font-size:10px;white-space:nowrap}#menu .ageseg .lvb span+span::before{content:' · '}
 }
 /* Willkommen (erster Start) */
 .card.wel>.body{justify-content:safe center}
@@ -675,7 +674,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
         <button class="lvb" data-age="U12"><b>U12</b><span>5 gegen 5</span><span>Korb 2,60 m</span></button>
         <button class="lvb" data-age="U14"><b>U13/U14</b><span>5 gegen 5</span><span>Korb 3,05 m</span></button>
       </div>
-      <p class="agenote hidden" id="ageNote">(Der Korb hängt höher, deshalb sehen Würfe und Animationen etwas anders aus.)</p>
       <div class="sec-t">Schwierigkeit</div>
       <div class="seg" id="lvl">
         <button class="lvb sel" data-l="1"><b><i class="dot l1"></i>Anfänger</b><span>4 Sekunden</span></button>
@@ -4101,7 +4099,6 @@ function showAge(age){
   const top=3.65+basketMount.position.y,h=top-.9;basketPost.scale.y=h/3.4;basketPost.position.y=.9+h/2;
   // Altersklasse bestimmt die Spielform: U10 4 gegen 4, ab U12 5 gegen 5
   G.mode=age==='U10'?4:5;store.set('pgt_mode',String(G.mode));
-  $('ageNote').classList.toggle('hidden',age!=='U14');
   for(const id of ['age','wAge']){
     markSel(id,'age',age);
     for(const button of $(id).querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.age===age));
