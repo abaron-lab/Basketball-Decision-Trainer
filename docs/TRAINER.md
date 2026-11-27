@@ -41,7 +41,7 @@ Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welche
 - **„1 can't guard 2“:** Spielzug „Einer gegen zwei“ (Flügel).
 - **Attackieren und Platz machen:** Spielzug „Pass und geh“ (Aufbau). Nach dem Pass schneiden oder raus und Platz machen.
 - **Rim Run im Schnellangriff:** Spielzüge „Rim Run“ (Center, ohne Ball: sprinten oder hinten bleiben) und „Rim Run mit Ball“ (Center: Pass im Lauf, dann Korbleger oder Pass zum freien Läufer).
-- **Transition-Verteidigung:** „Erste:r zurück sichert den Korb“, alle sprinten hinter den Ball. Spielzug „Zurück in die Abwehr“ (Abwehr): erst den Korb sichern, dann den Ball stoppen, dann den eigenen Gegenspieler finden. Feste Zuordnungen wie in der Zonenverteidigung gibt es für Minis nicht (MMV-Pflicht), deshalb endet der Spielzug beim eigenen Gegenspieler.
+- **Transition-Verteidigung:** „Erste:r zurück sichert den Korb“, alle sprinten hinter den Ball. Spielzug „Zurück in die Abwehr“ (Abwehr): erst den Korb sichern, dann den Ball stoppen, dann den eigenen Gegenspieler finden. Spielzug „Unterzahl 1 gegen 2“ (Abwehr): allein gegen zwei erst den Korb schützen und Zeit gewinnen, bis die anderen zurück sind. Feste Zuordnungen wie in der Zonenverteidigung gibt es für Minis nicht (MMV-Pflicht), deshalb endet der Spielzug beim eigenen Gegenspieler.
 - **Wofür spielen wir?** Korbnahe Abschlüsse, freie Würfe von außen, Freiwürfe: Lernziel „Guter Wurf“.
 - Blöcke, Pick & Roll und Handoffs aus der Spielkonzeption wurden bewusst **nicht** übernommen (Miniregeln).
 
@@ -61,7 +61,8 @@ Aushelfen nach einem Durchbruch ist auch im Minibasketball erlaubt und gilt nich
 - **Üben nach Können** (Kap. 1.4): drei Schwierigkeitsstufen mit weniger Zeit und Verteidigern, die nur so tun, als würden sie helfen.
 - **Space and Movement, Motion-Offense-Prinzipien** (Kap. 5.3/5.4): Backdoor-Cut („Backdoor-Cut“, „Ohne Ball: Backdoor?“), Pass und geh bzw. Pass-Cut-Replace („Pass und geh“), Flash-Cut („Flash-Cut“, Center), Ball umkehren („Ball umkehren“, Aufbau), Drive and Dish („Durchbruch & Kick-out“), nicht zum Ball laufen, sondern Platz lassen („Ohne Ball“ und „Flash-Cut“ beim Center).
 - **Transition** (Kap. 5.3): Pass nach vorne statt Dribbling über das ganze Feld („Langer Pass“, „Rebound“), breite Laufwege („Läufer“), 2 gegen 1 und 3 gegen 2. In der Verteidigung „erst Korb, dann Ball“ („Zurück in die Abwehr“).
-- **Mann-Mann-Positionen** (Kap. 5.3): ein Pass weg, zwei Pässe weg und „jump to the ball“, also bei jeder Ballbewegung die Position anpassen („Mitgehen beim Pass“).
+- **Mann-Mann-Positionen** (Kap. 5.3): ein Pass weg, zwei Pässe weg und „jump to the ball“, also bei jeder Ballbewegung die Position anpassen („Mitgehen beim Pass“). Auch bei jedem Schnitt des Gegenspielers mitgehen und den Ball sehen („Backdoor verteidigen“).
+- **Unterzahl verteidigen** (Kap. 5.3, Transition): im 1 gegen 2 den Korb schützen, zwischen beiden stehen und erst spät zum Ball („Unterzahl 1 gegen 2“).
 - **Keine Zonenverteidigung, kein Doppeln** (Kap. 5.2) wie in den Miniregeln.
 
 ## Die Position Abwehr
@@ -70,13 +71,15 @@ Hier bist du der Verteidiger im weißen Trikot. Im Entscheidungsmoment tippst du
 
 | Spielzug | Richtige Position |
 |---|---|
-| Gegenspieler mit Ball | Zwischen ihm und dem Korb, eine Armlänge weg |
-| Ein Pass entfernt | Etwas zum Ball hin, eine Hand im Passweg |
+| Gegenspieler mit Ball | Zwischen ihm und dem Korb, eine Armlänge weg (in der Ecke auch die Grundlinie zu) |
+| Ein Pass entfernt | Etwas zum Ball hin, eine Hand im Passweg (am Brett seitlich vor dem Center, nicht hinter ihm) |
 | Zwei Pässe entfernt | Als Helfer in der Zone |
-| Aushelfen | Dem Ballführer in den Weg, wenn er an seinem Verteidiger vorbei ist |
+| Aushelfen | Dem Ballführer in den Weg, wenn er an seinem Verteidiger vorbei ist, auch an der Grundlinie |
 | Zurück zum Gegenspieler | Zurücklaufen und eine Armlänge vor ihm abstoppen |
 | Mitgehen beim Pass | Geht der Ball weg von deinem Gegenspieler: ab in die Zone. Kommt er näher: zurück in den Passweg |
 | Zurück in die Abwehr | Nach Ballverlust: erst den Korb sichern, dann den Ball stoppen, dann den Gegenspieler finden |
+| Backdoor verteidigen | Schneidet dein Gegenspieler hinter deinem Rücken zum Korb: mitlaufen, zwischen ihm und dem Ball bleiben. Täuscht er nur an und kommt zurück: zurück in den Passweg |
+| Unterzahl 1 gegen 2 | Allein gegen zwei im Schnellangriff: erst den Korb schützen und zwischen beiden stehen, erst spät dem Ballführer in den Weg |
 
 ## Mädchen-Version
 

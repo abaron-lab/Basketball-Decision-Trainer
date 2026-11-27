@@ -67,7 +67,9 @@ const VOICE={
   r_cflash_flash:'Ist der Platz zwischen dir und dem Ball frei, lauf ihm entgegen: Flash-Cut!',
   r_cflash_busy:'Steht dort schon jemand, lauf nicht auch noch hin. Bleib unten und lass Platz.',
   r_creb_put:'Rebound und der Weg zum Korb ist frei? Geh sofort wieder hoch!',
-  r_creb_kick:'Ist es unter dem Korb zu voll, pass raus! Draußen ist jemand frei.'
+  r_creb_kick:'Ist es unter dem Korb zu voll, pass raus! Draußen ist jemand frei.',
+  r_dcut_cut:'Bei jedem Schnitt mitgehen und den Ball sehen. Hand in den Passweg!',
+  r_dtwo_early:'Allein gegen zwei: Korb schützen, zwischen beiden stehen, erst spät zum Ball.'
 };
 // VOICE-END
 const VOICE_ID={};for(const k in VOICE)VOICE_ID[VOICE[k]]=k;
