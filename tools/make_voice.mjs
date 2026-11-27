@@ -2,8 +2,8 @@
 // auf gleiche Lautheit gebracht und klein (mono, 80 kbit/s) nach voice/. Ohne npm-Abhängigkeiten (Node 18+,
 // eingebautes fetch), für das Kürzen braucht es ffmpeg.
 //
-// Die Texte stehen nur an einer Stelle: in index.html zwischen „// VOICE-START“ und „// VOICE-END“ (const VOICE).
-// Ändert fem() aus index.html einen Text (Mädchen-Version), wird zusätzlich <id>_w mit dem umgestellten Text erzeugt.
+// Die Texte stehen nur an einer Stelle: in js/voice.js zwischen „// VOICE-START“ und „// VOICE-END“ (const VOICE).
+// Ändert fem() aus js/core.js einen Text (Mädchen-Version), wird zusätzlich <id>_w mit dem umgestellten Text erzeugt.
 //
 // Aufruf:
 //   export ELEVENLABS_API_KEY=...  oder Key allein in ~/.elevenlabs_key (chmod 600; nicht ins Repository!)
@@ -33,13 +33,14 @@ const RAW = opt('--raw') || path.join(os.homedir(), 'voice_raw', 'basketball-iq'
 const OUT = path.join(ROOT, 'voice');
 if (path.resolve(RAW).startsWith(ROOT + path.sep)) { console.error('Rohdateien bitte außerhalb des Repositorys ablegen (--raw)'); process.exit(1); }
 
-// Texte und fem() aus index.html holen
-const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-const m = html.match(/\/\/ VOICE-START\s*\n\s*const VOICE=(\{[\s\S]*?\});\s*\n\s*\/\/ VOICE-END/);
-if (!m) { console.error('VOICE-Liste in index.html nicht gefunden'); process.exit(1); }
+// Texte aus js/voice.js und fem() aus js/core.js holen
+const vsrc = fs.readFileSync(path.join(ROOT, 'js', 'voice.js'), 'utf8');
+const csrc = fs.readFileSync(path.join(ROOT, 'js', 'core.js'), 'utf8');
+const m = vsrc.match(/\/\/ VOICE-START\s*\n\s*const VOICE=(\{[\s\S]*?\});\s*\n\s*\/\/ VOICE-END/);
+if (!m) { console.error('VOICE-Liste in js/voice.js nicht gefunden'); process.exit(1); }
 const VOICE = new Function('return ' + m[1])();
-const fm = html.match(/\nconst fem=\(\(\)=>\{[\s\S]*?\n\}\)\(\);/);
-if (!fm) { console.error('fem() in index.html nicht gefunden'); process.exit(1); }
+const fm = csrc.match(/\nconst fem=\(\(\)=>\{[\s\S]*?\n\}\)\(\);/);
+if (!fm) { console.error('fem() in js/core.js nicht gefunden'); process.exit(1); }
 const fem = new Function(fm[0] + ';return fem;')();
 
 // Zum Sprechen: ohne Satzzeichen am Ende einen Punkt anhängen (bessere Betonung)

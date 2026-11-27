@@ -101,7 +101,7 @@ Hinweis: Die Punkte werden im Browser berechnet. Wer sich mit Programmieren ausk
 
 ## Dateien
 
-- `index.html`: das Spiel (three.js)
+- `index.html`: das Spiel (three.js), dazu `css/app.css` und die Skripte in `js/` (Aufteilung siehe `CLAUDE.md`)
 - `config.js`: Zugangsdaten für die Online-Rangliste (Firebase `projectId` und `apiKey`)
 - `firestore.rules`: Sicherheitsregeln für die Online-Rangliste
 - `docs/TRAINER.md`: Hinweise für Trainer und Eltern, Lernziele und Quellen
