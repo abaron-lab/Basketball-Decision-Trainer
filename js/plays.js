@@ -800,3 +800,67 @@ function buildWCorner(v,T,L,M){
     notes:{shot:v==='shot'?null:'Dein Verteidiger stand nah bei dir. Der Wurf wäre gestört worden.',pass:'Der Verteidiger stand zwischen dem Center und dem Ball. Der Pass wäre abgefangen worden.'},
     q:v==='post'?{t:'Wer war frei?',r:'C'}:{t:'Wo stand dein Verteidiger?',r:'dH'}};
 }
+
+
+// ================= AUFBAU: 2 GEGEN 1 UND RÜCKPASS VOM CENTER =================
+// --------- Aufbau 9: 2 gegen 1 im Schnellangriff ---------
+// Ein Läufer und du gegen einen Verteidiger. Bleibt er beim Läufer, Korbleger. Stellt er sich dir in den Weg, Pass zum Läufer.
+function buildP2on1(v,T,L,M){
+  const s=R()<.5?-1:1,lay=v==='lay';
+  const H=addP('H','off',1),RN=addP('RN','off',s<0?3:2,{name:'Läufer',finish:'layup'});
+  const C=addP('C','off',5,{sel:false}),O=addP('O','off',s<0?2:3,{sel:false}),K=M===5?addP('K','off',7,{sel:false}):null;
+  const dA=addP('dA','def',8),dH=addP('dH','def',4),dC=addP('dC','def',9),dO=addP('dO','def',6),dK=M===5?addP('dK','def',10):null;
+  [C,O,K,dH,dC,dO,dK].forEach(p=>p&&(p.trail=true));
+  GUARD={RN:dA};
+  const x0=-s*rand(.2,.8),xd=-s*rand(.3,.7);
+  setPath(H,[[0,x0,-22],[T,xd,-8.0]],true);H.dside=-s;
+  setPath(RN,[[0,s*4.3,-21.4],[T,s*4.6,-5.0]],true);
+  setPath(dH,[[0,x0-s*1.2,-24],[T,xd-s*1.4,-12.6]],true);
+  setPath(C,[[0,-s*2.4,-27],[T,-s*2.2,-16.4]],true);setPath(dC,[[0,-s*3.0,-27.6],[T,-s*2.8,-17.2]],true);
+  setPath(O,[[0,-s*4.6,-26],[T,-s*4.8,-15.2]],true);setPath(dO,[[0,-s*4.0,-26.8],[T,-s*4.2,-16.0]],true);
+  if(K){setPath(K,[[0,s*2.2,-28],[T,s*2.0,-17.6]],true);setPath(dK,[[0,s*1.6,-28.6],[T,s*1.5,-18.4]],true);}
+  const back=pt(s*3.2,-3.3),up=pt(xd+s*.8,-6.5),a0=pt(s*.4,-11.5),m0=pt(s*.5,-7.4);
+  let fake=false;const alt=L>=2&&R()<(L===3?.6:.4);
+  if(lay)setPath(dA,alt?[[0,a0.x,a0.z],[T*.55,lerp(m0.x,up.x,.5),-7.2],[T,back.x,back.z]]:[[0,a0.x,a0.z],[T*.6,s*1.6,-6.0],[T,back.x,back.z]]);
+  else setPath(dA,alt?[[0,a0.x,a0.z],[T*.55,s*1.8,-5.4],[T,up.x,up.z]]:[[0,a0.x,a0.z],[T*.6,m0.x,m0.z],[T,up.x,up.z]]);
+  fake=alt;
+  return{ans:lay?'drive':'pass:RN',helper:lay?null:'dA',fake,camSide:-s,
+    q:lay?{t:'Wo stand der Verteidiger?',r:'dA'}:{t:'Wer war frei?',r:'RN'},prompt:'Zwei gegen eins! Was machst du?',
+    why:lay?'Der einzige Verteidiger ist zu deinem Läufer gelaufen. Vor dir war der Weg zum Korb frei: Mach den Korbleger!'
+      :'Der einzige Verteidiger hat sich dir in den Weg gestellt. Dadurch war dein Läufer ganz frei: Pass, und er macht den Korbleger!',
+    rule:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, pass zum freien Läufer.',
+    shotNote:'Im Schnellangriff willst du einen leichten Korbleger, keinen weiten Wurf.',
+    driveNote:'Der Verteidiger stand vor dir. Da wärst du direkt hineingelaufen.',
+    notes:{pass:'Der Verteidiger stand beim Läufer. Der Pass wäre abgefangen worden.'}};
+}
+// --------- Aufbau 10: Center passt zurück (Rückpass vom Center) ---------
+// Der Center dreht sich am Brett zum Korb, dein Verteidiger hilft aus (Aushelfen nach Durchbruch, kein Doppeln) und
+// der Center passt zu dir zurück. fly: Dein Verteidiger kommt angerannt → vorbeiziehen. shot: Er bleibt in der Zone → werfen.
+function buildPBack(v,T,L,M){
+  const s=R()<.5?-1:1,fly=v==='fly';
+  const H=addP('H','off',1),C=addP('C','off',5,{sel:false}),W=addP('W','off',s<0?2:3,{name:'Flügel gegenüber'}),O=addP('O','off',4,{sel:false});
+  const K=M===5?addP('K','off',7,{sel:false}):null;
+  const dH=addP('dH','def',4),dC=addP('dC','def',9),dW=addP('dW','def',8),dO=addP('dO','def',6),dK=M===5?addP('dK','def',10):null;
+  GUARD={W:dW};
+  const hD=pt(s*rand(2.1,2.5),rand(-7.7,-7.3));setPath(H,[[0,s*1.2,-9.4],[T*.5,hD.x,hD.z]]);
+  const c0=pt(s*rand(2.7,2.9),rand(-1.4,-1.1)),cE=pt(s*rand(1.5,1.8),rand(-2.0,-1.8));
+  setPath(C,[[0,c0.x+s*.2,c0.z-.3],[T*.3,c0.x,c0.z],[T*.55,cE.x,cE.z]]);C.dside=s;
+  setPath(dC,[[0,c0.x-s*.1,c0.z+.4],[T*.3,c0.x-s*.2,c0.z+.45],[T*.55,cE.x+s*.45,cE.z+.6]]); // geschlagen, hinter dem Center
+  const home=homeOf(hD,1.1,c0),help=pt(cE.x-s*.25,cE.z-1.05),[u0,u1]=unitV(-hD.x,-hD.z);
+  const near=pt(hD.x+u0*.9-s*.6,hD.z+u1*.9+.1),stay=pt(lerp(help.x,hD.x,.18),lerp(help.z,hD.z,.18)),halfway=pt(lerp(help.x,hD.x,.45),lerp(help.z,hD.z,.45));
+  const alt=!fly&&L>=2&&R()<(L===3?.6:.4); // täuscht: kommt ein Stück heraus und bleibt dann stehen
+  if(fly)setPath(dH,[[0,home.x,home.z-.6],[T*.3,home.x,home.z],[T*.55,help.x,help.z],[T*.72,help.x,help.z],[T,near.x,near.z]],true);
+  else setPath(dH,alt?[[0,home.x,home.z-.6],[T*.3,home.x,home.z],[T*.55,help.x,help.z],[T*.8,halfway.x,halfway.z],[T,stay.x,stay.z]]
+    :[[0,home.x,home.z-.6],[T*.3,home.x,home.z],[T*.55,help.x,help.z],[T,stay.x,stay.z]]);
+  const wD=pt(-s*rand(5.5,5.9),rand(-5.0,-4.4));setPath(W,[[0,-s*5.6,-6.6],[T*.6,wD.x,wD.z]]);const hW=homeOf(wD,1.0,hD);setPath(dW,[[0,-s*5.0,-6.0],[T*.7,hW.x,hW.z]]);
+  const oD=pt(-s*rand(6.5,6.8),rand(.1,.5));setPath(O,[[0,-s*6.2,-1.6],[T*.6,oD.x,oD.z]]);const hO=homeOf(oD,1.1,c0);setPath(dO,[[0,-s*5.4,-1.4],[T*.6,hO.x,hO.z]]);
+  if(K){const kD=pt(s*rand(5.6,5.9),rand(-4.6,-4.1));setPath(K,[[0,s*5.8,-6.2],[T*.6,kD.x,kD.z]]);const hK=homeOf(kD,1.1,c0);setPath(dK,[[0,s*5.2,-5.6],[T*.6,hK.x,hK.z]]);}
+  return{ans:fly?'drive':'shot',helper:fly?null:'dH',fake:alt,camSide:s,feed:{from:'C',t0:T*.55,t1:T*.78},rel:['C','dC'],
+    prompt:'Der Center passt zurück zu dir. Was machst du?',
+    why:fly?'Dein Verteidiger hat beim Center ausgeholfen und kam dann mit viel Schwung auf dich zugerannt. Ein schneller Schritt an ihm vorbei, und der Weg zum Korb war frei!'
+      :'Dein Verteidiger hat beim Center ausgeholfen und ist in der Zone geblieben. Du warst frei: Fangen und werfen!',
+    rule:fly?'Kommt dein Verteidiger angerannt und keiner ist frei? Zieh an ihm vorbei!':'Ist dein Verteidiger beim Fangen weit weg? Dann wirf!',
+    driveNote:'Dein Verteidiger stand noch in der Zone. Dort hätte er auf dich gewartet.',
+    shotNote:fly?'Dein Verteidiger kam mit Schwung angerannt. Der Wurf wäre gestört worden.':null,
+    notes:{pass:'Dein Flügel gegenüber war gedeckt. Du selbst hattest die bessere Chance.'}};
+}

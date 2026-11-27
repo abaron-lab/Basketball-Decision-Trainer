@@ -102,9 +102,9 @@ const THEMES=[
  {id:'hilfe',n:'Wer hilft, lässt jemanden frei',d:'Hilfe erkennen, freien Mitspieler finden',i:'pass',plays:['top','wing','dkick','wcatch','wdrive','cpost','creb']},
  {id:'ohneball',n:'Ohne Ball',d:'Backdoor, Flash-Cut, Pass und geh, Platz machen',i:'cut',plays:['backdoor','give','wcut','cdive','cflash','wspace']},
  {id:'ballbewegen',n:'Ball bewegen',d:'Den Ball dorthin spielen, wo die Abwehr nicht ist',i:'pass',plays:['swing','xpass','cflash','give']},
- {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, langer Pass, Rim Run',i:'bolt',plays:['break','plong','wbreak','two','clong','rimrun','crun']},
+ {id:'schnell',n:'Schnellangriff',d:'Überzahl nutzen, langer Pass, Rim Run',i:'bolt',plays:['break','plong','wbreak','two','clong','rimrun','crun','p2on1']},
  {id:'umschalten',n:'Umschalten',d:'Nach Ballgewinn nach vorne, nach Ballverlust zurück',i:'bolt',plays:['plong','clong','break','rimrun','dback','dtwo']},
- {id:'wurf',n:'Guter Wurf',d:'Wann werfen, wann ziehen, wann passen?',i:'ball',plays:['top','wcatch','xpass','chigh','creb','wcorner']},
+ {id:'wurf',n:'Guter Wurf',d:'Wann werfen, wann ziehen, wann passen?',i:'ball',plays:['top','wcatch','xpass','chigh','creb','wcorner','pback']},
  {id:'backdoor',n:'Backdoor',d:'Steht der Verteidiger im Passweg: hinten rum!',i:'cut',plays:['backdoor','wcut','chigh','dcut']},
  {id:'abwehr',n:'Mann-Mann-Verteidigung',d:'Am Ball, ein Pass weg, helfen, mitgehen, zurück',i:'shield',plays:['dball','dpass','dhelp','drot','dclose','djump','dback','dcut','dtwo']}];
 const TASK=(()=>{const q=new URLSearchParams(location.search),t=THEMES.find(x=>x.id===q.get('aufgabe'));if(!t)return null;

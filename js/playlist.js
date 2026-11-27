@@ -28,6 +28,8 @@ const PLAYS={
   dclose:{pos:'def',name:'Zurück zum Gegenspieler',desc:'Der Ball kommt zu deinem Gegenspieler',T:[3.4,3.0,2.6],vars:()=>['wing','corner','top'],build:buildDClose},
   djump:{pos:'def',name:'Mitgehen beim Pass',desc:'Der Ball wandert. Wo stehst du jetzt?',T:[3.4,3.0,2.6],vars:()=>['away','toward'],build:buildDJump},
   dback:{pos:'def',name:'Zurück in die Abwehr',desc:'Ballverlust! Sprint zurück. Wohin?',T:[3.4,3.0,2.6],vars:()=>['first','ball','man'],build:buildDBack},
+  p2on1:{pos:'pg',name:'2 gegen 1',desc:'Schnellangriff mit einem Läufer gegen einen Verteidiger',T:[3.3,2.9,2.5],vars:()=>['lay','pass'],build:buildP2on1},
+  pback:{pos:'pg',name:'Center passt zurück',desc:'Der Center passt zurück. Werfen oder vorbeiziehen?',T:[3.6,3.1,2.7],vars:()=>['fly','shot'],build:buildPBack},
   wspace:{pos:'wing',name:'Mitspieler zieht zum Korb',desc:'Ohne Ball: in die Ecke oder in die Lücke?',T:[3.4,3.0,2.6],vars:()=>['corner','gap'],build:buildWSpace},
   wcorner:{pos:'wing',name:'Ball in der Ecke',desc:'Pass ans Brett, Grundlinie oder Wurf?',T:[3.6,3.1,2.7],vars:()=>['post','base','shot'],build:buildWCorner},
   dcut:{pos:'def',name:'Backdoor verteidigen',desc:'Dein Gegenspieler schneidet hinter deinem Rücken',T:[3.4,3.0,2.6],vars:()=>['cut','fake'],build:buildDCut},
@@ -44,7 +46,7 @@ const PLAYS={
 };
 const playsOf=pos=>Object.keys(PLAYS).filter(k=>PLAYS[k].pos===pos);
 // Kurznamen für die Auswahl im Menü (passt auf kleinen Handys in zwei Zeilen)
-const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound',swing:'Umkehren',cflash:'Flash-Cut',djump:'Mitgehen',dback:'Zurück',wspace:'Platz machen',wcorner:'Ecke',dcut:'Backdoor',dtwo:'1 gegen 2',creb:'Rebound vorne',crun:'Rim Run mit Ball'};
+const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound',swing:'Umkehren',cflash:'Flash-Cut',djump:'Mitgehen',dback:'Zurück',p2on1:'2 gegen 1',pback:'Rückpass',wspace:'Platz machen',wcorner:'Ecke',dcut:'Backdoor',dtwo:'1 gegen 2',creb:'Rebound vorne',crun:'Rim Run mit Ball'};
 
 function buildScenario(seed,play,variant){
   R=mulberry(seed);clearPlayers();
