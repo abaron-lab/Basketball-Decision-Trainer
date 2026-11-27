@@ -289,12 +289,12 @@ function drawMini(choice,o){o=o||{};
   c.strokeStyle='#222';c.lineWidth=5;c.beginPath();c.moveTo(sx(-.9),sz(.375));c.lineTo(sx(.9),sz(.375));c.stroke();
   const snap=G.snap,me=snap.find(p=>p.role==='H');
   const off=!!G.sc.outcome&&!G.sc.def&&!G.sc.onBall;
-  const arrow=(a,col,dash)=>{if(a==='shot'&&off&&G.sc.shotDir!=='stay'){const bo=snap.find(p=>p.ball)||me,an=Math.atan2(sz(bo.z)-sz(me.z),sx(bo.x)-sx(me.x))+(G.sc.shotDir==='away'?Math.PI:0);
+  const arrow=(a,col,dash)=>{if(a==='shot'&&off&&G.sc.shotDir!=='stay'&&!G.sc.shotTo){const bo=snap.find(p=>p.ball)||me,an=Math.atan2(sz(bo.z)-sz(me.z),sx(bo.x)-sx(me.x))+(G.sc.shotDir==='away'?Math.PI:0);
       c.strokeStyle=col;c.fillStyle=col;c.lineWidth=6;c.setLineDash(dash?[12,9]:[]);const x0=sx(me.x),y0=sz(me.z),ex=x0+Math.cos(an)*46,ey=y0+Math.sin(an)*46;
       c.beginPath();c.moveTo(x0+Math.cos(an)*20,y0+Math.sin(an)*20);c.lineTo(ex,ey);c.stroke();c.setLineDash([]);
       c.beginPath();c.moveTo(ex+Math.cos(an)*14,ey+Math.sin(an)*14);c.lineTo(ex+Math.cos(an+2.4)*14,ey+Math.sin(an+2.4)*14);c.lineTo(ex+Math.cos(an-2.4)*14,ey+Math.sin(an-2.4)*14);c.fill();return;}
-    if(a==='shot'){c.strokeStyle=col;c.lineWidth=5;c.setLineDash(dash?[10,8]:[]);c.beginPath();c.arc(sx(me.x),sz(me.z),28,0,7);c.stroke();c.setLineDash([]);return;}
-    let tg=a==='drive'?(G.sc.driveTo||{x:0,z:-.8}):a.startsWith('spot:')?G.sc.spots.find(p=>'spot:'+p.id===a):snap.find(p=>p.role===a.slice(5));if(!tg)return;
+    if(a==='shot'&&!G.sc.shotTo){c.strokeStyle=col;c.lineWidth=5;c.setLineDash(dash?[10,8]:[]);c.beginPath();c.arc(sx(me.x),sz(me.z),28,0,7);c.stroke();c.setLineDash([]);return;}
+    let tg=a==='drive'?(G.sc.driveTo||{x:0,z:-.8}):a==='shot'?G.sc.shotTo:a.startsWith('spot:')?G.sc.spots.find(p=>'spot:'+p.id===a):snap.find(p=>p.role===a.slice(5));if(!tg)return;
     const x0=sx(me.x),y0=sz(me.z),x1=sx(tg.x),y1=sz(tg.z),an=Math.atan2(y1-y0,x1-x0),L=Math.hypot(x1-x0,y1-y0)-24,ex=x0+Math.cos(an)*L,ey=y0+Math.sin(an)*L;
     c.strokeStyle=col;c.fillStyle=col;c.lineWidth=6;c.setLineDash(dash?[12,9]:[]);c.beginPath();c.moveTo(x0+Math.cos(an)*20,y0+Math.sin(an)*20);c.lineTo(ex,ey);c.stroke();c.setLineDash([]);
     c.beginPath();c.moveTo(ex+Math.cos(an)*14,ey+Math.sin(an)*14);c.lineTo(ex+Math.cos(an+2.4)*14,ey+Math.sin(an+2.4)*14);c.lineTo(ex+Math.cos(an-2.4)*14,ey+Math.sin(an-2.4)*14);c.fill();};

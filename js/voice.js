@@ -69,7 +69,11 @@ const VOICE={
   r_creb_put:'Rebound und der Weg zum Korb ist frei? Geh sofort wieder hoch!',
   r_creb_kick:'Ist es unter dem Korb zu voll, pass raus! Draußen ist jemand frei.',
   r_dcut_cut:'Bei jedem Schnitt mitgehen und den Ball sehen. Hand in den Passweg!',
-  r_dtwo_early:'Allein gegen zwei: Korb schützen, zwischen beiden stehen, erst spät zum Ball.'
+  r_dtwo_early:'Allein gegen zwei: Korb schützen, zwischen beiden stehen, erst spät zum Ball.',
+  r_wspace_corner:'Durchbruch zur Mitte? Weich in die Ecke aus!',
+  r_wspace_gap:'Durchbruch auf deine Seite? Geh hoch in die Lücke dahinter!',
+  r_wcorner_post:'Center am Brett frei? Spiel den Ball rein!',
+  r_wcorner_base:'Grundlinie frei? Zieh an der Grundlinie zum Korb!'
 };
 // VOICE-END
 const VOICE_ID={};for(const k in VOICE)VOICE_ID[VOICE[k]]=k;

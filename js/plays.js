@@ -734,3 +734,69 @@ function buildCRun(v,T,L,M){
     rule:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, pass zum freien Läufer.',
     shotNote:'Im Schnellangriff willst du einen leichten Korbleger, keinen weiten Wurf.'};
 }
+
+// ================= FLÜGEL: PLATZ MACHEN UND BALL IN DER ECKE =================
+// --------- Flügel 6: Mitspieler zieht zum Korb (ohne Ball) ---------
+// Der Aufbau zieht, dein Verteidiger hilft aus. Lauf dorthin, wo der Helfer nicht ist:
+// corner: Durchbruch zur Mitte, der Helfer steht oben → in die Ecke ausweichen.
+// gap: Durchbruch auf deine Seite zur Grundlinie, der Helfer steht unten → hoch in die Lücke hinter dem Ball.
+function buildWSpace(v,T,L,M){
+  const s=R()<.5?-1:1,mid=v==='corner';
+  const H=addP('H','off',s<0?3:2),PG=addP('PG','off',1,{sel:false}),OW=addP('OW','off',s<0?2:3,{sel:false}),C=addP('C','off',5,{sel:false});
+  const K=M===5?addP('K','off',7,{sel:false}):null;
+  const dH=addP('dH','def',4),dP=addP('dPG','def',6),dO=addP('dOW','def',8),dC=addP('dC','def',9),dK=M===5?addP('dK','def',10):null;
+  GUARD={};
+  const hD=pt(s*rand(5.4,5.7),rand(-5.2,-4.8));setPath(H,[[0,s*5.7,-6.4],[T*.6,hD.x,hD.z]]);
+  const p0=pt(s*rand(1.3,1.7),-9.4),pE=mid?pt(s*rand(.1,.4),rand(-3.8,-3.5)):pt(s*rand(3.4,3.7),rand(-1.8,-1.5));
+  setPath(PG,[[0,p0.x,p0.z],[T*.4,lerp(p0.x,pE.x,.22),lerp(p0.z,pE.z,.22)],[T,pE.x,pE.z]],true);PG.dside=mid?s:-s;
+  setPath(dP,[[0,p0.x,p0.z+1.2],[T*.4,lerp(p0.x,pE.x,.22)+s*.3,lerp(p0.z,pE.z,.22)+.8],[T,pE.x+(mid?-s*.6:-s*.9),pE.z-1.2]]); // geschlagen, hinter dem Aufbau
+  const home=homeOf(hD,1.0,p0),help=mid?pt(s*2.4,-5.4):pt(s*4.3,-1.1);
+  setPath(dH,[[0,s*5.0,-5.6],[T*.4,home.x,home.z],[T*.95,help.x,help.z]]);
+  const oD=pt(-s*rand(5.5,5.9),rand(-5.0,-4.4));setPath(OW,[[0,-s*5.6,-6.6],[T*.6,oD.x,oD.z]]);const hO=homeOf(oD,1.4,pE);setPath(dO,[[0,-s*5.0,-6.0],[T*.7,hO.x,hO.z]]);
+  const cD=pt(-s*rand(2.7,3.0),rand(-.8,-.4));setPath(C,[[0,-s*1.6,-3.2],[T*.6,cD.x,cD.z]]);setPath(dC,[[0,-s*1.2,-2.6],[T*.6,cD.x+s*.6,cD.z-.4]]);
+  if(K){const kD=pt(-s*rand(6.5,6.8),rand(.1,.5));setPath(K,[[0,-s*6.2,-1.6],[T*.6,kD.x,kD.z]]);const hK=homeOf(kD,1.3,pE);setPath(dK,[[0,-s*5.4,-1.4],[T*.6,hK.x,hK.z]]);}
+  const corner=pt(s*6.55,.15),gap=pt(s*4.6,-7.3);
+  const outcome=(choice,ok,finish)=>{const tg=choice==='drive'?gap:corner;goTo(H,[[.7,tg.x,tg.z]]);
+    if(ok){H.finish='shot';later(.3,()=>passOk(H,finish));later(.5,()=>goTo(dH,[[1.0,lerp(help.x,tg.x,.45),lerp(help.z,tg.z,.45)]]));}
+    else later(.3,()=>passBad(H,finish,dH));};
+  return{ans:mid?'shot':'drive',helper:null,fake:false,camSide:s,outcome,ballAt:'PG',driveTo:gap,shotTo:corner,rel:['PG','dPG'],
+    labels:{drive:['↗','In die Lücke'],shot:['↘','In die Ecke']},camFix:{x:s*2.6,z:-9.8,dx:s*.12,dz:.99},prompt:'Dein Aufbau zieht zum Korb. Wohin läufst du?',
+    q:{t:'Wo stand dein Verteidiger?',r:'dH'},
+    why:mid?'Der Aufbau ist zur Mitte gezogen, und dein Verteidiger hat oben ausgeholfen. Weich in die Ecke aus: Dort ist viel Platz, und der Pass raus kommt an deinem Verteidiger vorbei.'
+      :'Der Aufbau ist auf deine Seite zur Grundlinie gezogen, und dein Verteidiger hat unten ausgeholfen. In der Ecke wärst du im Weg. Geh hoch in die Lücke hinter dem Aufbau: Von dort bekommst du den Pass und hast Platz zum Werfen.',
+    rule:mid?'Durchbruch zur Mitte? Weich in die Ecke aus!':'Durchbruch auf deine Seite? Geh hoch in die Lücke dahinter!',
+    notes:{drive:'Dein Verteidiger hat oben ausgeholfen. Genau dorthin bist du gelaufen, und er hat den Pass abgefangen.',
+      shot:'Dein Verteidiger hat unten an der Grundlinie ausgeholfen. In der Ecke warst du im Weg, und der Pass wurde abgefangen.'}};
+}
+// --------- Flügel 7: Ball in der Ecke ---------
+// post: Der Verteidiger des Centers steht hinter ihm → Pass ans Brett. base: Dein Verteidiger steht oben, der Center macht Platz →
+// Durchbruch an der Grundlinie. shot: Dein Verteidiger ist tief am Brett, der Center ist gedeckt → Wurf.
+function buildWCorner(v,T,L,M){
+  const s=R()<.5?-1:1;
+  const H=addP('H','off',s<0?3:2),PG=addP('PG','off',1,{sel:false}),C=addP('C','off',5,{name:v==='base'?'Center':'Center am Brett',finish:'layup'}),OW=addP('OW','off',s<0?2:3,{sel:false});
+  const K=M===5?addP('K','off',7,{sel:false}):null;
+  const dH=addP('dH','def',4),dP=addP('dPG','def',6),dC=addP('dC','def',9),dO=addP('dOW','def',8),dK=M===5?addP('dK','def',10):null;
+  GUARD={C:dC};
+  const hD=pt(s*rand(6.5,6.7),rand(.05,.25));setPath(H,[[0,s*5.8,-3.4],[T*.55,hD.x,hD.z]]);
+  const pD=pt(s*rand(3.9,4.3),rand(-7.0,-6.5));setPath(PG,[[0,s*2.6,-9.0],[T*.35,pD.x,pD.z]]);setPath(dP,[[0,s*2.4,-7.8],[T*.4,pD.x-s*.4,pD.z+1.0],[T,pD.x-s*.7,pD.z+1.3]]);
+  const cB=pt(s*rand(2.5,2.7),rand(-1.3,-1.0)),cE=v==='base'?pt(s*rand(1.4,1.7),rand(-4.9,-4.6)):cB;
+  if(v==='base')setPath(C,[[0,s*1.6,-2.6],[T*.35,cB.x,cB.z],[T*.55,cB.x,cB.z],[T,cE.x,cE.z]]);else setPath(C,[[0,s*1.6,-2.6],[T*.45,cB.x,cB.z]]);
+  // Verteidiger des Centers: post = hinter ihm (zur Mitte, weg vom Ball), sonst zwischen ihm und dem Ball
+  const[cb0,cb1]=unitV(hD.x-cE.x,hD.z-cE.z);
+  const dCE=v==='post'?pt(cE.x-s*.8,cE.z-.15):pt(cE.x+cb0*.75,cE.z+cb1*.75-.1);
+  if(v==='base')setPath(dC,[[0,s*1.2,-1.8],[T*.35,cB.x+cb0*.7,cB.z+cb1*.7],[T*.55,cB.x+cb0*.7,cB.z+cb1*.7],[T,dCE.x,dCE.z]]);
+  else setPath(dC,[[0,s*1.2,-1.8],[T*.5,dCE.x,dCE.z]]);
+  const dHE=v==='post'?pt(hD.x-s*.95,hD.z+.35):v==='base'?pt(hD.x-s*.65,hD.z-1.05):pt(s*4.0,-.45);
+  setPath(dH,[[0,s*5.2,-3.2],[T*.55,lerp(s*5.2,dHE.x,.7),lerp(-3.2,dHE.z,.7)],[T,dHE.x,dHE.z]]);
+  const oD=pt(-s*rand(5.5,5.9),rand(-5.0,-4.4));setPath(OW,[[0,-s*5.6,-6.6],[T*.6,oD.x,oD.z]]);const hO=homeOf(oD,1.6,hD);setPath(dO,[[0,-s*5.0,-6.0],[T*.7,hO.x,hO.z]]);
+  if(K){const kD=pt(-s*rand(.6,1.0),rand(-8.4,-7.9));setPath(K,[[0,-s*1.4,-10],[T*.6,kD.x,kD.z]]);const hK=homeOf(kD,1.3,hD);setPath(dK,[[0,-s*1.2,-9],[T*.6,hK.x,hK.z]]);}
+  const WHY={post:'Der Verteidiger des Centers stand hinter ihm, nicht zwischen ihm und dem Ball. Dein Center am Brett war frei: Pass rein, und er macht den Korbleger.',
+    base:'Dein Verteidiger stand oben neben dir, und der Center hat dir unten Platz gemacht. Der Weg an der Grundlinie war frei: Zieh zum Korb!',
+    shot:'Dein Verteidiger ist weit zurückgewichen und hat die Grundlinie zugestellt. Der Center war gedeckt. Du hattest viel Platz für den Wurf.'};
+  return{ans:{post:'pass:C',base:'drive',shot:'shot'}[v],helper:v==='base'?null:'dH',fake:false,camSide:s,feed:{from:'PG',t0:T*.32,t1:T*.58},rel:['dH','C','dC'],
+    labels:{drive:['▲','Grundlinie'],shot:LBL_DEF.shot},prompt:'Du hast den Ball in der Ecke. Was machst du?',why:WHY[v],
+    rule:{post:'Center am Brett frei? Spiel den Ball rein!',base:'Grundlinie frei? Zieh an der Grundlinie zum Korb!',shot:'Viel Platz, und keiner ist frei? Nimm den Wurf!'}[v],
+    driveNote:'Dein Verteidiger stand an der Grundlinie. Da war kein Weg frei.',
+    notes:{shot:v==='shot'?null:'Dein Verteidiger stand nah bei dir. Der Wurf wäre gestört worden.',pass:'Der Verteidiger stand zwischen dem Center und dem Ball. Der Pass wäre abgefangen worden.'},
+    q:v==='post'?{t:'Wer war frei?',r:'C'}:{t:'Wo stand dein Verteidiger?',r:'dH'}};
+}
