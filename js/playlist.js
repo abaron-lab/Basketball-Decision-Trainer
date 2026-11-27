@@ -34,11 +34,13 @@ const PLAYS={
   wdrive:{pos:'wing',name:'Durchbruch vom Flügel',desc:'Zieh zum Korb und lies die Hilfe',T:[3.4,3.0,2.6],vars:(M)=>M===5?['lay','kickTop','kickOW','dump','kickK']:['lay','kickTop','dump','kickOW'],build:(v,T,L,M)=>buildDKick(v,T,L,M,'wing')},
   clong:{pos:'center',name:'Rebound & langer Pass',desc:'Du hast den Rebound. Wer ist vorne frei?',T:[3.2,2.8,2.4],vars:()=>['longL','longR','outlet'],build:(v,T,L,M)=>buildLong(v,T,L,M,'center')},
   swing:{pos:'pg',name:'Ball umkehren',desc:'Die Abwehr steht auf einer Seite. Wohin mit dem Ball?',T:[3.6,3.1,2.7],vars:()=>['swing','gap','drive'],build:buildSwing},
-  cflash:{pos:'center',name:'Flash-Cut',desc:'Dein Flügel braucht Hilfe. Zum Ball laufen oder unten bleiben?',T:[3.4,3.0,2.6],vars:()=>['flash','busy'],build:buildCFlash}
+  cflash:{pos:'center',name:'Flash-Cut',desc:'Dein Flügel braucht Hilfe. Zum Ball laufen oder unten bleiben?',T:[3.4,3.0,2.6],vars:()=>['flash','busy'],build:buildCFlash},
+  creb:{pos:'center',name:'Offensiv-Rebound',desc:'Dein Flügel wirft daneben. Du holst den Ball. Und jetzt?',T:[3.6,3.1,2.7],vars:(M)=>M===5?['put','kickO','kickP','kickK']:['put','kickO','kickP'],build:buildCReb},
+  crun:{pos:'center',name:'Rim Run mit Ball',desc:'Du sprintest zum Korb und bekommst den Ball im Lauf',T:[3.6,3.1,2.7],vars:()=>['lay','helpW','helpO'],build:buildCRun}
 };
 const playsOf=pos=>Object.keys(PLAYS).filter(k=>PLAYS[k].pos===pos);
 // Kurznamen für die Auswahl im Menü (passt auf kleinen Handys in zwei Zeilen)
-const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound',swing:'Umkehren',cflash:'Flash-Cut',djump:'Mitgehen',dback:'Zurück'};
+const SHORT={top:'Über die Mitte',wing:'Über den Flügel',wcatch:'Fangen & lesen',wcut:'Backdoor?',wbreak:'Läufer',cpost:'Ball am Brett',chigh:'Freiwurflinie',cdive:'Ohne Ball',dball:'Am Ball',dpass:'Ein Pass weg',dhelp:'Zwei Pässe weg',drot:'Aushelfen',dclose:'Zurück zum Mann',dkick:'Durchbruch',plong:'Langer Pass',wdrive:'Durchbruch',clong:'Rebound',swing:'Umkehren',cflash:'Flash-Cut',djump:'Mitgehen',dback:'Zurück',creb:'Rebound vorne',crun:'Rim Run mit Ball'};
 
 function buildScenario(seed,play,variant){
   R=mulberry(seed);clearPlayers();

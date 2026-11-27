@@ -12,11 +12,11 @@ Jede Situation im Spiel gehört zu einem Lernziel. Der *DBB-Leitfaden Minibasket
 
 | Lernziel | Woher | Was gelesen wird | Beispiele im Spiel |
 |---|---|---|---|
-| Lücke erkennen | Leitfaden Minibasketball | Raum und Helfer: Kommt keine Hilfe, ist der Weg frei. Steht ein Mitspieler in der Lücke zwischen zwei Verteidigern, ist das die Lücke für einen Pass (Leitfaden Kap. 3.1). | Freie Bahn zum Korb, Durchbruch ohne Helfer, Verteidiger rutscht beim Backdoor-Cut zur Seite, Pass zum Center in die Lücke an der Freiwurflinie (Ball umkehren) |
+| Lücke erkennen | Leitfaden Minibasketball | Raum und Helfer: Kommt keine Hilfe, ist der Weg frei. Steht ein Mitspieler in der Lücke zwischen zwei Verteidigern, ist das die Lücke für einen Pass (Leitfaden Kap. 3.1). | Freie Bahn zum Korb, Durchbruch ohne Helfer, Offensiv-Rebound mit freiem Weg zum Korb, Verteidiger rutscht beim Backdoor-Cut zur Seite, Pass zum Center in die Lücke an der Freiwurflinie (Ball umkehren) |
 | Gegenspieler umspielen | Leitfaden Minibasketball | Den eigenen Verteidiger: Steht er neben dir statt vor dir, oder kommt er mit Schwung angerannt? | Fangen & lesen, Freiwurflinie, Extra-Pass („Verteidiger fliegt vorbei“), Ball umkehren (Verteidiger springt in den Passweg) |
-| Überzahl nutzen | Leitfaden Minibasketball | Wen nimmt der einzelne Verteidiger? | Schnellangriff 3 gegen 2, Einer gegen zwei, Rim Run |
+| Überzahl nutzen | Leitfaden Minibasketball | Wen nimmt der einzelne Verteidiger? | Schnellangriff 3 gegen 2, Einer gegen zwei, Rim Run, Rim Run mit Ball |
 | In den Lauf passen | Leitfaden Minibasketball | Wer läuft frei zum Korb? | Pass zum Backdoor-Cutter, langer Pass nach Ballgewinn oder Rebound |
-| Zusammenspiel | Leitfaden Minibasketball | Wer hilft, lässt jemanden frei. | Kick-out nach Hilfe, Extra-Pass, Pass und geh, Ball umkehren |
+| Zusammenspiel | Leitfaden Minibasketball | Wer hilft, lässt jemanden frei. | Kick-out nach Hilfe, Extra-Pass, Pass und geh, Ball umkehren, Pass raus nach dem Offensiv-Rebound |
 | Anbieten und Orientieren | Leitfaden Minibasketball | Ohne Ball: Wo steht mein Verteidiger, wo ist Platz? | Backdoor oder Ball fordern, Flash-Cut oder unten bleiben, Platz lassen, hinten bleiben |
 | Guter Wurf (statt „Ins Ziel treffen“) | Leitfaden, DBB-Spielkonzeption („Wofür spielen wir?“) | Wurfauswahl: Ist ein freier Wurf die beste Lösung? | Freier Wurf bei viel Platz. Wer wirft, obwohl ein Korbleger oder Pass besser war, bekommt hier zusätzlich einen Fehlversuch („lieber Korbleger als weiter Wurf“). |
 | Mann-Mann-Verteidigung | Miniregeln (MMV-Pflicht), MMV-Kriterien, FIBA | Ball, du, Gegenspieler | Position Abwehr |
@@ -28,7 +28,7 @@ Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welche
 **DBB-Spielregeln Minibasketball (2024)**
 - U10 und U12 spielen **4 gegen 4**. 5 gegen 5 ist nur in der leistungsorientierten U12 erlaubt. Deshalb heißen die Spielformen im Spiel „4 gegen 4 (Miniregeln U10/U12)“ und „5 gegen 5 (U12 Leistung · U14)“.
 - **Keine Blöcke und keine Übergaben aus der Hand.** Im Spiel gibt es deshalb keine Screens.
-- **Doppeln ist generell verboten.** Beim Center-Spielzug „Ball am Brett“ kommt deshalb kein zweiter Verteidiger zum stehenden Center. Erst wenn sich der Center zur Mitte dreht und zum Korb zieht, hilft ein Mitspieler des Verteidigers aus. In der Abwehr ist „zum Ballführer laufen“ eine falsche Antwort, mit dem Hinweis, dass Doppeln verboten ist.
+- **Doppeln ist generell verboten.** Beim Center-Spielzug „Ball am Brett“ kommt deshalb kein zweiter Verteidiger zum stehenden Center. Beim „Offensiv-Rebound“ läuft der zweite Verteidiger zum Ball am Ring, nicht zum Center: Unter dem Korb wird es eng, und draußen ist jemand frei. Erst wenn sich der Center zur Mitte dreht und zum Korb zieht, hilft ein Mitspieler des Verteidigers aus. In der Abwehr ist „zum Ballführer laufen“ eine falsche Antwort, mit dem Hinweis, dass Doppeln verboten ist.
 - **Mann-Mann-Verteidigung ist Pflicht.** Dafür gibt es die Position **Abwehr**.
 
 **DBB-Leitfaden Minibasketball (Maaßmann/Mayer, 4. Auflage 2022)**
@@ -40,7 +40,7 @@ Die Spielerkarte (Reiter **Lernziele**) zeigt für jedes Kind, wie oft es welche
 - **Extra-Pass:** Spielzug „Extra-Pass“ (Flügel). Kommt der Verteidiger zu dir, ist ein anderer frei.
 - **„1 can't guard 2“:** Spielzug „Einer gegen zwei“ (Flügel).
 - **Attackieren und Platz machen:** Spielzug „Pass und geh“ (Aufbau). Nach dem Pass schneiden oder raus und Platz machen.
-- **Rim Run im Schnellangriff:** Spielzug „Rim Run“ (Center).
+- **Rim Run im Schnellangriff:** Spielzüge „Rim Run“ (Center, ohne Ball: sprinten oder hinten bleiben) und „Rim Run mit Ball“ (Center: Pass im Lauf, dann Korbleger oder Pass zum freien Läufer).
 - **Transition-Verteidigung:** „Erste:r zurück sichert den Korb“, alle sprinten hinter den Ball. Spielzug „Zurück in die Abwehr“ (Abwehr): erst den Korb sichern, dann den Ball stoppen, dann den eigenen Gegenspieler finden. Feste Zuordnungen wie in der Zonenverteidigung gibt es für Minis nicht (MMV-Pflicht), deshalb endet der Spielzug beim eigenen Gegenspieler.
 - **Wofür spielen wir?** Korbnahe Abschlüsse, freie Würfe von außen, Freiwürfe: Lernziel „Guter Wurf“.
 - Blöcke, Pick & Roll und Handoffs aus der Spielkonzeption wurden bewusst **nicht** übernommen (Miniregeln).

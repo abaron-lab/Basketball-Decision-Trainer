@@ -659,3 +659,78 @@ function buildCFlash(v,T,L,M){
     q:v==='busy'?{t:'Wo stand der Verteidiger vom Flügel gegenüber?',r:'dOW'}:null};
 }
 
+
+// ================= CENTER: REBOUND UND RIM RUN MIT BALL =================
+// --------- Center 7: Offensiv-Rebound ---------
+// Dein Flügel wirft, der Ball prallt vom Ring zu dir (feed.miss, missBall in main.js). Steht keiner zwischen dir und dem Korb,
+// geh sofort wieder hoch. Steht dein Verteidiger vor dir und ist ein zweiter zum Rebound unter den Korb gelaufen, ist draußen
+// jemand frei: Pass raus. (Kein Doppeln: Der zweite läuft zum Ball am Ring, nicht zu dir.)
+function buildCReb(v,T,L,M){
+  const s=R()<.5?-1:1; // Werfer auf Seite s, du holst den Rebound auf der anderen Seite
+  const H=addP('H','off',5),W=addP('W','off',s<0?3:2,{name:'Werfer'}),PG=addP('PG','off',1,{name:'Aufbau'}),OW=addP('OW','off',s<0?2:3,{name:'Flügel gegenüber'});
+  const K=M===5?addP('K','off',7,{name:'Ecke'}):null;
+  const dH=addP('dH','def',9),dW=addP('dW','def',8),dP=addP('dPG','def',4),dO=addP('dOW','def',6),dK=M===5?addP('dK','def',10):null;
+  GUARD={W:dW,PG:dP,OW:dO,K:dK};
+  // Zeitplan: Rebound bei t1; der Wurf startet so, dass der Ball etwa 0,55 s nach dem Ring bei dir ankommt
+  const t1=T*.8,wD=pt(s*rand(5.3,5.7),rand(-5.0,-4.4)),t0=Math.max(.2,t1-.55-(.75+Math.hypot(wD.x,wD.z)*.04)-.24);
+  setPath(W,[[0,wD.x+s*.3,wD.z-.7],[t0*.9,wD.x,wD.z]]);
+  setPath(dW,[[0,wD.x-s*1.2,wD.z+1.3],[t0+.15,wD.x-s*.6,wD.z+.6],[T,wD.x-s*1.1,wD.z+1.2]]); // stört den Wurf, dann zwischen Werfer und Korb
+  const pD=pt(-s*rand(2.2,2.6),rand(-7.6,-7.1));setPath(PG,[[0,-s*1.6,-9.4],[T*.6,pD.x,pD.z]]); // oben auf deiner Seite, nicht vor der Kamera
+  const oD=pt(-s*rand(5.5,5.9),K?rand(-4.6,-4.0):rand(-3.9,-3.3));setPath(OW,[[0,-s*5.6,-6.6],[T*.6,oD.x,oD.z]]);
+  let kD=null;if(K){kD=pt(-s*rand(6.5,6.8),rand(.1,.5));setPath(K,[[0,-s*6.3,-1.6],[T*.6,kD.x,kD.z]]);}
+  const hP=homeOf(pD,1.2,wD),hO=homeOf(oD,1.1,wD),hK=kD&&homeOf(kD,1.0,wD),homes={dPG:hP,dOW:hO,dK:hK};
+  const crash={kickO:'dOW',kickP:'dPG',kickK:'dK'}[v]||null,hR=pt(-s*rand(1.6,1.9),rand(-1.9,-1.5));
+  setPath(H,[[0,-s*3.0,-2.7],[t0+.3,-s*2.9,-2.5],[t1,hR.x,hR.z]]);
+  // Unter den Korb zum Rebound (nicht zu dir): auf der Werfer-Seite des Rings
+  const spot={dOW:pt(s*.45,-1.4),dPG:pt(s*.3,-1.9),dK:pt(-s*.3,-.5)},st={dOW:pt(-s*5.0,-5.0),dPG:pt(-s*1.5,-8.3),dK:pt(-s*5.8,-1.2)};
+  [[dO,'dOW'],[dP,'dPG'],[dK,'dK']].forEach(([D,r])=>{if(!D)return;const h=homes[r],sp=spot[r];
+    if(r===crash)setPath(D,[[0,st[r].x,st[r].z],[t0+.2,h.x,h.z],[T*.95,sp.x,sp.z]]);else setPath(D,[[0,st[r].x,st[r].z],[T*.6,h.x,h.z]]);});
+  if(v==='put')setPath(dH,[[0,s*.1,-3.0],[t0+.5,s*.2,-2.7],[T,s*.35,-3.5]]); // Helfer in der Mitte, kommt nicht rechtzeitig zurück
+  else setPath(dH,[[0,-s*2.4,-1.6],[t0+.3,-s*2.3,-1.5],[T,hR.x*.6,hR.z*.6]]); // boxt aus: steht zwischen dir und dem Korb
+  let fake=false;
+  if(v==='put'){const cand=[[dO,spot.dOW],[dP,spot.dPG]];if(dK)cand.push([dK,spot.dK]);fake=maybeFake(L,cand,homes,T);}
+  const n=Math.hypot(.04,1);
+  const WHY={put:'Der Ball ist zu dir abgeprallt, und dein Verteidiger stand weit weg in der Mitte. Zwischen dir und dem Korb war niemand: Geh sofort wieder hoch und mach den Korbleger!',
+    kickO:'Dein Verteidiger stand zwischen dir und dem Korb, und der Verteidiger vom Flügel gegenüber ist zum Rebound unter den Korb gelaufen. Unter dem Korb war es zu voll, aber draußen war dein Mitspieler frei.',
+    kickP:'Dein Verteidiger stand zwischen dir und dem Korb, und der Verteidiger vom Aufbau ist zum Rebound unter den Korb gelaufen. Unter dem Korb war es zu voll, aber oben war dein Aufbauspieler frei.',
+    kickK:'Dein Verteidiger stand zwischen dir und dem Korb, und der Verteidiger aus der Ecke ist zum Rebound unter den Korb gelaufen. Unter dem Korb war es zu voll, aber in der Ecke war dein Mitspieler frei.'};
+  return{ans:{put:'drive',kickO:'pass:OW',kickP:'pass:PG',kickK:'pass:K'}[v],helper:v==='put'?null:'dH',fake,hold:true,rel:crash?[crash]:[],
+    feed:{from:'W',t0,t1,miss:true},camFix:{x:s*.3,z:-6.6,dx:-s*.04/n,dz:1/n},camSide:s,
+    labels:{drive:['▲','Korbleger'],shot:null},prompt:'Rebound! Was machst du jetzt?',why:WHY[v],
+    rule:v==='put'?'Rebound und der Weg zum Korb ist frei? Geh sofort wieder hoch!':'Ist es unter dem Korb zu voll, pass raus! Draußen ist jemand frei.',
+    driveNote:'Dein Verteidiger stand zwischen dir und dem Korb und hat auf dich gewartet.',
+    notes:v==='put'?{pass:'Dieser Mitspieler war gedeckt. Du selbst standest frei direkt am Korb.'}:{}};
+}
+
+// --------- Center 8: Rim Run mit Ball ---------
+// Schnellangriff: Du sprintest zum Korb, der Aufbau spielt dir den Ball in den Lauf (DBB-Spielkonzeption: Rim Run).
+// Kommt keiner, Korbleger. Springt dir der Verteidiger eines Läufers in den Weg, ist sein Läufer frei.
+function buildCRun(v,T,L,M){
+  const s=R()<.5?-1:1;
+  const H=addP('H','off',5),PG=addP('PG','off',1,{sel:false}),W=addP('W','off',s<0?3:2,{name:'Läufer',finish:'layup'}),OW=addP('OW','off',s<0?2:3,{name:'Läufer gegenüber',finish:'layup'});
+  const K=M===5?addP('K','off',7,{sel:false}):null;
+  const dH=addP('dH','def',9),dP=addP('dPG','def',4),dW=addP('dW','def',8),dO=addP('dOW','def',6),dK=M===5?addP('dK','def',10):null;
+  if(K){K.trail=true;dK.trail=true;}
+  GUARD={W:dW,OW:dO};
+  const hE=pt(s*rand(.5,.8),rand(-5.0,-4.6));setPath(H,[[0,s*1.3,-22.5],[T,hE.x,hE.z]],true);H.dside=-s;
+  setPath(PG,[[0,-s*.5,-24.5],[T*.45,-s*.6,-15.4],[T,-s*.7,-13.6]],true);setPath(dP,[[0,-s*.3,-16],[T,-s*.5,-11.4]]);
+  setPath(dH,[[0,s*2.3,-25],[T,hE.x+s*.9,hE.z-2.4]],true); // läuft hinterher
+  const wE=pt(s*rand(4.6,4.9),rand(-4.6,-4.0)),oE=pt(-s*rand(4.6,4.9),rand(-4.9,-4.3));
+  setPath(W,[[0,s*4.8,-21.5],[T,wE.x,wE.z]],true);setPath(OW,[[0,-s*4.8,-21.8],[T,oE.x,oE.z]],true);
+  if(K){setPath(K,[[0,-s*.3,-26],[T,-s*.4,-14.6]],true);setPath(dK,[[0,-s*.9,-26.4],[T,-s*1.0,-14.0]],true);}
+  const helper={helpW:'dW',helpO:'dOW'}[v]||null,lane=g=>pt(lerp(hE.x,0,.3)+g*.25,-2.4);
+  const guard=(D,E,g)=>{const a=pt(g*3.6,-17.5),h=pt(E.x-g*.75,E.z+1.1),m=pt(lerp(a.x,h.x,.6),lerp(a.z,h.z,.6));
+    if(D.role===helper){const l=lane(g);setPath(D,[[0,a.x,a.z],[T*.55,m.x,m.z],[T,l.x,l.z]]);}
+    else setPath(D,[[0,a.x,a.z],[T*.6,m.x,m.z],[T,h.x,h.z]]);return h;};
+  const hW=guard(dW,wE,s),hO=guard(dO,oE,-s);
+  let fake=false; // täuschen: macht einen Schritt in deinen Weg und läuft zurück zu seinem Läufer
+  if(v==='lay'&&L>=2&&R()<(L===3?.7:.45)){fake=true;const[D,h,g]=R()<.5?[dW,hW,s]:[dO,hO,-s],l=lane(g),a=pt(D.path[0][1],D.path[0][2]);
+    setPath(D,[[0,a.x,a.z],[T*.5,lerp(a.x,h.x,.6),lerp(a.z,h.z,.6)],[T*.75,lerp(h.x,l.x,.55),lerp(h.z,l.z,.55)],[T,h.x,h.z]]);}
+  const WHY={lay:'Du hast den Ball im Lauf bekommen, und die Verteidiger sind bei deinen Läufern geblieben. Vor dir war niemand: Mach den Korbleger!',
+    helpW:'Der Verteidiger von deinem Läufer ist dir in den Weg gesprungen. Dadurch war dein Läufer frei.',
+    helpO:'Der Verteidiger von deinem Läufer gegenüber ist dir in den Weg gesprungen. Dadurch war dein Läufer auf der anderen Seite frei.'};
+  return{ans:{lay:'drive',helpW:'pass:W',helpO:'pass:OW'}[v],helper,fake,feed:{from:'PG',t0:T*.36,t1:T*.66},camSide:-s,
+    prompt:'Rim Run! Du hast den Ball. Was machst du?',why:WHY[v],
+    rule:'Im Schnellangriff: Stoppt dich keiner, mach den Korbleger. Stoppt dich einer, pass zum freien Läufer.',
+    shotNote:'Im Schnellangriff willst du einen leichten Korbleger, keinen weiten Wurf.'};
+}

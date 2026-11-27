@@ -17,7 +17,7 @@ const LZ={luecke:{n:'Lücke erkennen',s:'Lücke',i:'up'},umspielen:{n:'Gegenspie
 //   bekommt zusätzlich einen Fehlversuch bei „Guter Wurf“ (lz2, siehe resolve), z. B. „lieber Korbleger als weiter Wurf“.
 const LZ_OVR={'break':'ueberzahl',wbreak:'ueberzahl',two:'ueberzahl','backdoor:cut':'lauf','chigh:backdoor':'lauf','chigh:drive':'umspielen','wcatch:drive':'umspielen',
   'xpass:fly':'umspielen','give:cut':'zusammen','rimrun:run':'ueberzahl','swing:gap':'luecke','swing:drive':'umspielen',
-  'plong:longL':'lauf','plong:longR':'lauf','plong:drive':'ueberzahl','clong:longL':'lauf','clong:longR':'lauf'};
+  'plong:longL':'lauf','plong:longR':'lauf','plong:drive':'ueberzahl','clong:longL':'lauf','clong:longR':'lauf',crun:'ueberzahl'};
 function lzOf(play,variant,ans,off){if(PLAYS[play]&&PLAYS[play].pos==='def')return'vert';const o=LZ_OVR[play+':'+variant]||LZ_OVR[play];if(o)return o;
   if(off)return'anbieten';if(ans.startsWith('pass:'))return'zusammen';return ans==='drive'?'luecke':'wurf';}
 // Falscher Wurf (mit Ball): zählt zusätzlich als Fehlversuch bei „Guter Wurf“
