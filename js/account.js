@@ -240,7 +240,7 @@ function accPane(p,msg){if(ACC_P==='scan'&&p!=='scan')scanStop();if(ACC_P==='qr'
   if(p==='scan')scanStart();
   $('acSend').disabled=$('acFin').disabled=$('acGo').disabled=$('acJoin').disabled=false;
   $('acct').querySelector('.body').scrollTop=0;}
-function accHome(){whoRows($('acList'),closeAcct);const on=onlineOn();
+function accHome(){whoRows($('acList'),closeAcct,true);$('acSwipe').classList.toggle('hidden',regList().length<2);$('acSwipe').textContent=accOn()?'Zum Entfernen nach links wischen (auch aus dem Konto)':'Zum Entfernen nach links wischen';const on=onlineOn();
   $('acKonto').classList.toggle('hidden',!on);$('acLocal').classList.toggle('hidden',on);if(!on)return;
   const st=!ACC?'out':ACC.dev?'dev':'owner',n=regList().filter(x=>x.name||x.g).length,ns=n===1?'1 Spieler':n+' Spieler';
   document.querySelectorAll('#acct .acdo').forEach(x=>x.classList.toggle('on',x.dataset.s===st));
