@@ -427,10 +427,34 @@ function newPlayer(){if(isEmptyMe()){store.del('pgt_welcome');reloadAs(CUR);retu
 function lvlName(xp){return lvlOf(xp||0).name;}
 function jerseyHTML(num){return`<span class="ps-num"><svg viewBox="0 0 24 24"><path d="M8.5 3c.4 1.9 1.7 3 3.5 3s3.1-1.1 3.5-3H18c0 3 .8 5 2 6v12H4V9c1.2-1 2-3 2-6z"/></svg><b>${num}</b></span>`;}
 // Liste der Spieler (beim Start in „Wer spielt?“ und im Profil): Antippen wechselt per Neuladen
-function whoRows(el,cur){regSync();el.innerHTML='';
+function whoRows(el,cur,swipe){regSync();el.innerHTML='';
   regList().forEach(e=>{const b=document.createElement('button');b.className='wp'+(e.id===CUR?' sel':'');
     b.innerHTML=jerseyHTML(e.num)+`<span><b class="nm"></b><small>${lvlName(e.xp)} · ${e.g===1?'1 Spiel':(e.g||0)+' Spiele'}</small></span>`+(e.id===CUR?'<em class="wpme">Spielt gerade</em>':'');b.querySelector('.nm').textContent=e.name||'Ohne Namen';
-    b.onclick=()=>{if(e.id===CUR){cur();return;}reloadAs(e.id);};el.appendChild(b);});}
+    b.onclick=()=>{if(b.dataset.sw){delete b.dataset.sw;return;}if(e.id===CUR){cur();return;}reloadAs(e.id);};
+    if(swipe)el.appendChild(wpSwipe(b,e,()=>whoRows(el,cur,swipe)));else el.appendChild(b);});}
+// Profil: Spieler nach links wischen → „Entfernen“, dann „Sicher?“ (zweites Tippen) → vom Gerät und aus dem Konto
+const WP_W=112;let WP_OPEN=null;
+function wpSwipe(b,e,redraw){const w=document.createElement('div');w.className='wpw';
+  const d=document.createElement('button');d.className='wpdel';d.type='button';d.tabIndex=-1;
+  const lab=t=>{d.innerHTML=`<svg class="i"><use href="#i-trash"/></svg><span>${t}</span>`;};lab('Entfernen');
+  w.append(d,b);let x0=0,y0=0,dx=0,on=false,drag=false,open=false,arm=0;
+  const set=(x,anim)=>{b.style.transition=anim?'transform .2s ease':'none';b.style.transform=x?`translateX(${x}px)`:'';};
+  const shut=()=>{open=false;arm=0;lab('Entfernen');d.classList.remove('arm');set(0,true);if(WP_OPEN===shut)WP_OPEN=null;};
+  b.addEventListener('pointerdown',ev=>{if(ev.button)return;x0=ev.clientX;y0=ev.clientY;dx=0;on=true;drag=false;});
+  b.addEventListener('pointermove',ev=>{if(!on)return;const mx=ev.clientX-x0,my=ev.clientY-y0;
+    if(!drag){if(Math.abs(mx)<10||Math.abs(mx)<Math.abs(my)*1.3){if(Math.abs(my)>10)on=false;return;}
+      drag=true;if(WP_OPEN&&WP_OPEN!==shut)WP_OPEN();try{b.setPointerCapture(ev.pointerId)}catch(_){}}
+    dx=clamp((open?-WP_W:0)+mx,-WP_W-30,0);set(dx);});
+  const up=()=>{if(!on)return;on=false;if(!drag)return;b.dataset.sw='1';setTimeout(()=>delete b.dataset.sw,350);
+    if(dx<-WP_W/2){open=true;set(-WP_W,true);WP_OPEN=shut;}else shut();};
+  b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);
+  b.addEventListener('click',ev=>{if(open&&!b.dataset.sw){ev.stopImmediatePropagation();shut();}},true);
+  d.onclick=async()=>{if(!open)return;
+    if(Date.now()-arm>4000){arm=Date.now();d.classList.add('arm');lab('Sicher?');return;}
+    d.disabled=true;lab('…');const r=await delPlayer(e.id);
+    if(r!==true){d.disabled=false;arm=0;d.classList.remove('arm');lab('Entfernen');if(typeof accSay==='function')accSay(r);return;}
+    if(typeof accSay==='function')accSay(`${e.name||'Der Spieler'} ist entfernt.`,true);WP_OPEN=null;redraw();if(typeof accHome==='function'&&ACC_P==='home')accHome();};
+  return w;}
 function openWho(first){whoRows($('whoList'),closeWho);$('whoX').classList.toggle('hidden',!!first);$('who').classList.remove('hidden');}
 function closeWho(){$('who').classList.add('hidden');sess.set('pgt_picked','1');maybeWelcome();}
 $('whoX').onclick=closeWho;$('whoNew').onclick=newPlayer;
@@ -462,13 +486,19 @@ function drawQR(cv,url){const g=cv.getContext('2d');
 $('pcWho').onclick=()=>{closeCard();openAcct();};
 $('sSave').onclick=()=>{PROFILE.saved=PROFILE.games;saveProf();openAcct();};
 $('wHave').onclick=()=>{$('welcome').classList.add('hidden');if(onlineOn())openAcct();else openWho(false);};
-// Spieler entfernen (zweimal tippen)
+// Spieler entfernen: aus dem Konto (dann auch auf allen anderen Geräten) und von diesem Gerät.
+// true = erledigt, sonst Text für die Meldung. Beim aktuellen Spieler wird neu geladen.
+async function delPlayer(id){
+  if(accOn()){if(id===CUR){clearTimeout(ACC_T);ACC_T=0;ACC_BUSY=true;} // kein verspätetes Hochladen mehr
+    const uid=slotProf(id).uid;
+    try{await fsReq('DELETE',`accounts/${ACC.uid}/players/${uid}`);const k=accKnown();delete k[uid];accKnownSet(k);}
+    catch(e){if(id===CUR)ACC_BUSY=false;return 'Ohne Internet geht das gerade nicht. Probier es später noch mal.';}}
+  removeSlot(id);
+  if(id===CUR){const l=regList();reloadAs(l.length?l[0].id:newSlotId());}
+  return true;}
 let delArm=0;$('pcDel').onclick=async()=>{if(Date.now()-delArm>3000){delArm=Date.now();$('pcDel').textContent=accOn()?'Wirklich entfernen, auch aus dem Konto? Nochmal tippen':'Wirklich entfernen? Nochmal tippen';return;}
-  if(accOn()){$('pcDel').textContent='Wird entfernt …';clearTimeout(ACC_T);ACC_T=0;ACC_BUSY=true; // kein verspätetes Hochladen mehr
-    try{await fsReq('DELETE',`accounts/${ACC.uid}/players/${PROFILE.uid}`);const k=accKnown();delete k[PROFILE.uid];accKnownSet(k);}
-    catch(e){ACC_BUSY=false;delArm=0;$('pcDel').textContent='Ohne Internet geht das gerade nicht. Später noch mal tippen';return;}}
-  slotKeys(CUR).forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});const l=regList().filter(x=>x.id!==CUR);regSave(l);
-  reloadAs(l.length?l[0].id:newSlotId());};
+  $('pcDel').textContent='Wird entfernt …';const r=await delPlayer(CUR);
+  if(r!==true){delArm=0;$('pcDel').textContent='Ohne Internet geht das gerade nicht. Später noch mal tippen';}};
 // Browser bitten, die Daten nicht automatisch zu löschen (einmal pro Gerät, nach dem ersten Spiel)
 function askPersist(){try{if(navigator.storage&&navigator.storage.persist&&!store.get('pgt_persist')){store.set('pgt_persist','1');navigator.storage.persisted().then(p=>p||navigator.storage.persist()).catch(()=>{});}}catch(e){}}
 // Erinnerung in der Auswertung: Spieler sichern

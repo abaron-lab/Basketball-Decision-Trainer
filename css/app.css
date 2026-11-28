@@ -542,6 +542,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visi
 .wp>span:last-child{flex:1;min-width:0}
 .wp .nm{display:block;font:400 24px/1 'Bebas Neue',Impact,sans-serif;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wp small{display:block;margin-top:2px;font-size:12px;font-weight:800;color:#9fb0d4}
+.wpw{position:relative;border-radius:16px;overflow:hidden;flex:0 0 auto}
+.wpw>.wp{position:relative;z-index:1;background:#1e2740;touch-action:pan-y}.wpw>.wp.sel{background:#2b2d33}
+.wpdel{position:absolute;top:0;right:0;bottom:0;width:112px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:0;border-radius:16px;background:#3a4560;color:#fff;font:900 13px/1 Nunito,system-ui,sans-serif;cursor:pointer}
+.wpdel .i{width:22px;height:22px}.wpdel.arm{background:#c2552d}
+.wphint{margin:6px 2px 0;font-size:12px;font-weight:800;color:#7f8fb3;text-align:center}
 .wp.new{margin-top:8px;border-style:dashed;border-color:rgba(255,255,255,.16);background:transparent}
 .ps-num.plus{height:46px;padding:0;border-radius:12px;background:rgba(255,255,255,.08)}
 .ps-num.plus svg{position:static;width:24px;height:24px;fill:none;stroke:#cfd8ee;stroke-width:2.4;filter:none}
